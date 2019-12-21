@@ -1,0 +1,18 @@
+int IntTest(int x){
+
+	if (x > 0)
+		return 1;
+	else
+		return 0;
+}
+ 
+Path file: D:\cft4cpp-core\data-test\tsdv\Sample_for_R1\BasicType.cpp\IntTest(int)
+ Path 0:  (x > 0)  (return 0;) 
+	Test case: x=0;
+
+ Path 1:  (x > 0)  (return 1;) 
+	Test case: x=1;
+
+
+Coverage: 1.0
+Generated time: 7s

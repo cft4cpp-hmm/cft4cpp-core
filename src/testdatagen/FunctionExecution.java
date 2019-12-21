@@ -6,9 +6,11 @@ import java.io.InputStreamReader;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.log4j.Logger;
+import org.apache.log4j.PropertyConfigurator;
 
 import cfg.testpath.ITestpathInCFG;
 import config.AbstractSetting;
@@ -49,7 +51,7 @@ import utils.search.SourcecodeFileNodeCondition;
  * @author DucAnh
  */
 public class FunctionExecution implements ITestdataExecution {
-	final static Logger logger = Logger.getLogger(FunctionExecution.class);
+	final static Logger logger = Logger.getLogger(FunctionExecution.class.getName());
 	protected static int id = 0;
 	protected String initialization = "";
 	protected TestpathString_Marker encodedTestpath = new TestpathString_Marker();
@@ -61,24 +63,25 @@ public class FunctionExecution implements ITestdataExecution {
 	protected String clonedProject;
 
 	public static void main(String[] args) throws Exception {
+		
 		String testedProject = Paths.TSDV_R1;
 		/**
 		 * Create a clone
 		 */
-		logger.debug("Original project: " + new File(testedProject).getCanonicalPath());
+//		logger.debug("Original project: " + new File(testedProject).getCanonicalPath());
 		File clone = Utils.copy(testedProject);
 		Paths.CURRENT_PROJECT.CLONE_PROJECT_PATH = clone.getAbsolutePath();
-		logger.debug("Clone path = " + clone.getCanonicalPath());
+//		logger.debug("Clone path = " + clone.getCanonicalPath());
 		
 		/** 
 		 * Initialize the configuration
 		 */
-		Settingv2.create();
-		AbstractSetting.setValue(ISettingv2.SOLVER_Z3_PATH, "D:\\cft4cpp-core\\local\\z3\\bin\\z3.exe");
-		AbstractSetting.setValue(ISettingv2.GNU_MAKE_PATH,
-				"D:\\program files\\Dev-Cpp\\MinGW64\\bin\\mingw32-make.exe");
-		AbstractSetting.setValue(ISettingv2.GNU_GCC_PATH, "D:\\program files\\Dev-Cpp\\MinGW64\\bin\\gcc.exe");
-		AbstractSetting.setValue(ISettingv2.GNU_GPlusPlus_PATH, "D:\\program files\\Dev-Cpp\\MinGW64\\bin\\g++.exe");
+//		Settingv2.create();
+//		AbstractSetting.setValue(ISettingv2.SOLVER_Z3_PATH, "D:\\cft4cpp-core\\local\\z3\\bin\\z3.exe");
+//		AbstractSetting.setValue(ISettingv2.GNU_MAKE_PATH,
+//				"D:\\program files\\Dev-Cpp\\MinGW64\\bin\\mingw32-make.exe");
+//		AbstractSetting.setValue(ISettingv2.GNU_GCC_PATH, "D:\\program files\\Dev-Cpp\\MinGW64\\bin\\gcc.exe");
+//		AbstractSetting.setValue(ISettingv2.GNU_GPlusPlus_PATH, "D:\\program files\\Dev-Cpp\\MinGW64\\bin\\g++.exe");
 
 		/**
 		 * Parse the clone of the tested project
@@ -92,7 +95,7 @@ public class FunctionExecution implements ITestdataExecution {
 		config.setIntegerBound(new ParameterBound(0, 100));
 		testedFunction.setFunctionConfig(config);
 
-		String variableValues = "x=1;";
+		String variableValues = "x=19;";
 
 		/**
 		 * Find test path given a test case
@@ -105,9 +108,16 @@ public class FunctionExecution implements ITestdataExecution {
 	}
 
 	public FunctionExecution() {
+		
+		Settingv2.create();
+		AbstractSetting.setValue(ISettingv2.SOLVER_Z3_PATH, "D:\\cft4cpp-core\\local\\z3\\bin\\z3.exe");
+		AbstractSetting.setValue(ISettingv2.GNU_MAKE_PATH,
+				"D:\\program files\\Dev-Cpp\\MinGW64\\bin\\mingw32-make.exe");
+		AbstractSetting.setValue(ISettingv2.GNU_GCC_PATH, "D:\\program files\\Dev-Cpp\\MinGW64\\bin\\gcc.exe");
+		AbstractSetting.setValue(ISettingv2.GNU_GPlusPlus_PATH, "D:\\program files\\Dev-Cpp\\MinGW64\\bin\\g++.exe");
 	}
 
-	public void analyze(IFunctionNode testedFunction, String variableValues) throws Exception {
+	public String analyze(IFunctionNode testedFunction, String variableValues) throws Exception {
 		if (isInitializedCompilerEnvironment()) {
 			Backup backup = saveCurrentState(testedFunction);
 			try {
@@ -143,7 +153,7 @@ public class FunctionExecution implements ITestdataExecution {
 				/**
 				 * Normalize function before executing it
 				 */
-				logger.debug("Normalize function before executing it");
+//				logger.debug("Normalize function before executing it");
 				FunctionNode clone = (FunctionNode) testedFunction.clone();
 
 				changedTokens = clone.normalizedAST().getTokens();
@@ -161,8 +171,8 @@ public class FunctionExecution implements ITestdataExecution {
 
 				String functionCall = dataGen.getFunctionCall();
 
-				logger.debug("driver=" + initialization.replace("\n", "").replace("\t", "")
-						+ functionCall.replace("\n", "") + "...");
+//				logger.debug("driver=" + initialization.replace("\n", "").replace("\t", "")
+//						+ functionCall.replace("\n", "") + "...");
 
 				TestdriverGeneration testdriverGen = null;
 				if (Utils.getSourcecodeFile(testedFunction) instanceof CFileNode)
@@ -188,7 +198,7 @@ public class FunctionExecution implements ITestdataExecution {
 					 */
 					String cmd = "\"D:\\program files\\Dev-Cpp\\MinGW64\\bin\\mingw32-make.exe\"" + " -f "
 							+ getClonedProject() + "\\Makefile.win" + " clean all";
-					logger.debug("Command line: " + cmd);
+//					logger.debug("Command line: " + cmd);
 					logger.debug("Start compiling");
 					Process process = Runtime.getRuntime().exec(cmd, null, new File(getClonedProject()));
 					process.waitFor(3, TimeUnit.SECONDS);
@@ -198,8 +208,9 @@ public class FunctionExecution implements ITestdataExecution {
 					 * execute the tested project
 					 */
 					logger.debug("Start executing");
-					executeExecutableFile(rootProject, executionFilePath);
 					logger.debug("Finish executing");
+					return executeExecutableFile(rootProject, executionFilePath);
+					
 				}
 
 			} catch (GUINotifyException e) {
@@ -218,6 +229,7 @@ public class FunctionExecution implements ITestdataExecution {
 					initialization = "";
 			}
 		}
+		return null;
 
 	}
 
@@ -295,7 +307,7 @@ public class FunctionExecution implements ITestdataExecution {
 				Paths.CURRENT_PROJECT.EXE_PATH = Paths.CURRENT_PROJECT.ORIGINAL_PROJECT_PATH + File.separator
 						+ "Release" + File.separator + new File(Paths.CURRENT_PROJECT.ORIGINAL_PROJECT_PATH).getName()
 						+ ".exe";
-				logger.debug("Exe name: " + Paths.CURRENT_PROJECT.EXE_PATH);
+//				logger.debug("Exe name: " + Paths.CURRENT_PROJECT.EXE_PATH);
 			}
 		} else if (Utils.isUnix()) {
 			switch (Paths.CURRENT_PROJECT.TYPE_OF_PROJECT) {
@@ -306,7 +318,7 @@ public class FunctionExecution implements ITestdataExecution {
 
 				if (!new File(Paths.CURRENT_PROJECT.EXE_PATH).exists())
 					Paths.CURRENT_PROJECT.EXE_PATH += ".exe";
-				logger.debug("Exe name: " + Paths.CURRENT_PROJECT.EXE_PATH);
+//				logger.debug("Exe name: " + Paths.CURRENT_PROJECT.EXE_PATH);
 				break;
 			}
 
@@ -330,7 +342,7 @@ public class FunctionExecution implements ITestdataExecution {
 	 * @param executionFilePath
 	 * @throws Exception
 	 */
-	protected void executeExecutableFile(INode rootProject, String executionFilePath) throws Exception {
+	protected String executeExecutableFile(INode rootProject, String executionFilePath) throws Exception {
 		if (!new File(Paths.CURRENT_PROJECT.EXE_PATH).exists()) {
 			throw new Exception("Dont found exe");
 
@@ -388,15 +400,27 @@ public class FunctionExecution implements ITestdataExecution {
 				String tp = "";
 				List<String> stms = encodedTestpath
 						.getStandardTestpathByProperty(FunctionInstrumentationForStatementvsBranch_Marker.STATEMENT);
-				for (String stm : stms)
-					tp += stm + "=>";
+				for (String stm : stms) {
+					if(stm.contains("{")) {
+						stm=stm.substring(1,stm.length());
+					}
+					if(stm.equals("")) continue;
+					stm = stm.replace("&","");
+					stm = stm.replace("|","");
+					tp += ""+stm+"";
+				}
+					
+					
 
-				tp = tp.substring(0, tp.length() - 2);
-				logger.debug(tp);
-				logger.debug("Done. Execution test path [length=" + stms.size() + "] = " + tp);
+//				tp = tp.substring(0, tp.length() - 2);
+				
+//				logger.debug("Done. Execution test path [length=" + stms.size() + "] = " + tp.replace(" ", ""));
+				return tp.replace(" ", "");
 			} else
 				logger.debug("Done. Empty test path");
+			
 		}
+		return null;
 	}
 
 	/**

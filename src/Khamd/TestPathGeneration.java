@@ -5,6 +5,7 @@ import config.Paths;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
+import java.lang.System.Logger;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -37,20 +38,43 @@ public class TestPathGeneration {
 		TestPathGeneration path = new TestPathGeneration();
 		try {
 			int maxIterations= 1;
-//			String solution = path.getSolutionInRandomPath(Paths.SYMBOLIC_EXECUTION_TEST,"basicTest3(int,int)" , maxIterations);
-//			path.createGraph(Paths.TSDV_R1, "IntTest(int)", 1);
-//			System.out.print(tpGen.getPossibleTestpaths().get(0));
-			Graph graph = path.createGraph(Paths.SYMBOLIC_EXECUTION_TEST, "basicTest3(int,int)", 1);
-
+			int randomTestPath = 0;
+			Graph graph = path.createGraph(Paths.TSDV_R1_2, "myTest(int)", maxIterations);
+			
+			
+			do{
+				String solution = path.getSolutionInRandomPath(graph, randomTestPath);
+				MyFunctionExection functionExection = new MyFunctionExection(graph);
+				String path1 = graph.getFullMyTestPaths().get(randomTestPath).toString();
+				String path2 = functionExection.getTestPath(solution);
+				List<MyTestPath> myTestPaths = graph.getFullMyTestPaths();
+				int i =0;
+				for(MyTestPath testPath: myTestPaths) {
+					if(testPath.toString().equals(path2)) {
+						 i = myTestPaths.indexOf(testPath);
+						 testPath.setTestCase(solution);
+						 testPath.setRealString(path2);
+					}
+				}
+				graph.updateGraph(i, 1);
+				
+				randomTestPath=graph.getNewPath();
+				
+				
+			}while(graph.getNewPath()!=-1);
+			
+			graph.toTxtFile();
+			System.out.println("Finish Generating!");
+			
 		}catch(Exception ex) {
 			ex.printStackTrace();
 		}
 		
 	}
 	
-	public String getSolutionInRandomPath(String pathToFile, String functionName, int maxIterations) throws Exception{
-		ProjectParser parser = new ProjectParser(new File(pathToFile));
-		IFunctionNode function = (IFunctionNode) Search.searchNodes(parser.getRootTree(), new FunctionNodeCondition(), functionName).get(0);
+	public String getSolutionInRandomPath(Graph graph, int pathNumber) throws Exception{
+		ProjectParser parser = new ProjectParser(new File(graph.getPathToFile()));
+		IFunctionNode function = (IFunctionNode) graph.getFunctionNode();
 		CFGGenerationforSubConditionCoverage cfgGen = new CFGGenerationforSubConditionCoverage(function);
 		ICFG cfg;
 		cfg = cfgGen.generateCFG();
@@ -58,16 +82,17 @@ public class TestPathGeneration {
 		cfg.setIdforAllNodes();
 		cfg.resetVisitedStateOfNodes();
 
-		PossibleTestpathGeneration tpGen = new PossibleTestpathGeneration(cfg, maxIterations);
+		PossibleTestpathGeneration tpGen = new PossibleTestpathGeneration(cfg,1);
 		tpGen.generateTestpaths();
+		
 		Parameter paramaters = new Parameter();
 		for (INode n : ((FunctionNode) function).getArguments())
 			paramaters.add(n);
 		for (INode n : ((FunctionNode) function).getReducedExternalVariables())
 			paramaters.add(n);
 		
-		ISymbolicExecution se = new SymbolicExecution(tpGen.getPossibleTestpaths().get(1), paramaters, function);
-		System.out.println(tpGen.getPossibleTestpaths().get(1));
+		ISymbolicExecution se = new SymbolicExecution(tpGen.getPossibleTestpaths().get(pathNumber), paramaters, function);
+		
 		
 		List<PathConstraint> constraints = new ArrayList<>();
 		for (PathConstraint c : (PathConstraints) se.getConstraints())
@@ -83,8 +108,9 @@ public class TestPathGeneration {
 		return  new Z3SolutionParser().getSolution(run.getSolution());
 	}
 	
+	
 	public Graph createGraph(String pathtoFile, String functionName,int maxIteration) throws Exception {
-		Graph graph = new Graph();
+		
 		ProjectParser parser = new ProjectParser(new File(pathtoFile));
 		IFunctionNode function = (IFunctionNode) Search.searchNodes(parser.getRootTree(), new FunctionNodeCondition(), functionName).get(0);
 		CFGGenerationforSubConditionCoverage cfgGen = new CFGGenerationforSubConditionCoverage(function);
@@ -101,41 +127,7 @@ public class TestPathGeneration {
 			paramaters.add(n);
 		for (INode n : ((FunctionNode) function).getReducedExternalVariables())
 			paramaters.add(n);
-		List<IFullTestpath> fullTestpaths = tpGen.getPossibleTestpaths();
-		for(int pathNumber = 0 ; pathNumber<fullTestpaths.size(); pathNumber++) {
-			IFullTestpath fullTestpath = fullTestpaths.get(pathNumber);
-			List<ICfgNode> allCfgNodes = fullTestpath.getAllCfgNodes();
-			allCfgNodes.remove(0);
-			allCfgNodes.remove(0);
-			allCfgNodes.remove(allCfgNodes.size()-1);
-			for(int index =0; index<allCfgNodes.size(); index++) {
-				Node node;
-				if(graph.checkExist(allCfgNodes.get(index))==null) {
-					
-					node = new Node(allCfgNodes.get(index),pathNumber);
-					graph.addNode(node);
-					
-				}
-				else {
-					node = graph.checkExist(allCfgNodes.get(index));
-					node.addTestPathNumber(pathNumber);
-				}
-				
-				if(index +1 < allCfgNodes.size()) {
-					if(graph.checkExist(allCfgNodes.get(index+1))==null) {
-						Node nextNode =  new Node(allCfgNodes.get(index+1),pathNumber);
-						node.initNodeAndDistance(nextNode, 0);
-						graph.addNode(nextNode);
-					}
-					else {
-						node.initNodeAndDistance(graph.checkExist(allCfgNodes.get(index+1)), 0);
-					}
-					
-				}
-			}
-			
-		}
 		
-		return graph;
+		return new Graph(tpGen.getPossibleTestpaths(),function,pathtoFile);
 	}
 }

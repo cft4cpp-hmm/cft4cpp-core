@@ -1,0 +1,17 @@
+int mmin(int x, int y){
+	if  (x < y)
+		return x;
+	else
+		return y;
+}
+ 
+Path file: D:\cft4cpp-core\data-test\tsdv\Sample_for_R1_2\FnCall.cpp\mmin(int,int)
+ Path 0:  (x < y)  (return y;) 
+	Test case: x=0;y=0;
+
+ Path 1:  (x < y)  (return x;) 
+	Test case: x=0;y=1;
+
+
+Coverage: 1.0
+Generated time: 7s

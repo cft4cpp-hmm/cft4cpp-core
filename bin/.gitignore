@@ -6,13 +6,15 @@
 /constraints/
 /exception/
 /externalvariable/
+/image/
 /instrument/
 /interfaces/
 /normalizer/
 /parser/
+/projectparser/
 /testdata/
 /testdatagen/
 /tree/
 /utils/
 /AllTestSuite.class
-/projectparser/
+/log4j.properties

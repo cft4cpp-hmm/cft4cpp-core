@@ -67,3 +67,22 @@ int SimpleTest3(Class2 c){
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -1,14 +1,14 @@
 # Project: Sample_for_R1_4
 # Makefile created by Dev-C++ 5.11
 
-CPP="E:/Dev-Cpp/MinGW64/bin/g++.exe"
-CC="E:/Dev-Cpp/MinGW64/bin/gcc.exe"
+CPP      = g++.exe
+CC       = gcc.exe
 WINDRES  = windres.exe
 OBJ      = main.o TypeDef.o NonLinear.o Complex.o PassArgs.o Age.o cities.o asa005.o r85.o asa103.o
 LINKOBJ  = main.o TypeDef.o NonLinear.o Complex.o PassArgs.o Age.o cities.o asa005.o r85.o asa103.o
-LIBS     = -L"E:/Dev-Cpp/MinGW64/lib" -L"E:/Dev-Cpp/MinGW64/x86_64-w64-mingw32/lib" -static-libgcc
-INCS     = -I"E:/Dev-Cpp/MinGW64/include" -I"E:/Dev-Cpp/MinGW64/x86_64-w64-mingw32/include" -I"E:/Dev-Cpp/MinGW64/lib/gcc/x86_64-w64-mingw32/4.9.2/include"
-CXXINCS  = -I"E:/Dev-Cpp/MinGW64/include" -I"E:/Dev-Cpp/MinGW64/x86_64-w64-mingw32/include" -I"E:/Dev-Cpp/MinGW64/lib/gcc/x86_64-w64-mingw32/4.9.2/include" -I"E:/Dev-Cpp/MinGW64/lib/gcc/x86_64-w64-mingw32/4.9.2/include/c++"
+LIBS     = -L"D:/program files/Dev-Cpp/MinGW64/lib" -L"D:/program files/Dev-Cpp/MinGW64/x86_64-w64-mingw32/lib" -static-libgcc
+INCS     = -I"D:/program files/Dev-Cpp/MinGW64/include" -I"D:/program files/Dev-Cpp/MinGW64/x86_64-w64-mingw32/include" -I"D:/program files/Dev-Cpp/MinGW64/lib/gcc/x86_64-w64-mingw32/4.9.2/include"
+CXXINCS  = -I"D:/program files/Dev-Cpp/MinGW64/include" -I"D:/program files/Dev-Cpp/MinGW64/x86_64-w64-mingw32/include" -I"D:/program files/Dev-Cpp/MinGW64/lib/gcc/x86_64-w64-mingw32/4.9.2/include" -I"D:/program files/Dev-Cpp/MinGW64/lib/gcc/x86_64-w64-mingw32/4.9.2/include/c++"
 BIN      = Sample_for_R1_4.exe
 CXXFLAGS = $(CXXINCS) 
 CFLAGS   = $(INCS) 
@@ -53,5 +53,3 @@ r85.o: r85.cpp
 
 asa103.o: asa103.cpp
 	$(CPP) -c asa103.cpp -o asa103.o $(CXXFLAGS)
-
-

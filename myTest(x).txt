@@ -1,0 +1,35 @@
+int myTest(int x){
+	if(x>0 && x<2 ){
+		return 0;
+	}
+	else if(x>=2 && x<=5){
+		return 1;
+	}
+	else return 2;
+}
+ 
+Path file: D:\cft4cpp-core\data-test\tsdv\Sample_for_R1_2\FnCall.cpp\myTest(int)
+ Path 0:  (x>0)  (x>=2)  (return 2;) 
+	Test case: 
+
+ Path 1:  (x>0)  (x>=2)  (x<=5)  (return 2;) 
+	Test case: 
+
+ Path 2:  (x>0)  (x>=2)  (x<=5)  (return 1;) 
+	Test case: 
+
+ Path 3:  (x>0)  (x<2)  (x>=2)  (return 2;) 
+	Test case: 
+
+ Path 4:  (x>0)  (x<2)  (x>=2)  (x<=5)  (return 2;) 
+	Test case: x=0;
+
+ Path 5:  (x>0)  (x<2)  (x>=2)  (x<=5)  (return 1;) 
+	Test case: x=2;
+
+ Path 6:  (x>0)  (x<2)  (return 0;) 
+	Test case: x=1;
+
+
+Coverage: 0.42857143
+Generated time: 24s
