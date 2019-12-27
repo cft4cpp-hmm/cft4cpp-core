@@ -1,4 +1,5 @@
 int myTest(int x){
+	x = x+1;
 	if(x>0 && x<2 ){
 		return 0;
 	}
@@ -10,15 +11,15 @@ int myTest(int x){
  
 Path file: D:\cft4cpp-core\data-test\tsdv\Sample_for_R1_2\FnCall.cpp\myTest(int) 
 
- Path 0: !( x>0 && x<2 ) => !( x>=2 && x<=5 ) => ( return 2;) 
-	Test case: x=6;
+ Path 0: ( x = x+1;) => !( x>0 && x<2 ) => !( x>=2 && x<=5 ) => ( return 2;) 
+	Test case: x=5;
 
- Path 1: !( x>0 && x<2 ) => ( x>=2 && x<=5) => ( return 1;) 
-	Test case: x=2;
-
- Path 2: ( x>0 && x<2) => ( return 0;) 
+ Path 1: ( x = x+1;) => !( x>0 && x<2 ) => ( x>=2 && x<=5) => ( return 1;) 
 	Test case: x=1;
+
+ Path 2: ( x = x+1;) => ( x>0 && x<2) => ( return 0;) 
+	Test case: x=0;
 
 
 Statement Coverage: 1.0
-Generated time: 5s
+Generated time: 6s

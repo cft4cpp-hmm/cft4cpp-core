@@ -1,4 +1,13 @@
 statement={###line-of-blockin-function=1###openning-function=true
-line-in-function=2###offset=24###statement=x>0 && x<2###control-block=if
-line-in-function=5###offset=65###statement=x>=2 && x<=5###control-block=if
-line-in-function=8###offset=104###statement=return 2;
+line-in-function=2###offset=26###statement=n<3###control-block=if
+statement={###line-of-blockin-function=3
+statement={###additional-code=true###surrounding-control-block=for
+line-in-function=4###offset=60###statement=int i=2;
+line-in-function=4###offset=68###statement=i<n
+statement={###line-of-blockin-function=4
+line-in-function=5###offset=85###statement=n%i==0###control-block=if
+statement=}###line-of-blockin-function=4
+line-in-function=4###offset=72###statement=i++
+line-in-function=4###offset=68###statement=i<n
+statement=}###additional-code=true###surrounding-control-block=for
+line-in-function=7###offset=115###statement=return true;

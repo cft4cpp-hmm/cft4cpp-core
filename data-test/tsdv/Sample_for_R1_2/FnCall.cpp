@@ -15,6 +15,7 @@ int mmin3(int x, int y, int z){
 		return z;
 }
 int myTest(int x){
+	
 	if(x>0 && x<2 ){
 		return 0;
 	}
@@ -23,7 +24,16 @@ int myTest(int x){
 	}
 	else return 2;
 }
-
+bool forTest(int n){
+	if(n<3) return true;
+	else {
+		for(int i=2;i<n;i++){
+			if(n%i==0) return false;
+		}
+		return true;
+	}
+	
+}
 // Calculate 1 + 2 + ... + m
 int SumRecursive(int m){
 	if (m <= 0)

@@ -51,14 +51,19 @@ public class Main {
 		try {
 			int maxIterations= 1;
 			int randomTestPath = 0;
-			Graph graph = HMM.createGraph(Paths.TSDV_R1_2, "myTest(int)", maxIterations);
+			Graph graph = HMM.createGraph(Paths.TSDV_R1_2, "forTest(int)", maxIterations);
 			graph.addConstraint();
 			String solution ;
 			FunctionExecution functionExection = new ProbFunctionExection(graph,pathToZ3,pathToMingw32,pathToGCC,pathToGPlus);
-			int pathNumber = 0;
+			int pathNumber = graph.getNewPath();
 			do {
-				pathNumber=graph.getNewPath();
+				
 				solution = HMM.getSolutionInRandomPath(graph, pathNumber);
+				if(solution=="") {
+					System.out.println("no test case");
+					pathNumber=graph.getNewPath();
+					continue;
+				}
 				ProbTestPath trackedPath = graph.getFullProbTestPaths().get(pathNumber);
 				List<ICfgNode> visitedPath = functionExection.getTestPath(solution);
 				for(ProbTestPath myTestPath: graph.getFullProbTestPaths()) {
@@ -67,14 +72,14 @@ public class Main {
 						myTestPath.setTestCase(solution);
 					}
 				}
-			}while(graph.getNewPath()!=-1);
+				pathNumber=graph.getNewPath();
+			}while(pathNumber!=-1);
 			
-			System.out.println(graph.getCfg().computeStatementCoverage());
 			graph.toTxtFile();
 		}catch(Exception ex) {
 			ex.printStackTrace();
 		}
-		
+		System.out.println("Finish Generting!");
 	}
 	
 	public String getSolutionInRandomPath(Graph graph, int pathNumber) throws Exception{

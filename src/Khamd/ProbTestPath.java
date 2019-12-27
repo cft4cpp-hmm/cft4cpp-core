@@ -67,7 +67,7 @@ public class ProbTestPath {
 				toString+="( "+node.toString()+") => ";
 			}
 		}
-		return toString.substring(0,toString.length()-3);
+		return toString.substring(0,toString.length()-3)+" "+this.getVisitedNumber();
 		
 	}
 	
@@ -92,11 +92,11 @@ public class ProbTestPath {
 	
 	
 	public int getWeight() {
-		int pro=0;
+		int prob=0;
 		for(Edge edge: this.edges) {
-			pro+=edge.getWeight();
+			prob+=edge.getWeight();
 		}
-		return pro;
+		return prob;
 	}
 	public IPathConstraints getConstraints() {
 		return this.constraints;

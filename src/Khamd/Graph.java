@@ -123,6 +123,7 @@ public class Graph {
 		if(index!=-1) {
 			this.fullProbTestPaths.get(index).setVisitedNumber(1);
 		}
+		
 		return index;
 	}
 	
@@ -153,7 +154,8 @@ public class Graph {
 			csvWriter.append("\tTest case: "+testPath.getTestCase());
 			csvWriter.append("\n");
 		}
-		csvWriter.append("\n\nStatement Coverage: "+this.getCoverage());
+		csvWriter.append("\n\nPath Coverage: "+this.getCoverage());
+		csvWriter.append("\nStatement Coverage: "+this.getCfg().computeStatementCoverage());
 		csvWriter.append("\nGenerated time: "+ diff+"s");
 		csvWriter.close();
 	}

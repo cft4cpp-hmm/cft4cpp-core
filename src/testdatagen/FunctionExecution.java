@@ -183,6 +183,7 @@ public class FunctionExecution implements ITestdataExecution {
 				logger.debug("Generate test driver");
 				dataGen = clone.generateDataTree(FunctionExecution.staticSolutionsGen(variableValues));
 				dataGen.setFunctionNode(clone);
+				logger.debug(variableValues);
 				dataGen.generateTree();
 				initialization = dataGen.getInputforGoogleTest();
 

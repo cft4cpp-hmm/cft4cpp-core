@@ -1,0 +1,7 @@
+statement={###line-of-blockin-function=2###openning-function=true
+line-in-function=3###offset=33###statement=double c;
+line-in-function=4###offset=45###statement=c = (b_w / (he * he / 10000));
+statement={###line-of-blockin-function=6
+line-in-function=7###offset=90###statement=c < 19###control-block=if
+statement={###line-of-blockin-function=7
+line-in-function=8###offset=104###statement=return 0;
