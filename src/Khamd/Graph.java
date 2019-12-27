@@ -149,7 +149,6 @@ public class Graph {
 		for(ProbTestPath testPath: this.fullProbTestPaths) {
 			csvWriter.append("\n Path "+this.fullProbTestPaths.indexOf(testPath)+ ": ");
 			csvWriter.append(testPath.toString());
-//			csvWriter.append(testPath.getConstraints().toString());
 			csvWriter.append("\n");
 			csvWriter.append("\tTest case: "+testPath.getTestCase());
 			csvWriter.append("\n");

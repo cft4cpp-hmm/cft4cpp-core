@@ -21,4 +21,4 @@ Path file: D:\cft4cpp-core\data-test\tsdv\Sample_for_R1_2\FnCall.cpp\myTest(int)
 
 
 Statement Coverage: 1.0
-Generated time: 6s
+Generated time: 5s

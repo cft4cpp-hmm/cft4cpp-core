@@ -1,0 +1,5 @@
+statement={###line-of-blockin-function=1###openning-function=true
+line-in-function=2###offset=24###statement=x>0 && x<2###control-block=if
+line-in-function=5###offset=65###statement=x>=2 && x<=5###control-block=if
+statement={###line-of-blockin-function=5
+line-in-function=6###offset=83###statement=return 1;

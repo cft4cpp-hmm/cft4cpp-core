@@ -39,7 +39,7 @@ import utils.search.Search;
 public class Main {
 	public static String pathToZ3 ="D:\\cft4cpp-core\\local\\z3\\bin\\z3.exe";
 	public static String pathToMingw32 = "D:\\program files\\Dev-Cpp\\MinGW64\\bin\\mingw32-make.exe";
-	public static String pathToGCC = "\"D:\\\\program files\\\\Dev-Cpp\\\\MinGW64\\\\bin\\\\gcc.exe\"";
+	public static String pathToGCC = "D:\\program files\\Dev-Cpp\\MinGW64\\bin\\gcc.exe";
 	public static String pathToGPlus = "D:\\program files\\Dev-Cpp\\MinGW64\\bin\\g++.exe";
 	public static String pathToConstraint = "D:\\cft4cpp-core\\myConstraint.smt2";
 	public static SmtLibGeneration smt = new SmtLibGeneration();
@@ -85,7 +85,6 @@ public class Main {
 			constraints.add(c);
 		}
 		
-//		SmtLibGeneration smt = new SmtLibGeneration(function.getArguments(), constraints);
 		smt.setTestcases(function.getArguments());
 		smt.setConstraints(constraints);
 		smt.generate();
