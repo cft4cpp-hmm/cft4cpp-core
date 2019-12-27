@@ -1,3 +1,0 @@
-statement={###line-of-blockin-function=1###openning-function=true
-line-in-function=2###offset=36###statement=p[0] > 0###control-block=if
-line-in-function=3###offset=49###statement=return 1;

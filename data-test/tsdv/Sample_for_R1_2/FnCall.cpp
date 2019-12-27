@@ -23,6 +23,7 @@ int myTest(int x){
 	}
 	else return 2;
 }
+
 // Calculate 1 + 2 + ... + m
 int SumRecursive(int m){
 	if (m <= 0)
@@ -30,3 +31,24 @@ int SumRecursive(int m){
 	else
 		return m + SumRecursive(m-1);
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

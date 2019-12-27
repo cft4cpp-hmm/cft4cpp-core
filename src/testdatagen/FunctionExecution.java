@@ -12,6 +12,10 @@ import java.util.concurrent.TimeUnit;
 import org.apache.log4j.Logger;
 import org.apache.log4j.PropertyConfigurator;
 
+import cfg.ICFG;
+import cfg.object.BranchInCFG;
+import cfg.object.CfgNode;
+import cfg.object.ICfgNode;
 import cfg.testpath.ITestpathInCFG;
 import config.AbstractSetting;
 import config.FunctionConfig;
@@ -21,10 +25,12 @@ import config.Paths;
 import config.Settingv2;
 import exception.GUINotifyException;
 import instrument.FunctionInstrumentationForStatementvsBranch_Marker;
+import normalizer.FunctionNormalizer;
 import normalizer.PrivateToPublicNormalizer;
 import parser.projectparser.ProjectLoader;
 import parser.projectparser.ProjectParser;
 import testdata.object.TestpathString_Marker;
+import testdatagen.coverage.CFGUpdater_Mark;
 import testdatagen.module.DataTreeGeneration;
 import testdatagen.module.IDataTreeGeneration;
 import testdatagen.structuregen.ChangedTokens;
@@ -61,10 +67,11 @@ public class FunctionExecution implements ITestdataExecution {
 	protected IFunctionNode testedFunction;
 	protected String preparedInput;
 	protected String clonedProject;
+	protected ICFG cfg;
 
 	public static void main(String[] args) throws Exception {
 		
-		String testedProject = Paths.TSDV_R1;
+		String testedProject = Paths.TSDV_R1_2;
 		/**
 		 * Create a clone
 		 */
@@ -88,14 +95,14 @@ public class FunctionExecution implements ITestdataExecution {
 		 */
 		ProjectParser parser = new ProjectParser(clone);
 		FunctionNode testedFunction = (FunctionNode) Search
-				.searchNodes(parser.getRootTree(), new FunctionNodeCondition(), "IntTest(int)").get(0);
+				.searchNodes(parser.getRootTree(), new FunctionNodeCondition(), "myTest(int)").get(0);
 
 		FunctionConfig config = new FunctionConfig();
 		config.setCharacterBound(new ParameterBound(32, 100));
 		config.setIntegerBound(new ParameterBound(0, 100));
 		testedFunction.setFunctionConfig(config);
 
-		String variableValues = "x=19;";
+		String variableValues = "x=1;";
 
 		/**
 		 * Find test path given a test case
@@ -116,8 +123,16 @@ public class FunctionExecution implements ITestdataExecution {
 		AbstractSetting.setValue(ISettingv2.GNU_GCC_PATH, "D:\\program files\\Dev-Cpp\\MinGW64\\bin\\gcc.exe");
 		AbstractSetting.setValue(ISettingv2.GNU_GPlusPlus_PATH, "D:\\program files\\Dev-Cpp\\MinGW64\\bin\\g++.exe");
 	}
+	public FunctionExecution(String pathToZ3, String pathToMingw32, String pathToGCC, String pathToGPlus) {
+		Settingv2.create();
+		AbstractSetting.setValue(ISettingv2.SOLVER_Z3_PATH, pathToZ3);
+		AbstractSetting.setValue(ISettingv2.GNU_MAKE_PATH,pathToMingw32);
+		AbstractSetting.setValue(ISettingv2.GNU_GCC_PATH, pathToGCC);
+		AbstractSetting.setValue(ISettingv2.GNU_GPlusPlus_PATH, pathToGPlus);
+		
+	}
 
-	public String analyze(IFunctionNode testedFunction, String variableValues) throws Exception {
+	public List<ICfgNode> analyze(IFunctionNode testedFunction, String variableValues) throws Exception {
 		if (isInitializedCompilerEnvironment()) {
 			Backup backup = saveCurrentState(testedFunction);
 			try {
@@ -141,8 +156,10 @@ public class FunctionExecution implements ITestdataExecution {
 				case ISettingv2.PROJECT_CODEBLOCK:
 				case ISettingv2.PROJECT_CUSTOMMAKEFILE:
 				case ISettingv2.PROJECT_VISUALSTUDIO: {
+					
 					executionFilePath = new File(Paths.CURRENT_PROJECT.CLONE_PROJECT_PATH).getCanonicalPath()
 							+ File.separator + Paths.CURRENT_PROJECT.CURRENT_TESTDRIVER_EXECUTION_NAME;
+					
 					break;
 				}
 				}
@@ -171,9 +188,6 @@ public class FunctionExecution implements ITestdataExecution {
 
 				String functionCall = dataGen.getFunctionCall();
 
-//				logger.debug("driver=" + initialization.replace("\n", "").replace("\t", "")
-//						+ functionCall.replace("\n", "") + "...");
-
 				TestdriverGeneration testdriverGen = null;
 				if (Utils.getSourcecodeFile(testedFunction) instanceof CFileNode)
 					testdriverGen = new TestdriverGenerationforC();
@@ -189,7 +203,7 @@ public class FunctionExecution implements ITestdataExecution {
 					testdriverGen.generate();
 
 					Utils.writeContentToFile(testdriverGen.getCompleteSourceFile(), backup.getFnParent());
-
+					
 					getExePath(rootProject, executionFilePath);
 					logger.debug("Paths.CURRENT_PROJECT.EXE_PATH = " + Paths.CURRENT_PROJECT.EXE_PATH);
 
@@ -199,6 +213,7 @@ public class FunctionExecution implements ITestdataExecution {
 					String cmd = "\"D:\\program files\\Dev-Cpp\\MinGW64\\bin\\mingw32-make.exe\"" + " -f "
 							+ getClonedProject() + "\\Makefile.win" + " clean all";
 //					logger.debug("Command line: " + cmd);
+				
 					logger.debug("Start compiling");
 					Process process = Runtime.getRuntime().exec(cmd, null, new File(getClonedProject()));
 					process.waitFor(3, TimeUnit.SECONDS);
@@ -285,7 +300,6 @@ public class FunctionExecution implements ITestdataExecution {
 				if (!nameExeFile.equals("")) {
 					String pathFolderEXE = Paths.CURRENT_PROJECT.MAKEFILE_PATH.substring(0,
 							Paths.CURRENT_PROJECT.MAKEFILE_PATH.lastIndexOf(File.separator));
-
 					Paths.CURRENT_PROJECT.EXE_PATH = pathFolderEXE + File.separator + nameExeFile;
 
 				} else
@@ -327,7 +341,7 @@ public class FunctionExecution implements ITestdataExecution {
 
 				String pathFolderEXE = Paths.CURRENT_PROJECT.MAKEFILE_PATH.substring(0,
 						Paths.CURRENT_PROJECT.MAKEFILE_PATH.lastIndexOf(File.separator));
-
+				
 				Paths.CURRENT_PROJECT.EXE_PATH = pathFolderEXE + File.separator + nameExeFile;
 				break;
 			}
@@ -342,7 +356,7 @@ public class FunctionExecution implements ITestdataExecution {
 	 * @param executionFilePath
 	 * @throws Exception
 	 */
-	protected String executeExecutableFile(INode rootProject, String executionFilePath) throws Exception {
+	protected List<ICfgNode> executeExecutableFile(INode rootProject, String executionFilePath) throws Exception {
 		if (!new File(Paths.CURRENT_PROJECT.EXE_PATH).exists()) {
 			throw new Exception("Dont found exe");
 
@@ -394,33 +408,66 @@ public class FunctionExecution implements ITestdataExecution {
 					encodedTestpath.setEncodedTestpath(tmp_shortenTp);
 				}
 			}
-
+			
 			// Only for logging
 			if (encodedTestpath.getEncodedTestpath().length() > 0) {
 				String tp = "";
 				List<String> stms = encodedTestpath
 						.getStandardTestpathByProperty(FunctionInstrumentationForStatementvsBranch_Marker.STATEMENT);
-				for (String stm : stms) {
-					if(stm.contains("{")) {
-						stm=stm.substring(1,stm.length());
-					}
-					if(stm.equals("")) continue;
-					stm = stm.replace("&","");
-					stm = stm.replace("|","");
-					tp += ""+stm+"";
-				}
-					
-					
-
-//				tp = tp.substring(0, tp.length() - 2);
 				
-//				logger.debug("Done. Execution test path [length=" + stms.size() + "] = " + tp.replace(" ", ""));
-				return tp.replace(" ", "");
+				TestpathString_Marker testpath = encodedTestpath;
+				
+
+				ICFG cfg=this.cfg;
+				CFGUpdater_Mark updater = new CFGUpdater_Mark(testpath, cfg);
+				
+				updater.updateVisitedNodes();
+				logger.debug("visited statements: " + cfg.getVisitedStatements());
+				logger.debug("Visited branches: " + cfg.getVisitedBranches());
+				logger.debug("Visited nodes: " + updater.getUpdatedCFGNodes().getAllCfgNodes());
+				logger.debug(cfg.computeBranchCoverage());
+				 				
+				logger.debug(updater.getUpdatedCFGNodes().getFullPath());
+//				logger.debug(cfg.getPossibleTestpaths().getPossibleTestpaths().get(0).getAllCfgNodes().get(1)==updater.getUpdatedCFGNodes().getAllCfgNodes().get(0));
+
+				for (String stm : stms)
+					tp += stm + "=>";
+				tp = tp.substring(0, tp.length() - 2);
+
+				
+				logger.debug("Done. Execution test path [length=" + stms.size() + "] = " + tp.replace(" ", ""));
+				return updater.getUpdatedCFGNodes().getAllCfgNodes();
 			} else
 				logger.debug("Done. Empty test path");
 			
 		}
 		return null;
+	}
+	public void setCFG(ICFG cfg) {
+		this.cfg=cfg;
+	}
+	
+	public static  String toNodeName(List<String> stms) {
+		String tp="";
+		for (String stm : stms)
+			tp += stm + "=>";
+		tp = tp.substring(0, tp.length() - 2);
+		
+		return tp.substring(0,tp.length()-2);
+	}
+	public static String toString(List<String> stms) {
+		String tp="";
+		for(String stm: stms) {
+			if(stm.contains("{")) {
+				stm=stm.substring(1,stm.length());
+			}
+			if(stm.equals("")) continue;
+			stm = stm.replace("&","");
+			stm = stm.replace("|","");
+			tp += ""+stm+"";
+		}
+//		tp=tp.substring(0,tp.length()-2);
+		return tp.replace(" ", "");
 	}
 
 	/**
@@ -590,5 +637,9 @@ public class FunctionExecution implements ITestdataExecution {
 
 	public String getClonedProject() {
 		return clonedProject;
+	}
+	
+	public List<ICfgNode> getTestPath(String preparedInput) throws Exception{
+		return null;
 	}
 }

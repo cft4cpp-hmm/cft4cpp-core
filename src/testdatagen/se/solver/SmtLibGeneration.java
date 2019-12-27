@@ -54,6 +54,30 @@ public class SmtLibGeneration implements ISmtLibGeneration {
 		this.testcases = testcases;
 		this.constraints = constraints;
 	}
+	
+	public SmtLibGeneration() {
+		
+	}
+
+	public List<IVariableNode> getTestcases() {
+		return testcases;
+	}
+
+
+	public void setTestcases(List<IVariableNode> testcases) {
+		this.testcases = testcases;
+	}
+
+
+	public List<PathConstraint> getConstraints() {
+		return constraints;
+	}
+
+
+	public void setConstraints(List<PathConstraint> constraints) {
+		this.constraints = constraints;
+	}
+
 
 	public static void main(String[] args) throws Exception {
 		ProjectParser parser = new ProjectParser(new File(Paths.JOURNAL_TEST));

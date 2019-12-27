@@ -29,7 +29,9 @@ import org.eclipse.cdt.internal.core.dom.rewrite.astwriter.ASTWriter;
 
 import com.ibm.icu.util.Calendar;
 
+import cfg.CFG;
 import cfg.CFGGenerationforBranchvsStatementCoverage;
+import cfg.ICFG;
 import cfg.object.BeginFlagCfgNode;
 import cfg.object.EndFlagCfgNode;
 import cfg.object.FlagCfgNode;
@@ -197,10 +199,12 @@ public class SymbolicExecution implements ISymbolicExecution {
 				new CFGGenerationforBranchvsStatementCoverage(function).generateCFG(),
 				function.getFunctionConfig().getMaximumInterationsForEachLoop());
 		tpGen.generateTestpaths();
+		ICFG cfg = function.generateCFG();
 		logger.debug("num tp = " + tpGen.getPossibleTestpaths().size());
-		IFullTestpath randomTestpath = tpGen.getPossibleTestpaths().get(1);
-		logger.debug(randomTestpath);
-
+		
+		IFullTestpath randomTestpath = (IFullTestpath) cfg.getUnvisitedStatements().get(0);
+		
+		
 		// Get the passing variables of the given function
 		Parameter paramaters = new Parameter();
 		for (INode n : ((FunctionNode) function).getArguments())

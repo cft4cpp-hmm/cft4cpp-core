@@ -53,4 +53,3 @@ int SimpleTestWithKeyword(union RGBA s){
 
 
 
-

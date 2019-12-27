@@ -40,7 +40,7 @@ int StructOfPointerTest(StructWPointer s){
 }
 
 class ClassWithStruct{
-private:
+public :
 	Simple1 myStruct;
 	
 public:
@@ -61,7 +61,7 @@ int ClassOfStructTest(ClassWithStruct c){
 }
 
 class ClassWithPointer{
-private:
+public :
 	int* myPointer;
 	
 public:
@@ -80,4 +80,25 @@ int ClassOfPointerTest(ClassWithPointer c){
 	else
 		return 0;
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 

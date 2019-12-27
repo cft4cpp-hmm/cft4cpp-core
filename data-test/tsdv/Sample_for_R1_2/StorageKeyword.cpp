@@ -53,3 +53,24 @@ int ExternKeywordTest(int x){
 		return 0;
 }
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

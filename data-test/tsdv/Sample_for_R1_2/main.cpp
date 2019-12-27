@@ -6,3 +6,24 @@ int MY_MAX_VALUE = 100;
 int main() {
 	return 0;
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

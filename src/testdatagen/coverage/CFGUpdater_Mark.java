@@ -90,6 +90,7 @@ public class CFGUpdater_Mark implements ICFGUpdater {
 				"statement=}###line-of-blockin-function=1"
 
 		};
+		
 		testpath.setEncodedTestpath(nodes);
 		logger.debug(testpath.getEncodedTestpath());
 
