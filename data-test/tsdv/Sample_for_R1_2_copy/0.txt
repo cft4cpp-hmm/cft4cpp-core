@@ -1,4 +1,0 @@
-statement={###line-of-blockin-function=1###openning-function=true
-line-in-function=2###offset=24###statement=x>0 && x<2###control-block=if
-statement={###line-of-blockin-function=2
-line-in-function=3###offset=41###statement=return 0;

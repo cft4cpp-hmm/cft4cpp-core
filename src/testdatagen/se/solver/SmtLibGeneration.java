@@ -10,6 +10,7 @@ import org.apache.log4j.Logger;
 import org.eclipse.cdt.core.dom.ast.cpp.ICPPASTFunctionDefinition;
 
 import cfg.CFGGenerationforBranchvsStatementCoverage;
+import cfg.ICFG;
 import cfg.testpath.IFullTestpath;
 import cfg.testpath.PossibleTestpathGeneration;
 import config.FunctionConfig;
@@ -80,9 +81,9 @@ public class SmtLibGeneration implements ISmtLibGeneration {
 
 
 	public static void main(String[] args) throws Exception {
-		ProjectParser parser = new ProjectParser(new File(Paths.JOURNAL_TEST));
+		ProjectParser parser = new ProjectParser(new File(Paths.TSDV_R1_4));
 		IFunctionNode function = (IFunctionNode) Search
-				.searchNodes(parser.getRootTree(), new FunctionNodeCondition(), "find_maximum(int[],int)").get(0);
+				.searchNodes(parser.getRootTree(), new FunctionNodeCondition(), "bmi(float,float)").get(0);
 		logger.debug(function.getAST().getRawSignature());
 
 		FunctionConfig functionConfig = new FunctionConfig();
@@ -96,17 +97,15 @@ public class SmtLibGeneration implements ISmtLibGeneration {
 		// Normalize function
 		FunctionNormalizer fnNormalizer = function.normalizedAST();
 
-		String newFunctionInStr = fnNormalizer.getNormalizedSourcecode();
-		ICPPASTFunctionDefinition newAST = Utils.getFunctionsinAST(newFunctionInStr.toCharArray()).get(0);
-		((FunctionNode) function).setAST(newAST);
-
-		// Choose a random test path to test
+//		String newFunctionInStr = fnNormalizer.getNormalizedSourcecode();
+//		ICPPASTFunctionDefinition newAST = Utils.getFunctionsinAST(newFunctionInStr.toCharArray()).get(0);
+		
 		PossibleTestpathGeneration tpGen = new PossibleTestpathGeneration(
 				new CFGGenerationforBranchvsStatementCoverage(function).generateCFG(),
 				function.getFunctionConfig().getMaximumInterationsForEachLoop());
-		tpGen.generateTestpaths();
+		
 		logger.debug("num tp = " + tpGen.getPossibleTestpaths().size());
-		IFullTestpath randomTestpath = tpGen.getPossibleTestpaths().get(1);
+		IFullTestpath randomTestpath = tpGen.getPossibleTestpaths().get(0);
 		logger.debug(randomTestpath);
 
 		// Get the passing variables of the given function
@@ -127,7 +126,7 @@ public class SmtLibGeneration implements ISmtLibGeneration {
 		SmtLibGeneration smt = new SmtLibGeneration(function.getArguments(), constraints);
 		smt.generate();
 		System.out.println(smt.getSmtLibContent());
-		BufferedWriter writer = new BufferedWriter(new FileWriter("myConstraint.smt2", true));
+		BufferedWriter writer = new BufferedWriter(new FileWriter("myConstraint.smt2", false));
 		writer.append(smt.getSmtLibContent());
 		writer.close();
 	}

@@ -113,6 +113,11 @@ public class CFGUpdater_Mark implements ICFGUpdater {
 		this.cfg = cfg;
 	}
 
+	public CFGUpdater_Mark(ICFG cfg2) {
+		this.cfg=cfg2;
+		// TODO Auto-generated constructor stub
+	}
+
 	public void storeTheCurrentVisitedStateOfCfg() {
 		// Store the currently visited nodes of CFG
 		for (ICfgNode node : getCfg().getAllNodes())
@@ -339,7 +344,7 @@ public class CFGUpdater_Mark implements ICFGUpdater {
 				.getPropertyByName(FunctionInstrumentationForStatementvsBranch_Marker.LINE_NUMBER_IN_FUNCTION);
 		Property_Marker surroundingMarker = propertiesInANode
 				.getPropertyByName(FunctionInstrumentationForStatementvsBranch_Marker.SOURROUNDING_MARKER);
-
+		
 		int lineOfFunctionInFile = cfg.getFunctionNode().getAST().getFileLocation().getStartingLineNumber();
 
 		if (stm != null && checkedNode.getContent().equals(stm.getValue())) {

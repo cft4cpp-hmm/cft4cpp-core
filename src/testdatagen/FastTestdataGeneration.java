@@ -215,6 +215,7 @@ public class FastTestdataGeneration extends AbstractTestdataGeneration {
 					if (testdata == null || testdata.length() == 0) {
 						testdata = initializeTestdataAtRandom();
 						logger.info("Generate a random test data: <b>" + testdata + "</b>");
+						
 						tmp_isGenerateRandomly = true;
 					} else
 						tmp_isGenerateRandomly = false;

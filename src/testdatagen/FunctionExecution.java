@@ -11,12 +11,16 @@ import java.util.concurrent.TimeUnit;
 
 import org.apache.log4j.Logger;
 import org.apache.log4j.PropertyConfigurator;
+import org.eclipse.cdt.core.dom.ast.cpp.ICPPASTFunctionDefinition;
 
+import cfg.CFGGenerationforBranchvsStatementCoverage;
+import cfg.CFGGenerationforSubConditionCoverage;
 import cfg.ICFG;
 import cfg.object.BranchInCFG;
 import cfg.object.CfgNode;
 import cfg.object.ICfgNode;
 import cfg.testpath.ITestpathInCFG;
+import cfg.testpath.PossibleTestpathGeneration;
 import config.AbstractSetting;
 import config.FunctionConfig;
 import config.ISettingv2;
@@ -75,10 +79,8 @@ public class FunctionExecution implements ITestdataExecution {
 		/**
 		 * Create a clone
 		 */
-//		logger.debug("Original project: " + new File(testedProject).getCanonicalPath());
 		File clone = Utils.copy(testedProject);
 		Paths.CURRENT_PROJECT.CLONE_PROJECT_PATH = clone.getAbsolutePath();
-//		logger.debug("Clone path = " + clone.getCanonicalPath());
 		
 		/** 
 		 * Initialize the configuration
@@ -106,12 +108,40 @@ public class FunctionExecution implements ITestdataExecution {
 
 		/**
 		 * Find test path given a test case
-		 */
+		 * 		 
+		 **/	
+		
+		ICFG cfg;
+		FunctionNormalizer fnNorm = testedFunction.normalizedAST();
+		testedFunction.setAST(fnNorm.getNormalizedAST());
+		cfg = testedFunction.generateCFG();
+		System.out.println(clone.getCanonicalPath()+"jlkf");
+		
+		
+		
+		CFGGenerationforSubConditionCoverage cfgGen = new CFGGenerationforSubConditionCoverage(testedFunction);
+		
+//		cfg = cfgGen.generateCFG();
+//		
+//		cfg.setFunctionNode(testedFunction);
+//		cfg.setIdforAllNodes();
+//		cfg.resetVisitedStateOfNodes();
+//		cfg.generateAllPossibleTestpaths(1);
+		
+		
+//		cfg.generateAllPossibleTestpaths(1);
+//		cfg.setFunctionNode(testedFunction);
+//		System.out.println(cfg.getPossibleTestpaths().getPossibleTestpaths().get(0));
+		
+//		System.out.println(cfg.getPossibleTestpaths().getPossibleTestpaths().get(0));
 		FunctionExecution execution = new FunctionExecution();
+		
+		execution.setCFG(cfg);
 		execution.setTestedFunction(testedFunction);
 		execution.setPreparedInput(variableValues);
 		execution.setClonedProject(clone.getCanonicalPath());
-		execution.analyze(execution.getTestedFunction(), execution.getPreparedInput());
+		
+		logger.debug(execution.analyze(execution.getTestedFunction(), execution.getPreparedInput()));
 	}
 
 	public FunctionExecution() {
@@ -131,8 +161,11 @@ public class FunctionExecution implements ITestdataExecution {
 		AbstractSetting.setValue(ISettingv2.GNU_GPlusPlus_PATH, pathToGPlus);
 		
 	}
+	public ICFG getIcfg() {
+		return this.cfg;
+	}
 
-	public List<ICfgNode> analyze(IFunctionNode testedFunction, String variableValues) throws Exception {
+	public TestpathString_Marker analyze(IFunctionNode testedFunction, String variableValues) throws Exception {
 		if (isInitializedCompilerEnvironment()) {
 			Backup backup = saveCurrentState(testedFunction);
 			try {
@@ -226,6 +259,7 @@ public class FunctionExecution implements ITestdataExecution {
 					logger.debug("Start executing");
 					logger.debug("Finish executing");
 					return executeExecutableFile(rootProject, executionFilePath);
+					
 					
 				}
 
@@ -357,7 +391,7 @@ public class FunctionExecution implements ITestdataExecution {
 	 * @param executionFilePath
 	 * @throws Exception
 	 */
-	protected List<ICfgNode> executeExecutableFile(INode rootProject, String executionFilePath) throws Exception {
+	protected TestpathString_Marker executeExecutableFile(INode rootProject, String executionFilePath) throws Exception {
 		if (!new File(Paths.CURRENT_PROJECT.EXE_PATH).exists()) {
 			throw new Exception("Dont found exe");
 
@@ -379,7 +413,7 @@ public class FunctionExecution implements ITestdataExecution {
 			int countReadFile = 0;
 			do {
 				logger.info("Finish. We are getting a execution path from hard disk");
-
+// note 1
 				encodedTestpath.setEncodedTestpath(normalizeTestpathFromFile(Utils.readFileContent(executionFilePath)));
 
 				if (encodedTestpath.getEncodedTestpath().length() == 0) {
@@ -419,25 +453,25 @@ public class FunctionExecution implements ITestdataExecution {
 				TestpathString_Marker testpath = encodedTestpath;
 				
 
-				ICFG cfg=this.cfg;
+				ICFG cfg=this.getIcfg();
+				if(cfg == null) return null;
 				CFGUpdater_Mark updater = new CFGUpdater_Mark(testpath, cfg);
 				
 				updater.updateVisitedNodes();
+				
 				logger.debug("visited statements: " + cfg.getVisitedStatements());
 				logger.debug("Visited branches: " + cfg.getVisitedBranches());
 				logger.debug("Visited nodes: " + updater.getUpdatedCFGNodes().getAllCfgNodes());
-				logger.debug(cfg.computeBranchCoverage());
-				 				
+				logger.debug("Coverage: "+cfg.computeBranchCoverage());
 				logger.debug(updater.getUpdatedCFGNodes().getFullPath());
-//				logger.debug(cfg.getPossibleTestpaths().getPossibleTestpaths().get(0).getAllCfgNodes().get(1)==updater.getUpdatedCFGNodes().getAllCfgNodes().get(0));
-
+				
 				for (String stm : stms)
 					tp += stm + "=>";
 				tp = tp.substring(0, tp.length() - 2);
 
 				
 				logger.debug("Done. Execution test path [length=" + stms.size() + "] = " + tp.replace(" ", ""));
-				return updater.getUpdatedCFGNodes().getAllCfgNodes();
+				return testpath;
 			} else
 				logger.debug("Done. Empty test path");
 			
@@ -641,6 +675,9 @@ public class FunctionExecution implements ITestdataExecution {
 	}
 	
 	public List<ICfgNode> getTestPath(String preparedInput) throws Exception{
+		return null;
+	}
+	public TestpathString_Marker getEncodedPath(String preparedInput) {
 		return null;
 	}
 }

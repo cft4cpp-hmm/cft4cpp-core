@@ -13,6 +13,7 @@ import com.ibm.icu.util.Calendar;
 
 import testdatagen.AbstractTestdataGeneration;
 import testdatagen.se.ISymbolicExecution;
+import testdatagen.se.normalstatementparser.NewBinaryAssignmentParser;
 import utils.Utils;
 
 /**
@@ -37,6 +38,7 @@ public class RunZ3OnCMD {
 		RunZ3OnCMD run = new RunZ3OnCMD("D:\\cft4cpp-core\\local\\z3\\bin\\z3", "D:\\cft4cpp-core\\myConstraint.smt2");
 		run.execute();
 		System.out.print(run.getSolution());
+		System.out.println(new Z3SolutionParser().getSolution(run.getSolution()));
 	}
 
 	public synchronized void execute() throws Exception {

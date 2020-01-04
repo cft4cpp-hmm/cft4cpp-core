@@ -1,3 +1,0 @@
-statement={###line-of-blockin-function=1###openning-function=true
-line-in-function=2###offset=26###statement=n<3###control-block=if
-line-in-function=2###offset=31###statement=return true;

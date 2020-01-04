@@ -10,6 +10,7 @@ import config.ParameterBound;
 import config.Paths;
 import parser.makefile.object.GPlusPlusExeCondition;
 import parser.projectparser.ProjectParser;
+import testdata.object.TestpathString_Marker;
 import testdatagen.FunctionExecution;
 import tree.object.FunctionNode;
 import utils.Utils;
@@ -26,11 +27,12 @@ public class ProbFunctionExection extends FunctionExecution{
 		
 	}
 	
-	public List<ICfgNode> getTestPath(String preparedInput) {
+	public TestpathString_Marker getEncodedPath(String preparedInput) {
 		String testedProject = graph.getPathToFile();
 		try {
 			File clone = Utils.copy(testedProject);
 			Paths.CURRENT_PROJECT.CLONE_PROJECT_PATH = clone.getAbsolutePath();
+			
 			ProjectParser parser = new ProjectParser(clone);
 			FunctionConfig config = new FunctionConfig();
 			config.setCharacterBound(new ParameterBound(32, 100));
@@ -47,7 +49,11 @@ public class ProbFunctionExection extends FunctionExecution{
 			this.setPreparedInput(preparedInput);
 			this.setClonedProject(clone.getCanonicalPath());
 			this.setCFG(this.graph.getCfg());
-			return this.analyze(this.getTestedFunction(), this.getPreparedInput());
+			
+			TestpathString_Marker testpathString_Marker= (TestpathString_Marker) this.analyze(this.getTestedFunction(), this.getPreparedInput());
+			Utils.deleteFileOrFolder(clone);
+			return testpathString_Marker;
+			
 		}catch (Exception e) {
 			// TODO: handle exception
 			e.printStackTrace();

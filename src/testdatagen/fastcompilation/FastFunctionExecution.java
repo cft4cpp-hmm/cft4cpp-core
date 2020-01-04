@@ -2,8 +2,10 @@ package testdatagen.fastcompilation;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.concurrent.TimeUnit;
 
 import org.apache.log4j.Logger;
+import org.eclipse.cdt.core.settings.model.COutputEntry;
 
 import config.AbstractSetting;
 import config.ISettingv2;
@@ -49,6 +51,9 @@ public class FastFunctionExecution extends FunctionExecution {
 	}
 
 	public FastFunctionExecution(IFunctionNode fn, String staticSolution) throws Exception {
+		clonedProject = fn.getAbsolutePath().substring(0,fn.getAbsolutePath().indexOf("\\",40));
+		System.out.println("here + "+clonedProject);
+		
 		if (isInitializedCompilerEnvironment()) {
 			Backup backup = saveCurrentState(fn);
 			try {
@@ -82,7 +87,16 @@ public class FastFunctionExecution extends FunctionExecution {
 						logger.debug(
 								Paths.CURRENT_PROJECT.EXE_PATH + " does not exist, so we have to compile project!");
 						if (!new File(Paths.CURRENT_PROJECT.EXE_PATH).exists()) {
-							ConsoleExecution.compileMakefile(new File(Paths.CURRENT_PROJECT.MAKEFILE_PATH));
+							String cmd = "\"D:\\program files\\Dev-Cpp\\MinGW64\\bin\\mingw32-make.exe\"" + " -f "
+									+ getClonedProject() + "\\Makefile.win" + " clean all";
+//							logger.debug("Command line: " + cmd);
+						
+//							logger.debug("Start compiling");
+							
+							Process process = Runtime.getRuntime().exec(cmd, null, new File(getClonedProject()));
+							process.waitFor(3, TimeUnit.SECONDS);
+//							logger.debug("Finish compiling");
+//							ConsoleExecution.compileMakefile(new File(Paths.CURRENT_PROJECT.MAKEFILE_PATH));
 						} else
 							logger.info("Does not run make command");
 					}

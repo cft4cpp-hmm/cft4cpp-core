@@ -1,1 +1,1 @@
-\reverse2(char*,int,int)
+\myTest(int)

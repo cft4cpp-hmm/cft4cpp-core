@@ -2,6 +2,11 @@ package Khamd;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Pattern;
+
+import javax.xml.crypto.dsig.keyinfo.RetrievalMethod;
+
+import com.ibm.icu.text.DecimalFormat;
 
 import cfg.object.ICfgNode;
 import testdatagen.se.IPathConstraints;
@@ -17,7 +22,10 @@ public class ProbTestPath {
 	private String realString;
 	private IPathConstraints constraints;
 	private String testCase;
-	
+	private String toString ;
+	private List<Float> proList;
+	private static DecimalFormat df2 = new DecimalFormat("#.##");
+
 	public ProbTestPath(int pathNumber) {
 		this.pathNumber=pathNumber;
 		this.edges = new ArrayList<Edge>();
@@ -25,7 +33,7 @@ public class ProbTestPath {
 		this.isGenerated=false;
 		this.testCase="";
 		this.realString="";
-//		this.constraint
+		toString="";
 	}
 	
 	public List<ICfgNode> getFullCfgNode(){
@@ -37,7 +45,12 @@ public class ProbTestPath {
 		return fullCfgNode;
 	}
 	public boolean compare(List<ICfgNode> cfgNodes) {
-		
+		cfgNodes  = new ArrayList<ICfgNode>(cfgNodes);
+		for(int i=0;i<cfgNodes.size();i++) {
+			if(cfgNodes.get(i).toString().contains("{")||cfgNodes.get(i).toString().contains("}")){
+				cfgNodes.remove(i);
+			}
+		}
 		for(ICfgNode node: this.getFullCfgNode()) {
 			if(cfgNodes.indexOf(node)!=this.getFullCfgNode().indexOf(node)) {
 				return false;
@@ -46,40 +59,76 @@ public class ProbTestPath {
 		return true;
 	}
 	public String toString() {
-		List<ICfgNode> fullCfgNodes =this.getFullCfgNode();
-		List<ICfgNode> constraints = new ArrayList<ICfgNode>();
-		
-		for(PathConstraint c: (PathConstraints) this.getConstraints()) {
-	
-			if(c.toString().indexOf("!")==0) {
-				constraints.add(c.getCfgNode());
+		if(!this.toString.equals("")) {
+			this.toString = this.toString.substring(4,this.toString.length());
+			this.toString=this.toString.replace("{", "");
+			this.toString=this.toString.replace("}", "");
+			this.toString=this.toString.replace("  ", "");
+			String[] listStrings = this.toString.split("=>|=> =>");
+			String newString ="<tr><td>"+pathNumber+"</td><td>";
+			List<String> newLiStrings = new ArrayList<String>();
+			
+			for(int i=0;i<listStrings.length;i++) {
+				if(!listStrings[i].equals(" ")&&!listStrings[i].equals("  ")) {
+					newLiStrings.add(listStrings[i]);
+				}
 			}
+			for(int i=0;i<newLiStrings.size()-1;i++) {
+				newString+=newLiStrings.get(i)+" "+"<font>"+df2.format(this.proList.get(i))+"</font> ";
+			}
+			newString+=newLiStrings.get(newLiStrings.size()-1);
+			newString+="</td>"+"<td>"+this.getTestCase()+"</td></tr>";
+			
+			return newString;
 		}
-		String toString = "";
-		for(ICfgNode node: fullCfgNodes) {
-			if(node.toString().contains("{")) {
+		
+			List<ICfgNode> fullCfgNodes =this.getFullCfgNode();
+			List<PathConstraint> constraints = new ArrayList<PathConstraint>();
+			Pattern pattern = Pattern.compile("=|<|>");
+			
+			for(PathConstraint c: (PathConstraints) this.getConstraints()) {
+				if(c.getCfgNode().toString().matches(".*\\b(|<|>)\\b.*") || c.getCfgNode().toString().contains("==")){
+					constraints.add(c);
+				}
+			
+			}
+		
+		
+		
+		
+		this.toString = "<tr><td>"+pathNumber+"</td><td>";
+		
+		for(int i=0;i<this.getFullCfgNode().size()-1;i++) {
+			ICfgNode node = this.getFullCfgNode().get(i);
+			if(node.toString().contains("{")||node.toString().contains("}")) {
 				continue;
 			}
-			if(constraints.indexOf(node)!=-1) {
-				toString+="!( "+node.toString()+" ) => ";
+			if(node.toString().matches(".*\\b(==|<|>)\\b.*") || node.toString().contains("==")) {
+				
+				if(constraints.size()>0 && constraints.get(0).toString().indexOf("!")==0) {
+					toString+="!( "+node.toString()+" ) <font>"+df2.format(this.proList.get(0))+"</font>";
+					constraints.remove(0);
+					this.proList.remove(0);
+				}
+				else if(constraints.size()>0) {
+					toString+=" ("+node.toString()+" ) <font>"+df2.format(this.proList.get(0))+"</font>";
+					constraints.remove(0);
+					this.proList.remove(0);
+				}
 			}
 			else {
-				toString+="( "+node.toString()+") => ";
+				toString+="( "+node.toString()+" ) <font>"+df2.format(this.proList.get(0))+"</font>";
+				this.proList.remove(0);
 			}
+			
 		}
-		return toString.substring(0,toString.length()-3)+" "+this.getVisitedNumber();
+		this.toString+=this.getFullCfgNode().get(this.getFullCfgNode().size()-1);
+		this.toString+="</td>"+"<td>"+this.getTestCase()+"</td></tr>";
+		return this.toString;
 		
 	}
 	
-	public String toCSV() {
-		List<ICfgNode> fullCfgNodes =this.getFullCfgNode();
-		String toCSV = "";
-		for(ICfgNode node : fullCfgNodes) {
-			if(node.getContent().equals("{")) continue;
-			toCSV+=" ("+node.toString()+") ";
-		}
-		return toCSV;
-	}
+	
 	
 	public Edge searchEdge(ICfgNode node, ICfgNode nextNode) {
 		for(Edge edge : this.edges) {
@@ -92,9 +141,9 @@ public class ProbTestPath {
 	
 	
 	public int getWeight() {
-		int prob=0;
+		int prob=1;
 		for(Edge edge: this.edges) {
-			prob+=edge.getWeight();
+			prob*=edge.getWeight();
 		}
 		return prob;
 	}
@@ -135,7 +184,16 @@ public class ProbTestPath {
 	public void setRealString(String realString) {
 		this.realString = realString;
 	}
-	
+	public void setToString(String toString) {
+		this.toString=toString;
+	}
+	public List<Float> getProList() {
+		return proList;
+	}
+
+	public void setProList(List<Float> proList) {
+		this.proList = proList;
+	}
 	
 	
 }

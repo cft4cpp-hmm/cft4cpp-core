@@ -8,10 +8,15 @@ import java.io.File;
 import java.io.FileWriter;
 import java.lang.System.Logger;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+
+import javax.sound.midi.Soundbank;
 
 import org.fife.ui.rsyntaxtextarea.modes.GroovyTokenMaker;
 
+import HMM.HMMGraph;
+import HMM.Node;
 import cfg.CFGGenerationforSubConditionCoverage;
 import cfg.ICFG;
 import cfg.object.ICfgNode;
@@ -20,7 +25,9 @@ import cfg.testpath.IFullTestpath;
 import cfg.testpath.PartialTestpath;
 import cfg.testpath.PossibleTestpathGeneration;
 import parser.projectparser.ProjectParser;
+import testdata.object.TestpathString_Marker;
 import testdatagen.FunctionExecution;
+import testdatagen.coverage.CFGUpdater_Mark;
 import testdatagen.se.IPathConstraints;
 import testdatagen.se.ISymbolicExecution;
 import testdatagen.se.Parameter;
@@ -46,40 +53,70 @@ public class Main {
 	
 	public static void main(String[] args) {
 		
-		Main HMM = new Main();
-		int epoch = 1;
+		Main Prob = new Main();
+		int epoch = 2;
 		try {
 			int maxIterations= 1;
 			int randomTestPath = 0;
-			Graph graph = HMM.createGraph(Paths.TSDV_R1_2, "forTest(int)", maxIterations);
+			Graph graph = Prob.createGraph(Paths.TSDV_R1_2, "myTest(int)", maxIterations);
+			graph.setEpoches(epoch);
 			graph.addConstraint();
+			HMMGraph hmmGraph = new HMMGraph();
+			Node node;
+			Node nextNode;
 			String solution ;
 			FunctionExecution functionExection = new ProbFunctionExection(graph,pathToZ3,pathToMingw32,pathToGCC,pathToGPlus);
 			int pathNumber = graph.getNewPath();
+			
+			for(ProbTestPath testPath: graph.getFullProbTestPaths()) {
+				for(Edge edge: testPath.getEdge()) {
+					node = new Node(edge.getNode());
+					nextNode = new Node(edge.getNextNode());
+					hmmGraph.addNode(node, nextNode, (float)edge.getWeight());
+				}
+			}
+			
 			do {
 				
-				solution = HMM.getSolutionInRandomPath(graph, pathNumber);
+				solution = Prob.getSolutionInRandomPath(graph, pathNumber);
+				solution=solution.replace("(","");
+				solution=solution.replace(")", "");
 				if(solution=="") {
-					System.out.println("no test case");
 					pathNumber=graph.getNewPath();
 					continue;
 				}
+				
+				TestpathString_Marker testpath = functionExection.getEncodedPath(solution);
+				
+				CFGUpdater_Mark updater = new CFGUpdater_Mark(testpath,graph.getCfg());
+				updater.updateVisitedNodes();
 				ProbTestPath trackedPath = graph.getFullProbTestPaths().get(pathNumber);
-				List<ICfgNode> visitedPath = functionExection.getTestPath(solution);
-				for(ProbTestPath myTestPath: graph.getFullProbTestPaths()) {
+				
+				List<ICfgNode> visitedPath = updater.getUpdatedCFGNodes().getAllCfgNodes();
+				
+				for(int i=0;i< graph.getFullProbTestPaths().size();i++) {
+					ProbTestPath myTestPath = graph.getFullProbTestPaths().get(i);
 					if(myTestPath.compare(visitedPath)) {
-						graph.updateGraph(graph.getFullProbTestPaths().indexOf(myTestPath), 1);
+						graph.updateGraph(i, 1, hmmGraph);
+						myTestPath.setToString(updater.getUpdatedCFGNodes().getFullPath());
 						myTestPath.setTestCase(solution);
+						
 					}
 				}
 				pathNumber=graph.getNewPath();
+				
 			}while(pathNumber!=-1);
 			
-			graph.toTxtFile();
+			hmmGraph.recomputeProbability();
+			graph.createProbabilityForTestPath(hmmGraph);
+			graph.toHtml();
+			
 		}catch(Exception ex) {
 			ex.printStackTrace();
 		}
+		
 		System.out.println("Finish Generting!");
+		
 	}
 	
 	public String getSolutionInRandomPath(Graph graph, int pathNumber) throws Exception{

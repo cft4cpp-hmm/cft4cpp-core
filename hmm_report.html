@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html>
+
+<head> <link rel="stylesheet" type="text/css" href="hmm_report.css">
+
+</head>
+
+<body>
+    <h2>Markov Chain Report</h2>
+    <div class="table-wrapper">
+        <table class="fl-table">
+            <thead>
+                <tr>
+                    <th>PathNumber</th>
+                    <th style="width: 800px">Path</th>
+                    <th>Test Case</th>
+                </tr>
+            </thead>
+            <tbody><tr><td>0</td><td>!(x>0 && x<3)  <font>0.79</font>  !(x>=3 && x<=5)  <font>0.62</font>  return 2;</td><td>x=6;</td></tr><tr><td>1</td><td>!(x>0 && x<3)  <font>0.79</font>  (x>=3 && x<=5)  <font>0.38</font>  return 1;</td><td>x=3;</td></tr><tr><td>2</td><td>(x>0 && x<3)  <font>0.21</font>  !(x==1)  <font>0.67</font>  return 0;</td><td>x=2;</td></tr><tr><td>3</td><td>(x>0 && x<3)  <font>0.21</font>  (x==1)  <font>0.33</font>  return 1;</td><td>x=1;</td></tr>   <tbody>
+        </table></div>
+<div class="conlusion">
+<pre>int myTest(int x){
+	
+	if(x>0 && x<3 ){
+		if(x==1){
+			return 1;
+		}
+		return 0;
+	}
+	else if(x>=3 && x<=5){
+		
+		return 1;
+	}
+	else return 2;
+}</pre><div>Path Coverage: 1.0</div>
+        <div>Generated Time: 7s</div>
+        <div>Statement Cover: 1.0</div></div>
+    </div>
+</body></html>

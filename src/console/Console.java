@@ -71,9 +71,9 @@ public class Console {
 		/**
 		 * AUTHOR: PLEASE CONFIGURE HERE
 		 */
-		String TESTING_PROJET_PATH = Paths.JOURNAL_TEST;
-		String TESTING_FUNCTIONS_LIST = "E:/workspace/java/cft4cpp-core/local/test.txt";
-		String CONFIGURATION_FILE_PATH = "E:/workspace/java/cft4cpp-core/local/setting.properties";
+		String TESTING_PROJET_PATH = Paths.TSDV_R1_2;
+		String TESTING_FUNCTIONS_LIST = "D:/cft4cpp-core/local/test.txt";
+		String CONFIGURATION_FILE_PATH = "D:/cft4cpp-core/local/setting.properties";
 		/**
 		 * AUTHOR: THE END OF CONFIGURATION
 		 */
@@ -82,7 +82,8 @@ public class Console {
 				Console.LOG4J_LEVEL, "debug" };
 
 		Console console = new Console(args);
-		console.exportToHtml(new File(AbstractSetting.getValue(Settingv2.TEST_REPORT)), "xxx");
+		console.exportToHtml(new File(AbstractSetting.getValue(Settingv2.TEST_REPORT)+".html"), "xxx");
+		
 	}
 
 	private ConsoleInput analyzeArgs(String[] args) {

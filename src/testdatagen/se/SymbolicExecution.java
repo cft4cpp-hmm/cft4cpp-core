@@ -216,6 +216,7 @@ public class SymbolicExecution implements ISymbolicExecution {
 		ISymbolicExecution se = new SymbolicExecution(randomTestpath, paramaters, function);
 		System.out.println("constraints=\n" + se.getConstraints());
 		// System.out.println("table var=\n" + se.getTableMapping());
+		
 	}
 
 	private void symbolicTestpath(ITestpathInCFG testpath, VariableNodeTable table, IFunctionNode function)

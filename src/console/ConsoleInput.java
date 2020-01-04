@@ -85,10 +85,12 @@ public class ConsoleInput {
 		try {
 			AbstractTestdataGeneration mars = null;
 			switch (AbstractSetting.getValue(ISettingv2.TESTDATA_STRATEGY)) {
-			case ITestdataGeneration.TESTDATA_GENERATION_STRATEGIES.FAST_MARS + "":
+			case ITestdataGeneration.TESTDATA_GENERATION_STRATEGIES.FAST_MARS + "":{
 				mars = new FastTestdataGeneration(function);
 				break;
-
+			}
+			
+			
 			default:
 				throw new Exception("Wrong test data generation strategy");
 			}
