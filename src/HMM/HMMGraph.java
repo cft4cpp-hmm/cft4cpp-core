@@ -15,29 +15,16 @@ public class HMMGraph {
 		for(Node node1: nodes) {
 			if(node1.getCfgNode() == node.getCfgNode()) {
 				node1.addProbability(nextNode,weight);
-//				for(Node node2: nodes) {
-//					if(node2.getCfgNode()==nextNode.getCfgNode()) {
-//						return;
-//					}
-//				}
-//				nodes.add(nextNode);
 				return ;
 			}
 			
 		}
 		nodes.add(node);
 		node.addProbability(nextNode,weight);
-//		for(Node node2: nodes) {
-//			if(node2.getCfgNode()==nextNode.getCfgNode()) {
-//				return;
-//			}
-//		}
-//		nodes.add(nextNode);
 		
 	}
 	public void recomputeProbability() {
 		for(Node node: nodes) {
-			
 			node.recomputeProbabilities();
 		}
 	}

@@ -16,24 +16,23 @@
                     <th>Test Case</th>
                 </tr>
             </thead>
-            <tbody><tr><td>0</td><td>!(x>0 && x<3)  <font>0.79</font>  !(x>=3 && x<=5)  <font>0.62</font>  return 2;</td><td>x=6;</td></tr><tr><td>1</td><td>!(x>0 && x<3)  <font>0.79</font>  (x>=3 && x<=5)  <font>0.38</font>  return 1;</td><td>x=3;</td></tr><tr><td>2</td><td>(x>0 && x<3)  <font>0.21</font>  !(x==1)  <font>0.67</font>  return 0;</td><td>x=2;</td></tr><tr><td>3</td><td>(x>0 && x<3)  <font>0.21</font>  (x==1)  <font>0.33</font>  return 1;</td><td>x=1;</td></tr>   <tbody>
+            <tbody><tr><td>0</td><td>!(x>1.0)  <font>0.4928</font>  return 4;</td><td>x=0.0;</td></tr><tr><td>1</td><td>(x>1.0)  <font>0.5072</font>  !(x>2.00001 && x<2.000015)  <font>0.5074</font>  !(x<=2.00001 && x>=1.9999)  <font>0.5025</font>  return 3;</td><td>x=1.49995;</td></tr><tr><td>2</td><td>(x>1.0)  <font>0.5072</font>  !(x>2.00001 && x<2.000015)  <font>0.5074</font>  (x<=2.00001 && x>=1.9999)  <font>0.4975</font>  return 2;</td><td>x=1.9999;</td></tr><tr><td>3</td><td>(x>1.0)  <font>0.5072</font>  (x>2.00001 && x<2.000015)  <font>0.4926</font>  return 1;</td><td>x=2.0000125;</td></tr>   <tbody>
         </table></div>
 <div class="conlusion">
-<pre>int myTest(int x){
-	
-	if(x>0 && x<3 ){
-		if(x==1){
+<pre>double doubleTest(double x){
+	if(x>1.0){
+		if(x>2.00001 && x<2.000015){
 			return 1;
 		}
-		return 0;
+		else if(x<=2.00001 && x>=1.9999){
+			return 2;
+		}
+		else return 3;
 	}
-	else if(x>=3 && x<=5){
-		
-		return 1;
-	}
-	else return 2;
+	return 4;
 }</pre><div>Path Coverage: 1.0</div>
-        <div>Generated Time: 7s</div>
-        <div>Statement Cover: 1.0</div></div>
+        <div>Generated Time: 7.745s</div>
+        <div>Statement Cover: 1.0</div>
+        <div>Branch Cover: 1.0</div></div>
     </div>
 </body></html>

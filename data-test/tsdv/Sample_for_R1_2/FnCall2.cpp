@@ -9,24 +9,3 @@ int mmin3_extern(int x, int y, int z){
 	else
 		return z;
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

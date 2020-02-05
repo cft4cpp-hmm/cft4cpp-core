@@ -74,7 +74,7 @@ public class Console {
 		String TESTING_PROJET_PATH = Paths.TSDV_R1_2;
 		String TESTING_FUNCTIONS_LIST = "D:/cft4cpp-core/local/test.txt";
 		String CONFIGURATION_FILE_PATH = "D:/cft4cpp-core/local/setting.properties";
-		/**
+		/** 
 		 * AUTHOR: THE END OF CONFIGURATION
 		 */
 		args = new String[] { Console.LOAD_PROJECT, new File(TESTING_PROJET_PATH).getCanonicalPath(),

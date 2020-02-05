@@ -56,18 +56,18 @@ public class Main {
 		Main Prob = new Main();
 		int epoch = 2;
 		try {
-			int maxIterations= 1;
+			int maxIterations= 5;
 			int randomTestPath = 0;
-			Graph graph = Prob.createGraph(Paths.TSDV_R1_2, "myTest(int)", maxIterations);
+			Graph graph = Prob.createGraph(Paths.TSDV_R1_2, "doubleTest(double)", maxIterations);
 			graph.setEpoches(epoch);
 			graph.addConstraint();
 			HMMGraph hmmGraph = new HMMGraph();
 			Node node;
 			Node nextNode;
 			String solution ;
-			FunctionExecution functionExection = new ProbFunctionExection(graph,pathToZ3,pathToMingw32,pathToGCC,pathToGPlus);
+			ProbFunctionExection functionExection = new ProbFunctionExection(graph,pathToZ3,pathToMingw32,pathToGCC,pathToGPlus);
 			int pathNumber = graph.getNewPath();
-			
+
 			for(ProbTestPath testPath: graph.getFullProbTestPaths()) {
 				for(Edge edge: testPath.getEdge()) {
 					node = new Node(edge.getNode());
@@ -77,7 +77,6 @@ public class Main {
 			}
 			
 			do {
-				
 				solution = Prob.getSolutionInRandomPath(graph, pathNumber);
 				solution=solution.replace("(","");
 				solution=solution.replace(")", "");
@@ -87,26 +86,32 @@ public class Main {
 				}
 				
 				TestpathString_Marker testpath = functionExection.getEncodedPath(solution);
-				
 				CFGUpdater_Mark updater = new CFGUpdater_Mark(testpath,graph.getCfg());
 				updater.updateVisitedNodes();
 				ProbTestPath trackedPath = graph.getFullProbTestPaths().get(pathNumber);
-				
 				List<ICfgNode> visitedPath = updater.getUpdatedCFGNodes().getAllCfgNodes();
 				
+				boolean isRight = false;
 				for(int i=0;i< graph.getFullProbTestPaths().size();i++) {
 					ProbTestPath myTestPath = graph.getFullProbTestPaths().get(i);
 					if(myTestPath.compare(visitedPath)) {
 						graph.updateGraph(i, 1, hmmGraph);
 						myTestPath.setToString(updater.getUpdatedCFGNodes().getFullPath());
 						myTestPath.setTestCase(solution);
-						
+						isRight=true;
+						break;
 					}
 				}
-				pathNumber=graph.getNewPath();
 				
+				if(isRight==false) {
+					graph.updateGraph(pathNumber, 1, hmmGraph);
+					trackedPath.setTestCase(solution);
+				}
+				
+				pathNumber=graph.getNewPath();
 			}while(pathNumber!=-1);
 			
+			functionExection.deleteClone();
 			hmmGraph.recomputeProbability();
 			graph.createProbabilityForTestPath(hmmGraph);
 			graph.toHtml();
@@ -114,7 +119,6 @@ public class Main {
 		}catch(Exception ex) {
 			ex.printStackTrace();
 		}
-		
 		System.out.println("Finish Generting!");
 		
 	}

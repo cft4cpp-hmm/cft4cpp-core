@@ -20,28 +20,28 @@ int bmi(float b_w, float he)
 	double c;
 	c = (b_w / (he * he / 10000));
 	
-	
-		if (c < 19.0) {
+	{
+		if (c < 19) {
 			return 0;
 		}
 
-		else if (c >= 19.0 && c < 25.0) {
+		else if (c >= 19 && c < 25) {
 			return 1;
 
 		}
 
-		else if (c >= 25.0 && c < 30.0) {
+		else if (c >= 25 && c < 30) {
 			return 2;
 		}
 
-		else if (c >= 30.0) {
+		else if (c >= 30) {
 			return 3;
 
 		} else {
 			// (infeasible)
 			return -1;
 		}
-	
+	}
 }
 
 struct Date{

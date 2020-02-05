@@ -1,0 +1,7 @@
+statement={###line-of-blockin-function=1###openning-function=true
+line-in-function=2###offset=34###statement=x>1.0###control-block=if
+statement={###line-of-blockin-function=2
+line-in-function=3###offset=48###statement=x<1.001###control-block=if
+statement={###line-of-blockin-function=3
+line-in-function=4###offset=65###statement=x<1.00001###control-block=if
+line-in-function=7###offset=107###statement=return 2;

@@ -48,7 +48,7 @@ public class Graph {
 	private String pathToFile;
 	private ICFG cfg;
 	private LocalDateTime createdDate;
-	private int epoches ;
+	private int epoches;
 	public Graph(ICFG cfg,List<IFullTestpath> fullPossibleIFullTestpaths, IFunctionNode functionNode, String pathtoFile) {
 		
 		List<IFullTestpath> fullTestpaths = fullPossibleIFullTestpaths;
@@ -64,26 +64,31 @@ public class Graph {
 			List<ICfgNode> fullCfgNodes = (ArrayList<ICfgNode>)this.fullPossibleTestpaths.get(pathNumber).getAllCfgNodes();
 			fullCfgNodes= new ArrayList<ICfgNode>(fullCfgNodes);
 			ProbTestPath myTestPath = new ProbTestPath(pathNumber);
-//			System.out.println(fullCfgNodes);
 			fullCfgNodes.remove(0);
 			fullCfgNodes.remove(fullCfgNodes.size()-1);
+			
 			for(int i=0;i<fullCfgNodes.size();i++) {
-				if(fullCfgNodes.get(i).toString().contains("{")||fullCfgNodes.get(i).toString().contains("}")) {
+				if(fullCfgNodes.get(i).toString().contains("{")||fullCfgNodes.get(i).toString().contains("}")||fullCfgNodes.get(i).toString().indexOf("[")==0) {
 					fullCfgNodes.remove(i);
 					i=i-1;
 				}
 			}
-			
 			for(int i=0;i<fullCfgNodes.size()-1;i++) {
-				
 				Edge edge = new Edge(fullCfgNodes.get(i), fullCfgNodes.get(i+1), pathNumber);
 				myTestPath.addEdge(edge);
 			}
-//			System.out.println(myTestPath.getFullCfgNode());
 			this.fullProbTestPaths.add(myTestPath); 
 		}
 	}
 	
+	public LocalDateTime getCreatedDate() {
+		return createdDate;
+	}
+
+	public void setCreatedDate(LocalDateTime createdDate) {
+		this.createdDate = createdDate;
+	}
+
 	public int getIntersection2Path(ProbTestPath path1, ProbTestPath path2) {
 		int numOfNode=0;
 		for(ICfgNode node1_i : path1.getFullCfgNode()) {
@@ -98,33 +103,20 @@ public class Graph {
 	
 	public void updateGraph(int pathNumber, int weight, HMMGraph hmmGraph) {
 		ProbTestPath testPath = this.fullProbTestPaths.get(pathNumber);
-//		this.setVisitedPath(pathNumber);
 		testPath.setGenerated(true);
 		for(Edge edge : testPath.getEdge()) {
-			
 			Node node = hmmGraph.getNode(edge.getNode());
 			node.updateProbability(edge.getNextNode());
 			
 			
 		}
-		hmmGraph.recomputeProbability();
+
 		for(ProbTestPath testPath2: this.getFullProbTestPaths()) {
 			for(Edge edge: testPath2.getEdge()) {
 				Node node = hmmGraph.getNode(edge.getNode());
 				edge.setWeight(node.getProbability(edge.getNextNode()));
 			}
-		}
-//		for(int i=0;i<this.fullProbTestPaths.size();i++) {
-//			ProbTestPath testPath1 = this.fullProbTestPaths.get(i);
-//			for(Edge edge_i: testPath.getEdge()) {
-//				Edge edge = testPath1.searchEdge(edge_i.getNode(), edge_i.getNextNode());
-//				if(edge!=null) {
-//					edge.addWeight(weight);
-//				}
-//			}
-//		}
-		
-		
+		}		
 	}
 	
 	public void computeProbabilityForAllPath() {
@@ -191,6 +183,7 @@ public class Graph {
 	
 	public void toTxtFile() throws IOException {
 		Duration duration = Duration.between(this.createdDate,LocalDateTime.now());
+		
 		long diff = Math.abs(duration.toSeconds());
 		FileWriter csvWriter = new FileWriter(this.functionNode.getFullName()+".txt",false);
 		csvWriter.append(this.functionNode.getAST().getRawSignature().toString());
@@ -211,8 +204,9 @@ public class Graph {
 	}
 	public void toHtml() throws IOException {
 		Duration duration = Duration.between(this.createdDate,LocalDateTime.now());
-		long diff = Math.abs(duration.toSeconds());
-		FileWriter csvWriter = new FileWriter("hmm_report.html",false);
+		
+		float diff = Math.abs((float)duration.toMillis()/1000);
+		FileWriter csvWriter = new FileWriter("HMM_REPORT.html",false);
 		String valueString = "<!DOCTYPE html>\r\n" + 
 				"<html>\r\n" + 
 				"\r\n" + 
@@ -236,15 +230,16 @@ public class Graph {
 		for(ProbTestPath testPath: this.getFullProbTestPaths()) {
 			valueString+=testPath.toString();
 		}
-//		valueString+=;
+
 		valueString+="   <tbody>\r\n" + 
 				"        </table></div>\r\n" + 
-				"<div class=\"conlusion\">\n"+
+				"<div class=\"conlusion\">\n"+ 
 		        "<pre>"+this.functionNode.getAST().getRawSignature().toString()+
 		        "</pre>"+
 		        "<div>Path Coverage: "+this.getCoverage()+"</div>\r\n" + 
 		        "        <div>Generated Time: "+diff+"s</div>\r\n" + 
-		        "        <div>Statement Cover: "+this.getCfg().computeStatementCoverage()+"</div></div>\r\n"+
+		        "        <div>Statement Cover: "+this.getCfg().computeStatementCoverage()+"</div>\r\n"+
+		        "        <div>Branch Cover: "+this.getCfg().computeBranchCoverage()+"</div></div>\r\n"+
 				"    </div>\r\n" + 
 				"</body></html>";
 		

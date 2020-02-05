@@ -212,6 +212,7 @@ public class FastTestdataGeneration extends AbstractTestdataGeneration {
 					 * STEP 1. INITIALIZE TEST DATA AT RANDOM
 					 */
 					boolean tmp_isGenerateRandomly = false;
+					logger.debug("testData: "+testdata);
 					if (testdata == null || testdata.length() == 0) {
 						testdata = initializeTestdataAtRandom();
 						logger.info("Generate a random test data: <b>" + testdata + "</b>");
@@ -231,6 +232,8 @@ public class FastTestdataGeneration extends AbstractTestdataGeneration {
 
 					String fullTestdata = Utils.readFileContent(Paths.CURRENT_PROJECT.TESTDATA_INPUT_FILE_PATH)
 							.replace("\n", "; ");
+//					logger.debug("testdataExe: "+testdataExecution.getEncodedTestpath());
+					
 					if (testdataExecution != null) {
 						// Update CFG
 						CFGUpdater_Mark cfgUpdater = new CFGUpdater_Mark(testdataExecution.getEncodedTestpath(),

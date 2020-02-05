@@ -58,24 +58,3 @@ int LinkedNodeTest(Node* head){
 	
 	return count;
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

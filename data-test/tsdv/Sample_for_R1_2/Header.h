@@ -4,24 +4,3 @@
 int mmin(int x, int y);
 
 #endif // _SAMPLE2_R1_HEADER_H
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

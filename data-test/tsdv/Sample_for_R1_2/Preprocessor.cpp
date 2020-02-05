@@ -51,24 +51,3 @@ int MarcoAsTypeTest(INT x){
 	else
 		return 0;
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

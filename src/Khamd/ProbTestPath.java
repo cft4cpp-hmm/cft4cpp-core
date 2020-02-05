@@ -24,7 +24,7 @@ public class ProbTestPath {
 	private String testCase;
 	private String toString ;
 	private List<Float> proList;
-	private static DecimalFormat df2 = new DecimalFormat("#.##");
+	private static DecimalFormat df2 = new DecimalFormat("#.####");
 
 	public ProbTestPath(int pathNumber) {
 		this.pathNumber=pathNumber;
@@ -47,10 +47,12 @@ public class ProbTestPath {
 	public boolean compare(List<ICfgNode> cfgNodes) {
 		cfgNodes  = new ArrayList<ICfgNode>(cfgNodes);
 		for(int i=0;i<cfgNodes.size();i++) {
-			if(cfgNodes.get(i).toString().contains("{")||cfgNodes.get(i).toString().contains("}")){
+			if(cfgNodes.get(i).toString().contains("{")||cfgNodes.get(i).toString().contains("}")||cfgNodes.get(i).toString().indexOf("[")==0){
 				cfgNodes.remove(i);
+				i-=1;
 			}
 		}
+		
 		for(ICfgNode node: this.getFullCfgNode()) {
 			if(cfgNodes.indexOf(node)!=this.getFullCfgNode().indexOf(node)) {
 				return false;
@@ -64,60 +66,61 @@ public class ProbTestPath {
 			this.toString=this.toString.replace("{", "");
 			this.toString=this.toString.replace("}", "");
 			this.toString=this.toString.replace("  ", "");
+
 			String[] listStrings = this.toString.split("=>|=> =>");
 			String newString ="<tr><td>"+pathNumber+"</td><td>";
 			List<String> newLiStrings = new ArrayList<String>();
 			
 			for(int i=0;i<listStrings.length;i++) {
-				if(!listStrings[i].equals(" ")&&!listStrings[i].equals("  ")) {
+				if(!listStrings[i].equals(" ")&&!listStrings[i].equals("  ")&&!listStrings[i].contains("[")) {
 					newLiStrings.add(listStrings[i]);
 				}
 			}
 			for(int i=0;i<newLiStrings.size()-1;i++) {
-				newString+=newLiStrings.get(i)+" "+"<font>"+df2.format(this.proList.get(i))+"</font> ";
+				if(newLiStrings.get(i).contains("[")) continue;
+				if(this.proList.size()==0) break;
+				newString+=newLiStrings.get(i)+" "+"<font>"+df2.format(this.proList.get(0))+"</font> ";
+				this.proList.remove(0);
 			}
 			newString+=newLiStrings.get(newLiStrings.size()-1);
 			newString+="</td>"+"<td>"+this.getTestCase()+"</td></tr>";
-			
 			return newString;
 		}
 		
-			List<ICfgNode> fullCfgNodes =this.getFullCfgNode();
 			List<PathConstraint> constraints = new ArrayList<PathConstraint>();
 			Pattern pattern = Pattern.compile("=|<|>");
-			
-			for(PathConstraint c: (PathConstraints) this.getConstraints()) {
-				if(c.getCfgNode().toString().matches(".*\\b(|<|>)\\b.*") || c.getCfgNode().toString().contains("==")){
-					constraints.add(c);
+			try {
+				for(PathConstraint c: (PathConstraints) this.getConstraints()) {
+					if(c.getCfgNode().toString().matches(".*\\b(|<|>)\\b.*") || c.getCfgNode().toString().contains("==")){
+						constraints.add(c);
+					}
+				
 				}
-			
+			}catch (Exception e) {
+				// TODO: handle exception
 			}
-		
-		
-		
-		
+			
 		this.toString = "<tr><td>"+pathNumber+"</td><td>";
-		
 		for(int i=0;i<this.getFullCfgNode().size()-1;i++) {
 			ICfgNode node = this.getFullCfgNode().get(i);
 			if(node.toString().contains("{")||node.toString().contains("}")) {
 				continue;
 			}
-			if(node.toString().matches(".*\\b(==|<|>)\\b.*") || node.toString().contains("==")) {
-				
-				if(constraints.size()>0 && constraints.get(0).toString().indexOf("!")==0) {
-					toString+="!( "+node.toString()+" ) <font>"+df2.format(this.proList.get(0))+"</font>";
+			if(node.toString().contains("<")||node.toString().contains(">") || node.toString().contains("==")) {
+				if(constraints.size()>0 && constraints.get(0).toString().replace(" ", "").indexOf("!")==0) {
+					toString+="!( "+node.toString()+") <font>"+df2.format(this.proList.get(0))+"</font>";
 					constraints.remove(0);
 					this.proList.remove(0);
 				}
 				else if(constraints.size()>0) {
-					toString+=" ("+node.toString()+" ) <font>"+df2.format(this.proList.get(0))+"</font>";
+					toString+=" ("+node.toString()+") <font>"+df2.format(this.proList.get(0))+"</font>";
 					constraints.remove(0);
 					this.proList.remove(0);
 				}
 			}
+			
 			else {
-				toString+="( "+node.toString()+" ) <font>"+df2.format(this.proList.get(0))+"</font>";
+				toString+="( "+node.toString()+") <font>"+df2.format(this.proList.get(0))+"</font>";
 				this.proList.remove(0);
 			}
 			

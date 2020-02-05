@@ -1,1 +1,1 @@
-\myTest(int)
+\doubleTest(double)

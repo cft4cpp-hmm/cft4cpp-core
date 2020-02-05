@@ -16,6 +16,7 @@ import config.Paths;
 import parser.projectparser.ProjectParser;
 import testdatagen.AbstractTestdataGeneration;
 import testdatagen.FastTestdataGeneration;
+import testdatagen.FunctionExecution;
 import testdatagen.ITestdataGeneration;
 import tree.object.FunctionNode;
 import tree.object.IFunctionNode;
@@ -89,6 +90,11 @@ public class ConsoleInput {
 				mars = new FastTestdataGeneration(function);
 				break;
 			}
+//			case ITestdataGeneration.TESTDATA_GENERATION_STRATEGIES.MARS2 + "":{
+//				
+//				mars = new FastTestdataGeneration(function);
+//				break;
+//			}
 			
 			
 			default:

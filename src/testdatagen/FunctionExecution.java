@@ -146,7 +146,7 @@ public class FunctionExecution implements ITestdataExecution {
 
 	public FunctionExecution() {
 		
-		Settingv2.create();
+//		Settingv2.create();
 		AbstractSetting.setValue(ISettingv2.SOLVER_Z3_PATH, "D:\\cft4cpp-core\\local\\z3\\bin\\z3.exe");
 		AbstractSetting.setValue(ISettingv2.GNU_MAKE_PATH,
 				"D:\\program files\\Dev-Cpp\\MinGW64\\bin\\mingw32-make.exe");
@@ -248,17 +248,24 @@ public class FunctionExecution implements ITestdataExecution {
 							+ getClonedProject() + "\\Makefile.win" + " clean all";
 //					logger.debug("Command line: " + cmd);
 				
-					logger.debug("Start compiling");
-					Process process = Runtime.getRuntime().exec(cmd, null, new File(getClonedProject()));
-					process.waitFor(3, TimeUnit.SECONDS);
-					logger.debug("Finish compiling");
+					
+					
+						logger.debug("Start compiling");
+						Process process = Runtime.getRuntime().exec(cmd, null, new File(getClonedProject()));
+						process.waitFor(3, TimeUnit.SECONDS);
+						logger.debug("Finish compiling");
+					
+					
 					
 					/**
 					 * execute the tested project
 					 */
-					logger.debug("Start executing");
-					logger.debug("Finish executing");
-					return executeExecutableFile(rootProject, executionFilePath);
+//					logger.debug("Start executing");
+//					logger.debug("Finish executing");
+//					System.out.println(new File(Paths.CURRENT_PROJECT.EXE_PATH).exists());
+					TestpathString_Marker testpath = executeExecutableFile(rootProject, executionFilePath);
+					
+					return testpath;
 					
 					
 				}
@@ -329,7 +336,8 @@ public class FunctionExecution implements ITestdataExecution {
 		if (Utils.isWindows()) {
 
 			if (Paths.CURRENT_PROJECT.TYPE_OF_PROJECT == ISettingv2.PROJECT_DEV_CPP) {
-
+//				logger.debug("exe is exist "+ new File(Paths.CURRENT_PROJECT.EXE_PATH).exists());
+				
 				String nameExeFile = Utils.getNameOfExeInDevCppMakefile(Paths.CURRENT_PROJECT.MAKEFILE_PATH);
 
 				if (!nameExeFile.equals("")) {
@@ -398,7 +406,7 @@ public class FunctionExecution implements ITestdataExecution {
 		} else {
 			logger.debug("Start executing function");
 			boolean isTerminated = ConsoleExecution.executeExe(new File(Paths.CURRENT_PROJECT.EXE_PATH));
-
+			
 			if (isTerminated) {
 				logger.info("Terminate .exe due to too long!!!");
 				AbstractTestdataGeneration.isTerminateDuetoTooLong = true;
@@ -453,24 +461,25 @@ public class FunctionExecution implements ITestdataExecution {
 				TestpathString_Marker testpath = encodedTestpath;
 				
 
-				ICFG cfg=this.getIcfg();
-				if(cfg == null) return null;
-				CFGUpdater_Mark updater = new CFGUpdater_Mark(testpath, cfg);
+//				ICFG cfg=this.getIcfg();
+//				if(cfg == null) return null;
+//				CFGUpdater_Mark updater = new CFGUpdater_Mark(testpath, cfg);
+//				
+//				updater.updateVisitedNodes();
 				
-				updater.updateVisitedNodes();
+//				logger.debug("visited statements: " + cfg.getVisitedStatements());
+//				logger.debug("Visited branches: " + cfg.getVisitedBranches());
+//				logger.debug("Visited nodes: " + updater.getUpdatedCFGNodes().getAllCfgNodes());
+//				logger.debug("Coverage: "+cfg.computeBranchCoverage());
+//				logger.debug(updater.getUpdatedCFGNodes().getFullPath());
 				
-				logger.debug("visited statements: " + cfg.getVisitedStatements());
-				logger.debug("Visited branches: " + cfg.getVisitedBranches());
-				logger.debug("Visited nodes: " + updater.getUpdatedCFGNodes().getAllCfgNodes());
-				logger.debug("Coverage: "+cfg.computeBranchCoverage());
-				logger.debug(updater.getUpdatedCFGNodes().getFullPath());
-				
-				for (String stm : stms)
-					tp += stm + "=>";
-				tp = tp.substring(0, tp.length() - 2);
+//				for (String stm : stms)
+//					tp += stm + "=>";
+//				tp = tp.substring(0, tp.length() - 2);
 
 				
-				logger.debug("Done. Execution test path [length=" + stms.size() + "] = " + tp.replace(" ", ""));
+//				logger.debug("Done. Execution test path [length=" + stms.size() + "] = " + tp.replace(" ", ""));
+				
 				return testpath;
 			} else
 				logger.debug("Done. Empty test path");
@@ -541,6 +550,7 @@ public class FunctionExecution implements ITestdataExecution {
 
 	protected void killExeProcess(String pathEXE) throws Exception {
 		File f = new File(pathEXE);
+		
 		if (!f.delete()) {
 			String processName = pathEXE.substring(pathEXE.lastIndexOf(File.separator) + 1);
 

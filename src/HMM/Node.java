@@ -30,14 +30,12 @@ public class Node {
 		}
 	}
 	public void updateProbability(ICfgNode cfgNode) {
-//		System.out.println(node.getCfgNode()+"ok");
-//		System.out.println(this.probabilities.size());
 		Node node;
 		float newValue = 0;
 		for(Node node1: this.probabilities.keySet()) {
 			if(node1.getCfgNode()==cfgNode) {
 				newValue = this.probabilities.get(node1);
-				newValue +=1;
+				newValue +=0.01;
 				this.probabilities.put(node1, this.probabilities.containsKey(node1)? newValue : (float)1);
 				this.recomputeProbabilities();
 				return;

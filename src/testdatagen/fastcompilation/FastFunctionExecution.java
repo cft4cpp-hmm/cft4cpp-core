@@ -52,7 +52,7 @@ public class FastFunctionExecution extends FunctionExecution {
 
 	public FastFunctionExecution(IFunctionNode fn, String staticSolution) throws Exception {
 		clonedProject = fn.getAbsolutePath().substring(0,fn.getAbsolutePath().indexOf("\\",40));
-		System.out.println("here + "+clonedProject);
+		
 		
 		if (isInitializedCompilerEnvironment()) {
 			Backup backup = saveCurrentState(fn);
@@ -95,6 +95,7 @@ public class FastFunctionExecution extends FunctionExecution {
 							
 							Process process = Runtime.getRuntime().exec(cmd, null, new File(getClonedProject()));
 							process.waitFor(3, TimeUnit.SECONDS);
+							
 //							logger.debug("Finish compiling");
 //							ConsoleExecution.compileMakefile(new File(Paths.CURRENT_PROJECT.MAKEFILE_PATH));
 						} else

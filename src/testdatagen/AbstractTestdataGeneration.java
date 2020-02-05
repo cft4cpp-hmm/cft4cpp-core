@@ -194,6 +194,8 @@ public abstract class AbstractTestdataGeneration implements ITestdataGeneration 
 		ITestdataExecution dynamic = null;
 		int MAX_NUMBER_OF_EXECUTION = 4;
 		int MIN_NUMBER_OF_EXECUTION = 1;
+		
+		
 		do {
 			switch (AbstractSetting.getValue(ISettingv2.TESTDATA_STRATEGY)) {
 			case ITestdataGeneration.TESTDATA_GENERATION_STRATEGIES.MARS2 + "":{
@@ -207,15 +209,21 @@ public abstract class AbstractTestdataGeneration implements ITestdataGeneration 
 				break;
 
 			default:
+				
 				throw new Exception("Wrong test data generation strategy");
 			}
 
 			MIN_NUMBER_OF_EXECUTION++;
+			
 		} while (dynamic != null && dynamic.getEncodedTestpath().getEncodedTestpath().length() == 0
 				&& MIN_NUMBER_OF_EXECUTION <= MAX_NUMBER_OF_EXECUTION);
 
-		if (MIN_NUMBER_OF_EXECUTION > MAX_NUMBER_OF_EXECUTION)
+		if (MIN_NUMBER_OF_EXECUTION > MAX_NUMBER_OF_EXECUTION) {
+			logger.debug("wrong"+AbstractSetting.getValue(ISettingv2.TESTDATA_STRATEGY));
+		
 			return null;
+		}
+			
 		else
 			return dynamic;
 	}
