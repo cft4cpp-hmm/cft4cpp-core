@@ -57,7 +57,7 @@ public class ProbFunctionExection extends FunctionExecution{
 		
 	}
 	public void deleteClone() {
-//		Utils.deleteFileOrFolder(clone);
+		Utils.deleteFileOrFolder(clone);
 	}
 	
 }
