@@ -58,7 +58,7 @@ public class Main {
 		try {
 			int maxIterations= 5;
 			int randomTestPath = 0;
-			Graph graph = Prob.createGraph(Paths.TSDV_R1_2, "doubleTest(double)", maxIterations);
+			Graph graph = Prob.createGraph(Paths.TSDV_R1_2, "whileTest1(int)", maxIterations);
 			graph.setEpoches(epoch);
 			graph.addConstraint();
 			HMMGraph hmmGraph = new HMMGraph();
@@ -98,12 +98,14 @@ public class Main {
 						graph.updateGraph(i, 1, hmmGraph);
 						myTestPath.setToString(updater.getUpdatedCFGNodes().getFullPath());
 						myTestPath.setTestCase(solution);
+						System.out.println(myTestPath.getTestCase());
 						isRight=true;
 						break;
 					}
 				}
 				
 				if(isRight==false) {
+				
 					graph.updateGraph(pathNumber, 1, hmmGraph);
 					trackedPath.setTestCase(solution);
 				}

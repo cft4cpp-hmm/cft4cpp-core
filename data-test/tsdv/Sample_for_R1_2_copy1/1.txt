@@ -1,0 +1,19 @@
+statement={###line-of-blockin-function=1###openning-function=true
+line-in-function=2###offset=27###statement=int size = sizeof(arr)/sizeof(arr[0]);
+line-in-function=3###offset=68###statement=int s = 0;
+statement={###additional-code=true###surrounding-control-block=for
+line-in-function=4###offset=85###statement=int i=0;
+line-in-function=4###offset=93###statement=i< size
+statement={###line-of-blockin-function=4
+line-in-function=5###offset=110###statement=s+=arr[i];
+statement=}###line-of-blockin-function=4
+line-in-function=4###offset=101###statement=i++
+line-in-function=4###offset=93###statement=i< size
+statement={###line-of-blockin-function=4
+line-in-function=5###offset=110###statement=s+=arr[i];
+statement=}###line-of-blockin-function=4
+line-in-function=4###offset=101###statement=i++
+line-in-function=4###offset=93###statement=i< size
+statement=}###additional-code=true###surrounding-control-block=for
+line-in-function=7###offset=130###statement=s%2==0###control-block=if
+line-in-function=7###offset=138###statement=return 0;

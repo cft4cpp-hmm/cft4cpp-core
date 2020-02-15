@@ -254,7 +254,7 @@ public class FunctionExecution implements ITestdataExecution {
 						Process process = Runtime.getRuntime().exec(cmd, null, new File(getClonedProject()));
 						process.waitFor(3, TimeUnit.SECONDS);
 						logger.debug("Finish compiling");
-						System.out.println(cmd);
+//						System.out.println(cmd);
 					
 					
 					
