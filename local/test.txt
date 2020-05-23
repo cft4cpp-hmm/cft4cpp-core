@@ -1,1 +1,1 @@
-\doubleTest(double)
+\maxx(int)

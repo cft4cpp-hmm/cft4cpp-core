@@ -13,6 +13,8 @@ import parser.projectparser.ProjectParser;
 import testdata.object.TestpathString_Marker;
 import testdatagen.FunctionExecution;
 import tree.object.FunctionNode;
+import tree.object.IFunctionNode;
+import tree.object.INode;
 import utils.Utils;
 import utils.search.FunctionNodeCondition;
 import utils.search.Search;
@@ -28,14 +30,16 @@ public class ProbFunctionExection extends FunctionExecution{
 		clone = Utils.copy(testedProject);
 		Paths.CURRENT_PROJECT.CLONE_PROJECT_PATH = clone.getAbsolutePath();
 		ProjectParser parser = new ProjectParser(clone);
-		FunctionConfig config = new FunctionConfig();
-		config.setCharacterBound(new ParameterBound(32, 100));
-		config.setIntegerBound(new ParameterBound(0, 100));
-		
-		FunctionNode testedFunction = (FunctionNode) Search
-				.searchNodes(parser.getRootTree(), new FunctionNodeCondition(), graph.getFunctionNode().getName()).get(0);
-		this.setTestedFunction(testedFunction);
-		this.setPreparedInput(preparedInput);
+//		FunctionConfig config = new FunctionConfig();
+//		config.setCharacterBound(new ParameterBound(32, 100));
+//		config.setIntegerBound(new ParameterBound(0, 100));
+		INode function = Search
+				.searchNodes(parser.getRootTree(), new FunctionNodeCondition(), graph.getFunctionNode().getName())
+				.get(0);
+//		FunctionNode testedFunction = (FunctionNode) Search
+//				.searchNodes(parser.getRootTree(), new FunctionNodeCondition(), graph.getFunctionNode().getName()).get(0);
+		this.setTestedFunction((IFunctionNode) function);
+//		this.setPreparedInput(preparedInput);
 		this.setClonedProject(clone.getCanonicalPath());
 		this.setCFG(this.graph.getCfg());
 	}
@@ -46,7 +50,7 @@ public class ProbFunctionExection extends FunctionExecution{
 
 			this.setPreparedInput(preparedInput);
 			TestpathString_Marker testpathString_Marker= this.analyze(this.getTestedFunction(), this.getPreparedInput());
-
+			
 			return testpathString_Marker;
 			
 		}catch (Exception e) {

@@ -106,6 +106,7 @@ public class CFGGenerationforBranchvsStatementCoverage implements ICFGGeneration
 		ICFG cfg = cfgGen.generateCFG();
 		cfg.setIdforAllNodes();
 		System.out.println(cfg.toString());
+		
 	}
 
 	@Override

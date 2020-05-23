@@ -69,6 +69,10 @@ h2 {
   color: blue;
   font-weight: bold;
 }
+.fl-table font.redColor{
+	color: red;
+}
+
 .conlusion {
   margin: 0 auto;
   margin-top: 50px;

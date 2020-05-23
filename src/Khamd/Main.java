@@ -1,73 +1,127 @@
 package Khamd;
 
+import config.AbstractSetting;
+import config.FunctionConfig;
+import config.ISettingv2;
+import config.ParameterBound;
 import config.Paths;
+import config.Settingv2;
+import net.sourceforge.jeval.function.math.Min;
 import normalizer.FunctionNormalizer;
 
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileWriter;
+import java.io.*; 
 import java.lang.System.Logger;
+import java.lang.module.ModuleDescriptor.Version;
+import java.time.Duration;
+import java.time.LocalDateTime;
+import java.time.Year;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Random;
 
 import javax.sound.midi.Soundbank;
+import javax.swing.text.AbstractDocument.LeafElement;
 
+import org.apache.poi.hssf.eventusermodel.dummyrecord.MissingCellDummyRecord;
+import org.apache.xmlbeans.impl.tool.PrettyPrinter;
 import org.fife.ui.rsyntaxtextarea.modes.GroovyTokenMaker;
+
+import com.ibm.icu.util.RangeValueIterator.Element;
 
 import HMM.HMMGraph;
 import HMM.Node;
 import cfg.CFGGenerationforSubConditionCoverage;
 import cfg.ICFG;
+import cfg.object.AbstractConditionLoopCfgNode;
+import cfg.object.CfgNode;
+import cfg.object.ConditionDoCfgNode;
 import cfg.object.ICfgNode;
 import cfg.testpath.FullTestpath;
 import cfg.testpath.IFullTestpath;
+import cfg.testpath.IStaticSolutionGeneration;
+import cfg.testpath.ITestpathInCFG;
 import cfg.testpath.PartialTestpath;
 import cfg.testpath.PossibleTestpathGeneration;
+import parser.makefile.object.GPlusPlusExeCondition;
 import parser.projectparser.ProjectParser;
 import testdata.object.TestpathString_Marker;
 import testdatagen.FunctionExecution;
 import testdatagen.coverage.CFGUpdater_Mark;
+import testdatagen.loop.PossibleTestpathGenerationForLoop;
 import testdatagen.se.IPathConstraints;
 import testdatagen.se.ISymbolicExecution;
 import testdatagen.se.Parameter;
 import testdatagen.se.PathConstraint;
 import testdatagen.se.PathConstraints;
 import testdatagen.se.SymbolicExecution;
+import testdatagen.se.solver.ISmtLibGeneration;
 import testdatagen.se.solver.RunZ3OnCMD;
 import testdatagen.se.solver.SmtLibGeneration;
 import testdatagen.se.solver.Z3SolutionParser;
+import tree.object.AbstractFunctionNode;
 import tree.object.FunctionNode;
 import tree.object.IFunctionNode;
 import tree.object.INode;
+import tree.object.IVariableNode;
+import utils.SpecialCharacter;
+import utils.Utils;
 import utils.search.FunctionNodeCondition;
 import utils.search.Search;
 
 public class Main {
-	public static String pathToZ3 ="D:\\cft4cpp-core\\local\\z3\\bin\\z3.exe";
-	public static String pathToMingw32 = "D:\\program files\\Dev-Cpp\\MinGW64\\bin\\mingw32-make.exe";
-	public static String pathToGCC = "D:\\program files\\Dev-Cpp\\MinGW64\\bin\\gcc.exe";
-	public static String pathToGPlus = "D:\\program files\\Dev-Cpp\\MinGW64\\bin\\g++.exe";
-	public static String pathToConstraint = "D:\\cft4cpp-core\\myConstraint.smt2";
-	public static SmtLibGeneration smt = new SmtLibGeneration();
+//	public static String pathToZ3 ="D:\\cft4cpp-core\\local\\z3\\bin\\z3.exe";
+//	public static String pathToMingw32 = "D:\\program files\\Dev-Cpp\\MinGW64\\bin\\mingw32-make.exe";
+//	public static String pathToGCC = "D:\\program files\\Dev-Cpp\\MinGW64\\bin\\gcc.exe";
+//	public static String pathToGPlus = "D:\\program files\\Dev-Cpp\\MinGW64\\bin\\g++.exe";
+//	public static String pathToConstraint = "D:\\cft4cpp-core\\myConstraint.smt2";
+	public static String pathToZ3 = AbstractSetting.getValue(Settingv2.SOLVER_Z3_PATH);
+	public static String pathToMingw32 = AbstractSetting.getValue(Settingv2.GNU_MAKE_PATH);
+	public static String pathToGCC = AbstractSetting.getValue(Settingv2.GNU_GCC_PATH);
+	public static String pathToGPlus = AbstractSetting.getValue(Settingv2.GNU_GPlusPlus_PATH);
+	public static String pathToConstraint = "myConstraint.smt2";
 	
+	public static SmtLibGeneration smt = new SmtLibGeneration();
+	public static final int version = 1;    // 1 for weighted graph 2 for probability graph
+	public static final int coverage = 0;   // 0 for C1,C2. 1 for C3
+	public static final int max = 20;		// The K's biggest value
+	public static final int min = 5;		// The K's smallest value
+	public static final int maxLoopInGenerateTestcaseForLoopFunction = 4;
 	public static void main(String[] args) {
-		
+
 		Main Prob = new Main();
-		int epoch = 2;
+		int epoch = 3;
+		List<String> listSolution = new ArrayList<String>();
 		try {
-			int maxIterations= 5;
+			int maxIterations = 1;
 			int randomTestPath = 0;
-			Graph graph = Prob.createGraph(Paths.TSDV_R1_2, "whileTest1(int)", maxIterations);
+			String func_name = null;
+			String fileName = "testFunction.txt";
+			File testedFile = new File(fileName);
+
+			BufferedReader br = new BufferedReader(new FileReader(testedFile));
+			while ((func_name= br.readLine())!=null) {
+				break;
+			}
+			
+			Graph graph = null;
+			try {
+				graph = Prob.createGraph(Paths.TSDV_R1_2, func_name ,maxIterations,coverage);
+			}catch (StackOverflowError e) {
+				System.out.println("Cannnot generate CFG");
+				// TODO: handle exception
+			}
+			
 			graph.setEpoches(epoch);
 			graph.addConstraint();
-			HMMGraph hmmGraph = new HMMGraph();
+			boolean isLoopFunction = graph.hasLoop();
+			HMMGraph hmmGraph = new HMMGraph(version);
 			Node node;
 			Node nextNode;
 			String solution ;
 			ProbFunctionExection functionExection = new ProbFunctionExection(graph,pathToZ3,pathToMingw32,pathToGCC,pathToGPlus);
 			int pathNumber = graph.getNewPath();
-
+			
 			for(ProbTestPath testPath: graph.getFullProbTestPaths()) {
 				for(Edge edge: testPath.getEdge()) {
 					node = new Node(edge.getNode());
@@ -76,52 +130,194 @@ public class Main {
 				}
 			}
 			
+			
 			do {
 				solution = Prob.getSolutionInRandomPath(graph, pathNumber);
 				solution=solution.replace("(","");
 				solution=solution.replace(")", "");
+				System.out.println(solution);
 				if(solution=="") {
 					pathNumber=graph.getNewPath();
 					continue;
 				}
 				
-				TestpathString_Marker testpath = functionExection.getEncodedPath(solution);
-				CFGUpdater_Mark updater = new CFGUpdater_Mark(testpath,graph.getCfg());
-				updater.updateVisitedNodes();
-				ProbTestPath trackedPath = graph.getFullProbTestPaths().get(pathNumber);
-				List<ICfgNode> visitedPath = updater.getUpdatedCFGNodes().getAllCfgNodes();
-				
-				boolean isRight = false;
-				for(int i=0;i< graph.getFullProbTestPaths().size();i++) {
-					ProbTestPath myTestPath = graph.getFullProbTestPaths().get(i);
-					if(myTestPath.compare(visitedPath)) {
-						graph.updateGraph(i, 1, hmmGraph);
-						myTestPath.setToString(updater.getUpdatedCFGNodes().getFullPath());
-						myTestPath.setTestCase(solution);
-						System.out.println(myTestPath.getTestCase());
-						isRight=true;
-						break;
-					}
+				listSolution.add(solution);
+				List<String> list = new ArrayList<String>();
+				for(ICfgNode node1: graph.getFullPossibleFullTestpaths().get(pathNumber).getAllCfgNodes()) {
+					list.add(node1.toString());
 				}
-				
+
+				ProbTestPath trackedPath = graph.getFullProbTestPaths().get(pathNumber);
+
+				boolean isRight = false;
 				if(isRight==false) {
-				
-					graph.updateGraph(pathNumber, 1, hmmGraph);
+					graph.updateGraph(pathNumber, 1, hmmGraph,version);
 					trackedPath.setTestCase(solution);
 				}
 				
 				pathNumber=graph.getNewPath();
+				
 			}while(pathNumber!=-1);
+			LocalDateTime nowDateTime = LocalDateTime.now();
+//			System.out.println(nowDateTime.getSecond());
+			graph.computeBranchCover();
+			graph.computeStatementCov();
+			Graph graphForLoop;
 			
-			functionExection.deleteClone();
-			hmmGraph.recomputeProbability();
+			if(coverage==0) {
+				graphForLoop = graph;
+			}
+			else {
+				graphForLoop = Prob.createGraph(Paths.TSDV_R1_2, func_name ,maxIterations,0);
+			}
+			
+			
+			Random random = new Random();
+			String loopSolution=IStaticSolutionGeneration.NO_SOLUTION;
+			PossibleTestpathGenerationForLoop tpForLoop = null;
+			int k =2 ;
+			int loopCover = 2;
+			boolean resultForCondition = false;
+			List<AbstractConditionLoopCfgNode> listCondition = new ArrayList<AbstractConditionLoopCfgNode>();
+			boolean hasSolution = false;
+			int temp=-1;
+			AbstractConditionLoopCfgNode tempConditionLoopCfgNode = null;
+			AbstractConditionLoopCfgNode tempCondition = null;
+			boolean usedNumbericCon = false;
+			boolean breakLoop = false;
+			
+			while(loopCover!=4&&!breakLoop) {
+				if(usedNumbericCon) {
+					break;
+				}
+				int count = 0;
+				AbstractConditionLoopCfgNode condition = graphForLoop.getLastConditionNode(listCondition);
+				
+				
+				if(!isNumbericCondition(condition).equals(IStaticSolutionGeneration.NO_SOLUTION) && !isNumbericCondition(condition).equals("-1")) {
+					temp=Integer.parseInt(isNumbericCondition(condition));
+					tempCondition = condition;
+					listCondition.add(condition);
+					continue;
+					
+				}
+				
+				if(condition==null&&temp==-1) {
+					break;
+				}
+				else if(condition==null){
+					condition = tempCondition;
+					usedNumbericCon=true;
+				}
+				
+				listCondition.add(condition);
+				if(condition instanceof ConditionDoCfgNode) {
+					PossibleTestpathGenerationForLoop.isDoWhileLoop = true;
+				}
+				
+				if(graph.get_2LoopSolution()==null&&usedNumbericCon==false) {
+					k=2;
+				}
+				else if (graph.getLoopSolution()==null) {
+					if(usedNumbericCon==true) {
+						k = temp;
+					}
+					else k = random.nextInt((max - min)+1)+min;
+				}
+				else break;
+				
+			do{
+				
+				try {
+					tpForLoop = new PossibleTestpathGenerationForLoop(graphForLoop.getCfg(), condition);
+					tpForLoop.setMaximumIterationsForOtherLoops(k);
+					tpForLoop.setIterationForUnboundedTestingLoop(k);
+					tpForLoop.setAddTheEndTestingCondition(true);
+					tpForLoop.generateTestpaths();
+				}catch (OutOfMemoryError e) {
+					// TODO: handle exception
+					breakLoop=true;
+					break;
+				}
+				
+				int i = 0;
+				loopSolution = solveTestpath(graphForLoop.getCfg(), tpForLoop.getPossibleTestpaths().get(i));
+					if(!loopSolution.contentEquals(IStaticSolutionGeneration.NO_SOLUTION)) {
+						i = (tpForLoop.getPossibleTestpaths().size())/2;
+						loopSolution = solveTestpath(graphForLoop.getCfg(), tpForLoop.getPossibleTestpaths().get(i));
+						if(!loopSolution.contentEquals(IStaticSolutionGeneration.NO_SOLUTION) && tpForLoop.getPossibleTestpaths().size()>1) {
+							i = (tpForLoop.getPossibleTestpaths().size())-1;
+							loopSolution = solveTestpath(graphForLoop.getCfg(), tpForLoop.getPossibleTestpaths().get(i));
+							
+						}
+					}
+					
+					if(k==2) {
+						graph.setPathFor2Loop(tpForLoop.getPossibleTestpaths().get(i));
+					}
+					else {
+						graph.setPathForKLoop(tpForLoop.getPossibleTestpaths().get(i));
+						graph.setK(k);
+					}
+					System.out.println(k);
+					System.out.println("solution: "+loopSolution);
+					if(!loopSolution.contentEquals(IStaticSolutionGeneration.NO_SOLUTION)) {
+						if(k==2) {
+							graph.set_2LoopSolution(loopSolution);
+							graph.setRealFor2loop(tpForLoop.getRealMaximumIterationForTestingLoop());
+							graph.setPathFor2Loop(tpForLoop.getPossibleTestpaths().get(i));
+							k = random.nextInt((max - min)+1)+min;
+							loopSolution = IStaticSolutionGeneration.NO_SOLUTION;
+							loopCover +=1;
+						}
+						
+						else {
+							
+							hasSolution = true;
+							graph.setK(k);
+							graph.setLoopSolution(loopSolution);
+							graph.setRealLoppiterations(tpForLoop.getRealMaximumIterationForTestingLoop());
+							graph.setPathForKLoop(tpForLoop.getPossibleTestpaths().get(i));
+							loopCover+=1;
+							break;
+							
+						}
+					
+					}
+
+				count ++;
+				
+				if(k==2) {
+					k = random.nextInt((max - min)+1)+min;
+				}
+				else k++;
+			}while(!hasSolution && count < maxLoopInGenerateTestcaseForLoopFunction);
+			
+		}
+			
+			graph.setK(k);
+			
+			System.out.println("Finish Generating!");
+			System.out.println("Computing Coverage");
+			
+			
 			graph.createProbabilityForTestPath(hmmGraph);
-			graph.toHtml();
+
+			Duration duration = Duration.between(nowDateTime,LocalDateTime.now());
+			
+			float diff = (float)duration.toSeconds();
+			functionExection.deleteClone();
+			
+			hmmGraph.recomputeProbability();
+			graph.setLoopCover(loopCover);
+			graph.toHtml(nowDateTime,coverage,(float)duration.toMillis()/1000);
 			
 		}catch(Exception ex) {
 			ex.printStackTrace();
 		}
-		System.out.println("Finish Generting!");
+	
+		System.out.println("Finish Generating!");
+		
 		
 	}
 	
@@ -136,25 +332,194 @@ public class Main {
 		smt.setTestcases(function.getArguments());
 		smt.setConstraints(constraints);
 		smt.generate();
-		BufferedWriter writer = new BufferedWriter(new FileWriter("myConstraint.smt2", false));
+
+		BufferedWriter writer = new BufferedWriter(new FileWriter(pathToConstraint, false));
 		writer.write(smt.getSmtLibContent());
 		writer.close();
 		RunZ3OnCMD run = new RunZ3OnCMD(pathToZ3, pathToConstraint);
 		run.execute();
 		return new Z3SolutionParser().getSolution(run.getSolution());
 	}
+	public static String solveTestpath(ICFG cfg, ITestpathInCFG testpath) throws Exception {
+		IFunctionNode function = (IFunctionNode) cfg.getFunctionNode();
+//		List<PathConstraint> constraints =new ArrayList<PathConstraint>();
+		Parameter paramaters = new Parameter();
+		for (INode n : ((FunctionNode) function).getArguments())
+			paramaters.add(n);
+		
+		for (INode n : ((FunctionNode) function).getReducedExternalVariables())
+			paramaters.add(n);
+		
+		ISymbolicExecution se = new SymbolicExecution(testpath, paramaters, function);
+//		for(IFullTestpath fullTestpath:this.getFullPossibleFullTestpaths()) {
+//			
+//			int path = this.getFullPossibleFullTestpaths().indexOf(fullTestpath);
+//			this.getFullProbTestPaths().get(path).setConstraints(se.getConstraints());
+//		}
+		List<PathConstraint> constraints = (List<PathConstraint>) se.getConstraints();
+		
+		
+		smt.setTestcases(function.getArguments());
+		smt.setConstraints(constraints);
+		smt.generate();
+		
+		BufferedWriter writer = new BufferedWriter(new FileWriter(pathToConstraint, false));
+		writer.write(smt.getSmtLibContent());
+		writer.close();
+		RunZ3OnCMD run = new RunZ3OnCMD(pathToZ3, pathToConstraint);
+		run.execute();
+		return new Z3SolutionParser().getSolution(run.getSolution());
+		
+		
+	}
 	
-	
-	public Graph createGraph(String pathtoFile, String functionName,int maxIteration) throws Exception {
-		ProjectParser parser = new ProjectParser(new File(pathtoFile));
-		IFunctionNode function = (IFunctionNode) Search.searchNodes(parser.getRootTree(), new FunctionNodeCondition(), functionName).get(0);
-		FunctionNormalizer fnNorm = function.normalizedAST();
-		function.setAST(fnNorm.getNormalizedAST());
+	public Graph createGraph(String pathtoFile, String functionName,int maxIteration, int coverage) throws Exception {
 		ICFG cfg;
-		cfg = function.generateCFG();
-		cfg.generateAllPossibleTestpaths(maxIteration);
+		ProjectParser parser = new ProjectParser(new File(pathtoFile));
+		INode function;
+		if(coverage==0) {
+			
+			function = (IFunctionNode) Search.searchNodes(parser.getRootTree(), new FunctionNodeCondition(), functionName).get(0);
+			FunctionNormalizer fnNorm = ((IFunctionNode) function).normalizedAST();
+//			ICFG cfg;
+			FunctionConfig config = new FunctionConfig();
+			config.setCharacterBound(new ParameterBound(32, 100));
+			config.setIntegerBound(new ParameterBound(0, 100));
+			config.setSizeOfArray(20);
+			 ((IFunctionNode) function).setFunctionConfig(config);
+			 
+			cfg = ((IFunctionNode) function).generateCFG();
+			cfg.generateAllPossibleTestpaths(maxIteration);
+//			System.out.println(dfg);
+			
+		}
+		else {
+			function = Search
+					.searchNodes(parser.getRootTree(), new FunctionNodeCondition(), functionName)
+					.get(0);
+			FunctionConfig functionConfig = new FunctionConfig();
+			functionConfig.setSolvingStrategy(ISettingv2.SUPPORT_SOLVING_STRATEGIES[0]);
+			((IFunctionNode ) function).setFunctionConfig(functionConfig);
+			FunctionNormalizer fnNorm = ((IFunctionNode) function).normalizedAST();
+			String normalizedCoverage = fnNorm.getNormalizedSourcecode();
+			((IFunctionNode ) function).setAST(fnNorm.getNormalizedAST());
+			IFunctionNode clone = (IFunctionNode) function.clone();
+			clone.setAST(Utils.getFunctionsinAST(normalizedCoverage.toCharArray()).get(0));
+			CFGGenerationforSubConditionCoverage cfgGen = new CFGGenerationforSubConditionCoverage(clone);
+			cfg = cfgGen.generateCFG();
+//			cfg.setIdforAllNodes();
+			cfg.setFunctionNode(clone);
+			
+			
+		}
 		PossibleTestpathGeneration tpGen = new PossibleTestpathGeneration(cfg,maxIteration);
 		tpGen.generateTestpaths();
-		return new Graph(cfg,tpGen.getPossibleTestpaths(),function,pathtoFile);
+		return new Graph(cfg,tpGen.getPossibleTestpaths(),(IFunctionNode)function,pathtoFile,version);
+		
+//		functionConfig.setCharacterBound(new ParameterBound(30, 120));
+//		functionConfig.setIntegerBound(new ParameterBound(10, 200));
+//		functionConfig.setSizeOfArray(5);
+////		functionConfig.setMaximumInterationsForEachLoop(1);
+		
+//		
+		
+		
+//		INode function = Search
+//				.searchNodes(parser.getRootTree(), new FunctionNodeCondition(), functionName)
+//				.get(0);
+//		FunctionConfig functionConfig = new FunctionConfig();
+//		functionConfig.setSolvingStrategy(ISettingv2.SUPPORT_SOLVING_STRATEGIES[0]);
+//		((IFunctionNode ) function).setFunctionConfig(functionConfig);
+//		FunctionNormalizer fnNorm = ((IFunctionNode) function).normalizedAST();
+//		String normalizedCoverage = fnNorm.getNormalizedSourcecode();
+//		((IFunctionNode ) function).setAST(fnNorm.getNormalizedAST());
+//		IFunctionNode clone = (IFunctionNode) function.clone();
+//		clone.setAST(Utils.getFunctionsinAST(normalizedCoverage.toCharArray()).get(0));
+//		CFGGenerationforSubConditionCoverage cfgGen = new CFGGenerationforSubConditionCoverage(clone);
+//		ICFG cfg = cfgGen.generateCFG();
+//		cfg.setIdforAllNodes();
+//		cfg.setFunctionNode(clone);
+		
+
+	}
+//	public static void genForKLoop(Graph graph, AbstractConditionLoopCfgNode condition, int k) {
+//		String loopSolution = "";
+//		PossibleTestpathGenerationForLoop tpForLoop = null;
+//		tpForLoop = new PossibleTestpathGenerationForLoop(graph.getCfg(), condition);
+//		tpForLoop.setMaximumIterationsForOtherLoops(k);
+//		tpForLoop.setIterationForUnboundedTestingLoop(k);
+//		tpForLoop.setAddTheEndTestingCondition(true);
+//		tpForLoop.generateTestpaths();
+//		int i = 0;
+//		loopSolution = solveTestpath(graph.getCfg(), tpForLoop.getPossibleTestpaths().get(i));
+//			if(!loopSolution.contentEquals(IStaticSolutionGeneration.NO_SOLUTION)) {
+//				i = (tpForLoop.getPossibleTestpaths().size())/2;
+//				loopSolution = solveTestpath(graph.getCfg(), tpForLoop.getPossibleTestpaths().get(i));
+//				if(!loopSolution.contentEquals(IStaticSolutionGeneration.NO_SOLUTION) && tpForLoop.getPossibleTestpaths().size()>1) {
+//					i = (tpForLoop.getPossibleTestpaths().size())-1;
+//					loopSolution = solveTestpath(graph.getCfg(), tpForLoop.getPossibleTestpaths().get(i));
+//				}
+//			}
+//			
+//			if(k==2) {
+//				graph.setPathFor2Loop(tpForLoop.getPossibleTestpaths().get(i));
+//			}
+//			else {
+//				graph.setPathForKLoop(tpForLoop.getPossibleTestpaths().get(i));
+//				graph.setK(k);
+//			}
+//			if(!loopSolution.contentEquals(IStaticSolutionGeneration.NO_SOLUTION)) {
+//				if(k==2) {
+//					graph.set_2LoopSolution(loopSolution);
+//					graph.setRealFor2loop(tpForLoop.getRealMaximumIterationForTestingLoop());
+//					graph.setPathFor2Loop(tpForLoop.getPossibleTestpaths().get(i));
+//					k = random.nextInt((max - min)+1)+min;
+//					loopSolution = IStaticSolutionGeneration.NO_SOLUTION;
+//					loopCover +=1;
+//				}
+//				
+//				else {
+//					
+//					hasSolution = true;
+//					graph.setK(k);
+//					graph.setLoopSolution(loopSolution);
+//					graph.setRealLoppiterations(tpForLoop.getRealMaximumIterationForTestingLoop());
+//					graph.setPathForKLoop(tpForLoop.getPossibleTestpaths().get(i));
+//					loopCover+=1;
+//					break;
+//					
+//				}
+//			
+//			}
+//
+//		count ++;
+//		if(k==2) {
+//			k = random.nextInt((max - min)+1)+min;
+//		}
+//		else k++;
+//	}
+//	
+	public static String isNumbericCondition(ICfgNode node) {
+		if(node==null) {
+			return "-1";
+		}
+		
+		String nodeString = String.valueOf(node.toString()).replaceAll("(|)", "").replace("||", "&&");
+		String[] listCondition = nodeString.split("&&");
+		for(String element:listCondition) {
+			String leftSide = node.toString().split(">=|<=|==|!=|<|>")[0];
+			String rightSide = node.toString().split(">=|<=|==|!=|<|>")[1];
+			String number="";
+			if(leftSide.matches("[-+]?[0-9]*\\.?[0-9]+")) {
+				number=leftSide;
+				return number;
+			}
+			else if(rightSide.matches("[-+]?[0-9]*\\.?[0-9]+")) {
+				number=rightSide;
+				return number;
+			}
+		}
+		
+		return IStaticSolutionGeneration.NO_SOLUTION;
 	}
 }

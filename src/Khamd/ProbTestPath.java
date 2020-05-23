@@ -58,6 +58,11 @@ public class ProbTestPath {
 				return false;
 			}
 		}
+		if(this.getFullCfgNode().size()!=cfgNodes.size()) {
+			return false;
+		}
+		
+		
 		return true;
 	}
 	public String toString() {
@@ -101,26 +106,42 @@ public class ProbTestPath {
 			}
 			
 		this.toString = "<tr><td>"+pathNumber+"</td><td>";
+		int temp = 0;
 		for(int i=0;i<this.getFullCfgNode().size()-1;i++) {
+//			System.out.println(temp);
 			ICfgNode node = this.getFullCfgNode().get(i);
 			if(node.toString().contains("{")||node.toString().contains("}")) {
 				continue;
 			}
 			if(node.toString().contains("<")||node.toString().contains(">") || node.toString().contains("==")) {
 				if(constraints.size()>0 && constraints.get(0).toString().replace(" ", "").indexOf("!")==0) {
-					toString+="!( "+node.toString()+") <font>"+df2.format(this.proList.get(0))+"</font>";
+					if(this.proList.get(0)==1 && temp == 1) {
+						toString+="<font class = \"redColor\">!( "+node.toString()+")</font> <font>"+df2.format(this.proList.get(0))+"</font>";
+					}
+					else toString+="!( "+node.toString()+") <font>"+df2.format(this.proList.get(0))+"</font>";
+					temp = Integer.parseInt(df2.format(this.proList.get(0)).toString().replace(".", ""));
 					constraints.remove(0);
 					this.proList.remove(0);
 				}
 				else if(constraints.size()>0) {
-					toString+=" ("+node.toString()+") <font>"+df2.format(this.proList.get(0))+"</font>";
+					if(this.proList.get(0)==1 && temp == 1) {
+						toString+="<font class = \"redColor\">!( "+node.toString()+")</font> <font>"+df2.format(this.proList.get(0))+"</font>";
+					}
+					else 
+						toString+=" ("+node.toString()+") <font>"+df2.format(this.proList.get(0))+"</font>";
+					temp = Integer.parseInt(df2.format(this.proList.get(0)).toString().replace(".", ""));
 					constraints.remove(0);
 					this.proList.remove(0);
 				}
 			}
 			
 			else {
-				toString+="( "+node.toString()+") <font>"+df2.format(this.proList.get(0))+"</font>";
+				if(this.proList.get(0)==1 && temp ==1) {
+					toString+="<font class = \"redColor\">( "+node.toString()+")</font> <font>"+df2.format(this.proList.get(0))+"</font>";
+				}
+				else 
+					toString+="( "+node.toString()+") <font>"+df2.format(this.proList.get(0))+"</font>";
+				temp = Integer.parseInt(df2.format(this.proList.get(0)).toString().replace(".", ""));
 				this.proList.remove(0);
 			}
 			

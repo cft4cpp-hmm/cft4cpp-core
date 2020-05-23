@@ -139,7 +139,7 @@ public class CFGUpdater_Mark implements ICFGUpdater {
 	public void updateVisitedNodes() {
 		ArrayList<StatementInTestpath_Mark> detailTestpath = removeRedundantStatements();
 		logger.debug("Compared testpath:" + detailTestpath);
-
+		
 		Set<ICfgNode> candidateCfgNodes = new HashSet<>();
 		candidateCfgNodes.add(cfg.getBeginNode().getTrueNode());
 		ICfgNode previousNode = cfg.getBeginNode();
@@ -149,6 +149,7 @@ public class CFGUpdater_Mark implements ICFGUpdater {
 
 		logger.debug("Visited statements: " + visitedStatements.toString());
 		logger.debug("Visited branches: " + visitedBranches.toString());
+//		System.out.println(cand);
 		for (ICfgNode node : visitedStatements) {
 			updatedCFGNodes.getAllCfgNodes().add(node);
 			node.setVisit(true);
@@ -344,7 +345,7 @@ public class CFGUpdater_Mark implements ICFGUpdater {
 				.getPropertyByName(FunctionInstrumentationForStatementvsBranch_Marker.LINE_NUMBER_IN_FUNCTION);
 		Property_Marker surroundingMarker = propertiesInANode
 				.getPropertyByName(FunctionInstrumentationForStatementvsBranch_Marker.SOURROUNDING_MARKER);
-		
+//		cfg.getFunctionNode().getAST();
 		int lineOfFunctionInFile = cfg.getFunctionNode().getAST().getFileLocation().getStartingLineNumber();
 
 		if (stm != null && checkedNode.getContent().equals(stm.getValue())) {

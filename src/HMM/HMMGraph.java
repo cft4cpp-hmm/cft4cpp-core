@@ -8,8 +8,10 @@ import cfg.object.ICfgNode;
 
 public class HMMGraph {
 	private List<Node> nodes;
-	public HMMGraph() {
+	private int version;
+	public HMMGraph(int version) {
 		nodes = new ArrayList<Node>();
+		this.version = version;
 	}
 	public void addNode(Node node, Node nextNode, float weight) {
 		for(Node node1: nodes) {
@@ -24,6 +26,9 @@ public class HMMGraph {
 		
 	}
 	public void recomputeProbability() {
+		if(this.version==1) {
+			return ;
+		}
 		for(Node node: nodes) {
 			node.recomputeProbabilities();
 		}

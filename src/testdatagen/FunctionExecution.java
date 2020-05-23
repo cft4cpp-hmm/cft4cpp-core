@@ -254,7 +254,6 @@ public class FunctionExecution implements ITestdataExecution {
 						Process process = Runtime.getRuntime().exec(cmd, null, new File(getClonedProject()));
 						process.waitFor(3, TimeUnit.SECONDS);
 						logger.debug("Finish compiling");
-//						System.out.println(cmd);
 					
 					
 					
@@ -316,12 +315,14 @@ public class FunctionExecution implements ITestdataExecution {
 
 	@Override
 	public String normalizeTestpathFromFile(String testpath) {
+		
 		testpath = testpath.replace("\r\n", ITestpathInCFG.SEPARATE_BETWEEN_NODES)
 				.replace("\n\r", ITestpathInCFG.SEPARATE_BETWEEN_NODES)
 				.replace("\n", ITestpathInCFG.SEPARATE_BETWEEN_NODES)
 				.replace("\r", ITestpathInCFG.SEPARATE_BETWEEN_NODES);
 		if (testpath.equals(ITestpathInCFG.SEPARATE_BETWEEN_NODES))
 			testpath = "";
+		
 		return testpath;
 	}
 

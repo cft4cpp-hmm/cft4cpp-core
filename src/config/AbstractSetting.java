@@ -41,9 +41,11 @@ public abstract class AbstractSetting implements ISettingv2 {
 	public static String getValue(String key) {
 		Attributes settings = loadSettings();
 		for (String keyItem : settings.keySet())
-			if (keyItem.equals(key))
+			if (keyItem.equals(key)) {
+//				System.out.println(settings.get(keyItem));
 				return settings.get(keyItem).replace("\n\r", "").replace("\r\n", "").replace("\n", "").replace("\r", "")
 						.trim();
+			}
 		return "";
 	}
 

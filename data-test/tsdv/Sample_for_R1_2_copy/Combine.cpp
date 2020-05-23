@@ -82,3 +82,24 @@ int ClassOfPointerTest(ClassWithPointer c){
 }
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -38,9 +38,19 @@ public class RandomValueGen {
 				if (child instanceof NormalCharacterDataNode)
 					((NormalDataNode) child).setValue(BasicTypeRandom.generateInt(
 							fnConfig.getCharacterBound().getLower(), fnConfig.getCharacterBound().getUpper()));
-				else if (child instanceof NormalNumberDataNode)
-					((NormalDataNode) child).setValue(BasicTypeRandom.generateInt(fnConfig.getIntegerBound().getLower(),
-							fnConfig.getIntegerBound().getUpper()));
+				else if (child instanceof NormalNumberDataNode) {
+					if(fnConfig == null || fnConfig.getIntegerBound()==null) {
+						((NormalDataNode) child).setValue(BasicTypeRandom.generateInt(-1000,
+								1000));
+					}
+					else {
+						
+						((NormalDataNode) child).setValue(BasicTypeRandom.generateInt(fnConfig.getIntegerBound().getLower(),
+								fnConfig.getIntegerBound().getUpper()));
+					}
+					
+				}
+					
 				else if (child instanceof EnumDataNode) {
 					((EnumDataNode) child).setValue(randomValueEnum(child));
 				} else

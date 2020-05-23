@@ -8,11 +8,15 @@ public class Edge {
 	private Edge nextEdge;
 	private float weight;
 	private int pathNumber;
-	
-	public Edge(ICfgNode node, ICfgNode nextNode, int pathNumber ) {
+	private boolean isVisited;
+	public Edge(ICfgNode node, ICfgNode nextNode, int pathNumber, int version) {
 		this.node=node;
 		this.nextNode=nextNode;
-		this.weight=1;
+		
+		if(version ==0) {
+			this.weight = 1;
+		}
+		else this.weight = 1;
 		this.pathNumber=pathNumber;
 	}
 	public void addWeight(int unit) {
@@ -43,5 +47,12 @@ public class Edge {
 	public void setPathNumber(int pathNumber) {
 		this.pathNumber = pathNumber;
 	}
+	public void setIsVisited() {
+		this.isVisited = true;
+	}
+	public boolean isVisited() {
+		return this.isVisited;
+	}
+	
 	
 }

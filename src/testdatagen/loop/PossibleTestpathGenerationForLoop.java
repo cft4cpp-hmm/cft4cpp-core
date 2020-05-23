@@ -50,6 +50,7 @@ import utils.search.Search;
  */
 public class PossibleTestpathGenerationForLoop extends AbstractPossibleTestpathGenerationForLoop {
 	final static Logger logger = Logger.getLogger(PossibleTestpathGenerationForLoop.class);
+	public static boolean isDoWhileLoop = false;
 
 	public PossibleTestpathGenerationForLoop(ICFG cfg, AbstractConditionLoopCfgNode loopCondition) {
 		this.cfg = cfg;
@@ -61,7 +62,7 @@ public class PossibleTestpathGenerationForLoop extends AbstractPossibleTestpathG
 		ProjectParser parser = new ProjectParser(new File(Paths.SYMBOLIC_EXECUTION_TEST));
 
 		IFunctionNode function = (IFunctionNode) Search
-				.searchNodes(parser.getRootTree(), new FunctionNodeCondition(), "Merge1(int[3],int[3],int[6])").get(0);
+				.searchNodes(parser.getRootTree(), new FunctionNodeCondition(), "LaSoNguyenTo(int,int)").get(0);
 		logger.debug(function.getAST().getRawSignature());
 
 		// Generate cfg
@@ -70,17 +71,21 @@ public class PossibleTestpathGenerationForLoop extends AbstractPossibleTestpathG
 		cfg.setFunctionNode(function);
 		cfg.setIdforAllNodes();
 		cfg.resetVisitedStateOfNodes();
-
+		
 		// Generate test path for loop
 		AbstractConditionLoopCfgNode loopCondition = (AbstractConditionLoopCfgNode) cfg
-				.findFirstCfgNodeByContent("i < 3");
+				.findFirstCfgNodeByContent("k < y");
+		
+		
 		PossibleTestpathGenerationForLoop tpGen = new PossibleTestpathGenerationForLoop(cfg, loopCondition);
-		tpGen.setMaximumIterationsForOtherLoops(4);
-		tpGen.setIterationForUnboundedTestingLoop(10);
+		tpGen.setMaximumIterationsForOtherLoops(11);
+		tpGen.setIterationForUnboundedTestingLoop(11);
 		tpGen.setAddTheEndTestingCondition(true);
+		
 		tpGen.generateTestpaths();
-
+		
 		logger.debug("num test path = " + tpGen.getPossibleTestpaths().size());
+		logger.debug(tpGen.getRealMaximumIterationForTestingLoop());
 	}
 
 	@Override
@@ -88,26 +93,34 @@ public class PossibleTestpathGenerationForLoop extends AbstractPossibleTestpathG
 			boolean isJustOverTheTestingLoop) throws Exception {
 		if (!isJustOverTheTestingLoop && !(stm instanceof EndFlagCfgNode)) {
 			tp.add(stm);
+			
 			ICfgNode trueNode = stm.getTrueNode();
 			ICfgNode falseNode = stm.getFalseNode();
 
 			if (stm instanceof ConditionCfgNode) {
 				int currentIterations = tp.count(trueNode);
-
+				if(this.isDoWhileLoop) {
+					currentIterations-=1;
+				}
 				if (stm instanceof AbstractConditionLoopCfgNode) {
+					
 					// If the current condition is the testing loop condition
 					if (stm.equals(loopCondition)) {
+						
 						// Find the maximum iteration for the testing loop
+						
 						if (currentIterations == 0) {
+							
 							maximumIterationForTestingLoop = getMaximumIterationsInTargetCondition(stm, tp);
 						}
 
 						if (currentIterations < maximumIterationForTestingLoop) {
+							
 							traverseCFG(trueNode, tp, testpaths, false);
 
 						} else if (currentIterations == maximumIterationForTestingLoop) {
 							PartialTestpath newTp = (PartialTestpath) tp.clone();
-
+							
 							if (!addTheEndTestingCondition)
 								newTp.remove(newTp.size() - 1);
 							else {
@@ -119,14 +132,14 @@ public class PossibleTestpathGenerationForLoop extends AbstractPossibleTestpathG
 									+ maximumIterationsForOtherLoops + ", INCREASE = " + delta_);
 
 							// solve
-							String solution = solveTestpath(cfg.getFunctionNode(), newTp);
-							if (!solution.equals(IStaticSolutionGeneration.NO_SOLUTION)) {
-								logger.debug(newTp.getFullPath());
-								logger.debug(newTp.getDescription());
-								logger.debug(solution);
-								logger.debug("\n\n");
-							} else
-								logger.debug("no solution");
+//							String solution = solveTestpath(cfg.getFunctionNode(), newTp);
+//							if (!solution.equals(IStaticSolutionGeneration.NO_SOLUTION)) {
+//								logger.debug(newTp.getFullPath());
+//								logger.debug(newTp.getDescription());
+//								logger.debug(solution);
+//								logger.debug("\n\n");
+//							} else
+//								logger.debug("no solution");
 							testpaths.add(newTp);
 						}
 

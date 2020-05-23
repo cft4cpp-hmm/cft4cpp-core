@@ -26,11 +26,13 @@ import com.ibm.icu.text.UFieldPosition;
 import HMM.HMMGraph;
 import HMM.Node;
 import cfg.ICFG;
+import cfg.object.AbstractConditionLoopCfgNode;
 import cfg.object.BranchInCFG;
 import cfg.object.ICfgNode;
 import cfg.testpath.FullTestpath;
 import cfg.testpath.FullTestpaths;
 import cfg.testpath.IFullTestpath;
+import cfg.testpath.ITestpathInCFG;
 import testdatagen.se.ISymbolicExecution;
 import testdatagen.se.Parameter;
 import testdatagen.se.PathConstraint;
@@ -49,17 +51,37 @@ public class Graph {
 	private ICFG cfg;
 	private LocalDateTime createdDate;
 	private int epoches;
-	public Graph(ICFG cfg,List<IFullTestpath> fullPossibleIFullTestpaths, IFunctionNode functionNode, String pathtoFile) {
+	private String loopSolution;
+	private int k;
+	private int RealLoppiterations;
+	private float statementCover;
+	private float branchCover;
+	private int realFor2loop;
+	private String _2LoopSolution;
+	private int loopCover;
+	private ITestpathInCFG pathFor2Loop;
+	private ITestpathInCFG pathForKLoop;
+	public int getRealLoppiterations() {
+		return RealLoppiterations;
+	}
+
+	public void setRealLoppiterations(int realLoppiterations) {
+		RealLoppiterations = realLoppiterations;
+	}
+
+	public Graph(ICFG cfg,List<IFullTestpath> fullPossibleIFullTestpaths, IFunctionNode functionNode, String pathtoFile, int version) {
 		
 		List<IFullTestpath> fullTestpaths = fullPossibleIFullTestpaths;
 		this.fullPossibleTestpaths=fullPossibleIFullTestpaths;
 		this.functionNode=functionNode;
 		this.pathToFile=pathtoFile;
 		this.createdDate = LocalDateTime.now();
+//		System.out.println(this.createdDate.getSecond());
 		this.fullProbTestPaths = new ArrayList<ProbTestPath>();
 		this.cfg=cfg;
 		this.epoches = 1;
-		
+		this._2LoopSolution= null;
+		this.loopSolution = null;
 		for(int pathNumber = 0; pathNumber< this.fullPossibleTestpaths.size(); pathNumber++) {
 			List<ICfgNode> fullCfgNodes = (ArrayList<ICfgNode>)this.fullPossibleTestpaths.get(pathNumber).getAllCfgNodes();
 			fullCfgNodes= new ArrayList<ICfgNode>(fullCfgNodes);
@@ -74,7 +96,7 @@ public class Graph {
 				}
 			}
 			for(int i=0;i<fullCfgNodes.size()-1;i++) {
-				Edge edge = new Edge(fullCfgNodes.get(i), fullCfgNodes.get(i+1), pathNumber);
+				Edge edge = new Edge(fullCfgNodes.get(i), fullCfgNodes.get(i+1), pathNumber,version);
 				myTestPath.addEdge(edge);
 			}
 			this.fullProbTestPaths.add(myTestPath); 
@@ -101,28 +123,88 @@ public class Graph {
 		return numOfNode-1;
 	}
 	
-	public void updateGraph(int pathNumber, int weight, HMMGraph hmmGraph) {
+	public void updateGraph(int pathNumber, int weight, HMMGraph hmmGraph, int version) {
 		ProbTestPath testPath = this.fullProbTestPaths.get(pathNumber);
 		testPath.setGenerated(true);
-		for(Edge edge : testPath.getEdge()) {
-			Node node = hmmGraph.getNode(edge.getNode());
-			node.updateProbability(edge.getNextNode());
-			
+		for(ICfgNode cfgNode : testPath.getFullCfgNode()) {
+			cfgNode.setVisit(true);
+		}
+		for(Edge edge: testPath.getEdge()) {
+			edge.setIsVisited();
+//			System.out.println(edge.isVisited());
+			for(ProbTestPath testPath1 : this.getFullProbTestPaths()) {
+				for(Edge edge1 : testPath1.getEdge()) {
+					if(testPath1!=testPath&&edge.getNode()==edge1.getNode()&&edge.getNextNode()==edge1.getNextNode()) {
+						edge1.setIsVisited();
+					}
+				}
+			}
 			
 		}
+		
+		for(Edge edge : testPath.getEdge()) {
+			Node node = hmmGraph.getNode(edge.getNode());
+			node.updateProbability(edge.getNextNode(),version);
+		}
+		
 
 		for(ProbTestPath testPath2: this.getFullProbTestPaths()) {
 			for(Edge edge: testPath2.getEdge()) {
 				Node node = hmmGraph.getNode(edge.getNode());
 				edge.setWeight(node.getProbability(edge.getNextNode()));
 			}
-		}		
+		}	
+		
 	}
 	
-	public void computeProbabilityForAllPath() {
+	public float computeBranchCover() {
+		Set<Edge> setEdges = new HashSet<Edge>();
+		Set<Edge> visitedEdges = new HashSet<Edge>();
+		for(ProbTestPath testPath: this.getFullProbTestPaths()) {
+			for(Edge edge: testPath.getEdge()) {
+				if(edge.isVisited()) {
+					visitedEdges.add(edge);
+				}
+				setEdges.add(edge);
+			}
+		}
+		
+//		return (float)visitedEdges.size()/setEdges.size();
+		if(visitedEdges.size()!=0) {
+			this.branchCover = (float)visitedEdges.size()/setEdges.size();
+		}
+		return this.branchCover;
+	}
+	public float computeStatementCov() {
+		int visitedNode = 0;
+		for(ICfgNode cfgNode : this.cfg.getAllNodes()) {
+			if(cfgNode.isVisited()) {
+				visitedNode++;
+			}
+		}
+//		System.out.println(visitedNode);
+//		System.out.println(this.cfg.getAllNodes().size());
+		
+		if(visitedNode!=0){
+			this.statementCover = (float)visitedNode/this.getAllCFGNode();
+			
+		}
+		return this.statementCover;
+		
+	}
+	public int getAllCFGNode() {
+		Set<ICfgNode> nodes = new HashSet();
+		for(ProbTestPath testPath : this.getFullProbTestPaths()) {
+			for(ICfgNode node: testPath.getFullCfgNode()) {
+				nodes.add(node);
+			}
+		}
+		return nodes.size();
+	}
+	public void computeProbabilityForAllPath(int version) {
 		Node node;
 		Node nextNode;
-		HMMGraph hmmGraph = new HMMGraph();
+		HMMGraph hmmGraph = new HMMGraph(version);
 		for(ProbTestPath probTestPath : this.getFullProbTestPaths()) {
 			for(Edge edge : probTestPath.getEdge()) {
 				node = new Node(edge.getNode());
@@ -148,6 +230,7 @@ public class Graph {
 	public float getCoverage() {
 		return (float)this.countVisitedNode()/(this.getFullProbTestPaths().size());
 	}
+	
 	public int getNewPath() {
 		int weight=-1;
 		int index =-1;
@@ -156,6 +239,7 @@ public class Graph {
 				if(testPath.getWeight()>=weight) {
 					weight=testPath.getWeight();
 					index = this.fullProbTestPaths.indexOf(testPath);
+					break;
 				}
 			}
 		}
@@ -176,36 +260,17 @@ public class Graph {
 			ISymbolicExecution se = new SymbolicExecution(fullTestpath, paramaters, this.functionNode);
 			int path = this.getFullPossibleFullTestpaths().indexOf(fullTestpath);
 			this.getFullProbTestPaths().get(path).setConstraints(se.getConstraints());
-			
 		}
 
 	}
 	
-	public void toTxtFile() throws IOException {
-		Duration duration = Duration.between(this.createdDate,LocalDateTime.now());
+	
+	public void toHtml(LocalDateTime diff1, int coverage, float timeForLoop) throws IOException {
 		
-		long diff = Math.abs(duration.toSeconds());
-		FileWriter csvWriter = new FileWriter(this.functionNode.getFullName()+".txt",false);
-		csvWriter.append(this.functionNode.getAST().getRawSignature().toString());
-		csvWriter.append("\n \n");
-		csvWriter.append("Path file: "+this.functionNode.getAbsolutePath()+" \n");
-		for(ProbTestPath testPath: this.fullProbTestPaths) {
-			csvWriter.append("\n Path "+this.fullProbTestPaths.indexOf(testPath)+ ": ");
-			csvWriter.append(testPath.toString());
-			csvWriter.append("\n");
-			csvWriter.append("\tTest case: "+testPath.getTestCase());
-			csvWriter.append("\n");
-		}
-		csvWriter.append("\n\nPath Coverage: "+this.getCoverage());
-		csvWriter.append("\nStatement Coverage: "+this.getCfg().computeStatementCoverage());
-		csvWriter.append("\nGenerated time: "+ diff+"s");
-		csvWriter.close();
-		
-	}
-	public void toHtml() throws IOException {
-		Duration duration = Duration.between(this.createdDate,LocalDateTime.now());
+		Duration duration = Duration.between(this.createdDate,diff1);
 		
 		float diff = Math.abs((float)duration.toMillis()/1000);
+//		diff-=diff1;
 		FileWriter csvWriter = new FileWriter("HMM_REPORT.html",false);
 		String valueString = "<!DOCTYPE html>\r\n" + 
 				"<html>\r\n" + 
@@ -222,25 +287,75 @@ public class Graph {
 				"            <thead>\r\n" + 
 				"                <tr>\r\n" + 
 				"                    <th>PathNumber</th>\r\n" + 
-				"                    <th style=\"width: 800px\">Path</th>\r\n" + 
-				"                    <th>Test Case</th>\r\n" + 
+				"                    <th style=\"width: 800px\">Test path</th>\r\n" + 
+				"                    <th>Test Data</th>\r\n" + 
 				"                </tr>\r\n" + 
 				"            </thead>\r\n" + 
 				"            <tbody>";
 		for(ProbTestPath testPath: this.getFullProbTestPaths()) {
 			valueString+=testPath.toString();
 		}
-
+		String loopString = "";
+		try {
+			if(this.hasLoop()) {
+				 loopString = "    <div class=\"table-wrapper\">\r\n" + 
+						"        <table class=\"fl-table\">\r\n" + 
+						"            <thead>\r\n" + 
+						"                <tr>\r\n" + 
+						"                    <th>Number of iteration</th>\r\n" + 
+						"                    <th style=\"width: 800px\">Test path</th>\r\n" + 
+						"                    <th>Test Data</th>\r\n" + 
+						"                </tr>\r\n" + 
+						"            </thead>\r\n" + 
+						"            <tbody>";
+//				try {
+					loopString+= "<tr><td>"+2+"</td><td>"+this.getPathFor2Loop().toString().substring(0, 50) + "...</td><td>"+(this.get_2LoopSolution()==null?"no solution":this.get_2LoopSolution())+"</td>";
+					loopString+= "<tr><td>"+this.getK()+"</td><td>"+this.getPathForKLoop().toString().substring(0,50) + "...</td><td>"+(this.getLoopSolution()==null?"no solution":this.getLoopSolution())+"</td>";
+					
+//				}catch (Exception e) {
+//					// TODO: handle exception
+//					loopString+= "<tr><td>"+2+"</td><td>"+"no test path" + "...</td><td>"+(this.get_2LoopSolution()==null?"no solution":this.get_2LoopSolution())+"</td>";
+//					loopString+= "<tr><td>"+this.getK()+"</td><td>"+"no test path" + "...</td><td>"+(this.getLoopSolution()==null?"no solution":this.getLoopSolution())+"</td>";
+//					
+//				}
+				
+				loopString+="   <tbody>\r\n" + 
+						"        </table></div>\r\n";
+			}
+		}catch (Exception e) {
+			// TODO: handle exception
+		}
+		
+		valueString+=loopString;
+		float stateCov = this.getCfg().computeStatementCoverage();
+		float branchCov = this.getCfg().computeBranchCoverage();
+		
+//		if(this.getCoverage()==1 && (stateCov==0 || branchCov==0)) {
+//			stateCov =1;
+//			branchCov = 1;
+//		}
+//		String coverInfoC1vsC2 = "  <div>Statement Cover: "+this.computeStatementCov()+"</div>\r\n"+
+//		        "        <div>Branch Cover "+this.computeBranchCover()+"</div></div>\r\n";
+		
+		String coverInfo = coverage == 1? "        <div>Cover: "+this.computeBranchCover()+"</div>\r\n"+
+		        "        <div> "+1+"</div></div>\r\n":"  <div>Statement Cover: "+this.computeStatementCov()+"</div>\r\n"+
+				        "        <div>Branch Cover "+this.computeStatementCov()+"</div></div>\r\n";
+		
 		valueString+="   <tbody>\r\n" + 
 				"        </table></div>\r\n" + 
 				"<div class=\"conlusion\">\n"+ 
 		        "<pre>"+this.functionNode.getAST().getRawSignature().toString()+
+		        
 		        "</pre>"+
 		        "<div>Path Coverage: "+this.getCoverage()+"</div>\r\n" + 
-		        "        <div>Generated Time: "+diff+"s</div>\r\n" + 
-		        "        <div>Statement Cover: "+this.getCfg().computeStatementCoverage()+"</div>\r\n"+
-		        "        <div>Branch Cover: "+this.getCfg().computeBranchCoverage()+"</div></div>\r\n"+
-				"    </div>\r\n" + 
+		        "        <div>Time For "+(coverage==0?"C2 :":"C3: ") + diff+"s</div>\r\n" + 
+		        
+(this.hasLoop()?  "        <div>Time For Loop Generation: "+timeForLoop+"s</div>\r\n" + 
+		        "        <div>Loop Cover: "+(float)this.getLoopCover()/4+"</div>\r\n" :"")+
+		        coverInfo+
+//		        "        <div>Cover: "+this.computeBranchCover()+"</div>\r\n"+
+//		        "        <div> "+1+"</div></div>\r\n"+
+//				"    </div>\r\n" + 
 				"</body></html>";
 		
 		csvWriter.append(valueString);
@@ -257,6 +372,27 @@ public class Graph {
 			}
 			testPath.setProList(proList);
 		}
+	}
+	public boolean hasLoop() {
+		for(ICfgNode cfgNode: this.cfg.getAllNodes()) {
+			if(cfgNode instanceof AbstractConditionLoopCfgNode) {
+				return true;
+				
+			}
+		}
+		return false;
+	}
+	public AbstractConditionLoopCfgNode getLastConditionNode(List<AbstractConditionLoopCfgNode> listCondition) {
+		ICfgNode node = null;
+//		int count = 0;
+		for(ICfgNode cfgNode: this.cfg.getAllNodes()) {
+			if(cfgNode instanceof AbstractConditionLoopCfgNode && !listCondition.contains(cfgNode)) {
+				node = cfgNode;
+//				count++;
+			}
+		}
+//		System.out.println("count: "+count);
+		return (AbstractConditionLoopCfgNode)node;
 	}
 	
 	public ICFG getCfg() {
@@ -291,6 +427,62 @@ public class Graph {
 
 	public void setEpoches(int epoches) {
 		this.epoches = epoches;
+	}
+
+	public String getLoopSolution() {
+		return loopSolution;
+	}
+
+	public void setLoopSolution(String loopSolution) {
+//		System.out.println(loopSolution);
+		this.loopSolution = loopSolution;
+	}
+
+	public int getK() {
+		return k;
+	}
+
+	public void setK(int k) {
+		this.k = k;
+	}
+	public String get_2LoopSolution() {
+		return _2LoopSolution;
+	}
+
+	public void set_2LoopSolution(String _2LoopSolution) {
+		this._2LoopSolution = _2LoopSolution;
+	}
+
+	public int getRealFor2loop() {
+		return realFor2loop;
+	}
+
+	public void setRealFor2loop(int realFor2loop) {
+		this.realFor2loop = realFor2loop;
+	}
+
+	public int getLoopCover() {
+		return loopCover;
+	}
+
+	public void setLoopCover(int loopCover) {
+		this.loopCover = loopCover;
+	}
+
+	public ITestpathInCFG getPathFor2Loop() {
+		return pathFor2Loop;
+	}
+
+	public void setPathFor2Loop(ITestpathInCFG pathFor2Loop) {
+		this.pathFor2Loop = pathFor2Loop;
+	}
+
+	public ITestpathInCFG getPathForKLoop() {
+		return pathForKLoop;
+	}
+
+	public void setPathForKLoop(ITestpathInCFG pathForKLoop) {
+		this.pathForKLoop = pathForKLoop;
 	}
 	
 	

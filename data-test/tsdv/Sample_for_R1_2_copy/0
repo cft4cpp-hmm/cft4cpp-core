@@ -1,0 +1,6 @@
+statement={###line-of-blockin-function=1###openning-function=true
+line-in-function=2###offset=23###statement=int maxx = 5;
+line-in-function=3###offset=41###statement=float e;
+line-in-function=4###offset=54###statement=int x=0;
+line-in-function=5###offset=72###statement=a < maxx###control-block=if
+line-in-function=11###offset=146###statement=e = 1/x;
