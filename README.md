@@ -2,20 +2,21 @@
 # [Name Here] 
 
 ## Deveplopment enviroment
----
+
 * IDE: Eclipse Java EE IDE for Web Developers (Oxygen.3a Release)
 * Java 8
 * Window 10
 
 ## Set up 
----
+
 * import CFT4cpp-core to Eclipse
 * Install IDE DEV-Cpp ([Download](https://sourceforge.net/projects/orwelldevcpp/))
 * SMT-Solver Z3 ([Download](https://z3.codeplex.com/releases))
 * Mingw compiler. The installation can be done by setting up DEV-Cpp
 
 ## Take the experiment
----
+
+***Clone/Download project ([Github link](https://github.com/cft4cpp-hmm/cft4cpp-core))***
 ### Step 1 - Configure
 * Go to *cft4cpp-core\local\setting.properties* , and set:
     1. Z3_SOLVER_PATH : the absolute path of z3.exe.
@@ -32,7 +33,7 @@
 * after finishing, open file *REPORT.html* with your favorite Browser, and view result
 
 ## Output
----
+
 The output of this demostration is a html file, includes:
 1. All testpath with weight for each edge and its test data
 2. If there are deadccode in test path, it will be red
