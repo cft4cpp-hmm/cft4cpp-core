@@ -69,13 +69,13 @@ public class Graph {
 		RealLoppiterations = realLoppiterations;
 	}
 
-	public Graph(ICFG cfg,List<IFullTestpath> fullPossibleIFullTestpaths, IFunctionNode functionNode, String pathtoFile, int version) {
+	public Graph(LocalDateTime createdDate,ICFG cfg,List<IFullTestpath> fullPossibleIFullTestpaths, IFunctionNode functionNode, String pathtoFile, int version) {
 		
 		List<IFullTestpath> fullTestpaths = fullPossibleIFullTestpaths;
 		this.fullPossibleTestpaths=fullPossibleIFullTestpaths;
 		this.functionNode=functionNode;
 		this.pathToFile=pathtoFile;
-		this.createdDate = LocalDateTime.now();
+		this.createdDate = createdDate;
 //		System.out.println(this.createdDate.getSecond());
 		this.fullProbTestPaths = new ArrayList<ProbTestPath>();
 		this.cfg=cfg;

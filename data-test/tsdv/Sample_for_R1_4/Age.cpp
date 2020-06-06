@@ -20,7 +20,7 @@ int bmi(float b_w, float he)
 	double c;
 	c = (b_w / (he * he / 10000));
 	
-	{
+	
 		if (c < 19) {
 			return 0;
 		}
@@ -41,7 +41,7 @@ int bmi(float b_w, float he)
 			// (infeasible)
 			return -1;
 		}
-	}
+	
 }
 
 struct Date{

@@ -93,12 +93,13 @@ public class Main {
 		int epoch = 3;
 		List<String> listSolution = new ArrayList<String>();
 		try {
-			int maxIterations = 1;
-			int randomTestPath = 0;
+			
+			int randomTestPath = 1;
+			int maxIterations = 4;
 			String func_name = null;
 			String fileName = "testFunction.txt";
 			File testedFile = new File(fileName);
-
+			
 			BufferedReader br = new BufferedReader(new FileReader(testedFile));
 			while ((func_name= br.readLine())!=null) {
 				break;
@@ -135,7 +136,6 @@ public class Main {
 				solution = Prob.getSolutionInRandomPath(graph, pathNumber);
 				solution=solution.replace("(","");
 				solution=solution.replace(")", "");
-				System.out.println(solution);
 				if(solution=="") {
 					pathNumber=graph.getNewPath();
 					continue;
@@ -148,12 +148,9 @@ public class Main {
 				}
 
 				ProbTestPath trackedPath = graph.getFullProbTestPaths().get(pathNumber);
-
-				boolean isRight = false;
-				if(isRight==false) {
 					graph.updateGraph(pathNumber, 1, hmmGraph,version);
 					trackedPath.setTestCase(solution);
-				}
+				
 				
 				pathNumber=graph.getNewPath();
 				
@@ -185,7 +182,7 @@ public class Main {
 			AbstractConditionLoopCfgNode tempCondition = null;
 			boolean usedNumbericCon = false;
 			boolean breakLoop = false;
-			
+			System.out.println("done");
 			while(loopCover!=4&&!breakLoop) {
 				if(usedNumbericCon) {
 					break;
@@ -259,8 +256,7 @@ public class Main {
 						graph.setPathForKLoop(tpForLoop.getPossibleTestpaths().get(i));
 						graph.setK(k);
 					}
-					System.out.println(k);
-					System.out.println("solution: "+loopSolution);
+					
 					if(!loopSolution.contentEquals(IStaticSolutionGeneration.NO_SOLUTION)) {
 						if(k==2) {
 							graph.set_2LoopSolution(loopSolution);
@@ -377,6 +373,7 @@ public class Main {
 		ICFG cfg;
 		ProjectParser parser = new ProjectParser(new File(pathtoFile));
 		INode function;
+		LocalDateTime createdTime=LocalDateTime.now();
 		if(coverage==0) {
 			
 			function = (IFunctionNode) Search.searchNodes(parser.getRootTree(), new FunctionNodeCondition(), functionName).get(0);
@@ -387,7 +384,7 @@ public class Main {
 			config.setIntegerBound(new ParameterBound(0, 100));
 			config.setSizeOfArray(20);
 			 ((IFunctionNode) function).setFunctionConfig(config);
-			 
+			createdTime=LocalDateTime.now();
 			cfg = ((IFunctionNode) function).generateCFG();
 			cfg.generateAllPossibleTestpaths(maxIteration);
 //			System.out.println(dfg);
@@ -406,15 +403,18 @@ public class Main {
 			IFunctionNode clone = (IFunctionNode) function.clone();
 			clone.setAST(Utils.getFunctionsinAST(normalizedCoverage.toCharArray()).get(0));
 			CFGGenerationforSubConditionCoverage cfgGen = new CFGGenerationforSubConditionCoverage(clone);
+			createdTime=LocalDateTime.now();
 			cfg = cfgGen.generateCFG();
 //			cfg.setIdforAllNodes();
 			cfg.setFunctionNode(clone);
 			
 			
 		}
+		
 		PossibleTestpathGeneration tpGen = new PossibleTestpathGeneration(cfg,maxIteration);
 		tpGen.generateTestpaths();
-		return new Graph(cfg,tpGen.getPossibleTestpaths(),(IFunctionNode)function,pathtoFile,version);
+		
+		return new Graph(createdTime,cfg,tpGen.getPossibleTestpaths(),(IFunctionNode)function,pathtoFile,version);
 		
 //		functionConfig.setCharacterBound(new ParameterBound(30, 120));
 //		functionConfig.setIntegerBound(new ParameterBound(10, 200));

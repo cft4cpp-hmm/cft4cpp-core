@@ -16,24 +16,18 @@
                     <th>Test Data</th>
                 </tr>
             </thead>
-            <tbody><tr><td>0</td><td>( int maxx = 5;) <font>3</font>( float e;) <font>3</font>( int x=0;) <font>3</font>!( a < maxx) <font>2</font>( e = 1/x;) <font>3</font>return e;</td><td>a=5;</td></tr><tr><td>1</td><td>( int maxx = 5;) <font>3</font>( float e;) <font>3</font>( int x=0;) <font>3</font> (a < maxx) <font>2</font>( x = 1;) <font>2</font>!( a == maxx) <font>2</font>( e = 1/x;) <font>3</font>return e;</td><td>a=0;</td></tr><tr><td>2</td><td>( int maxx = 5;) <font>3</font>( float e;) <font>3</font>( int x=0;) <font>3</font> (a < maxx) <font>2</font>( x = 1;) <font>2</font> (a == maxx) <font>1</font><font class = "redColor">( x = 2;)</font> <font>1</font><font class = "redColor">( x = 4;)</font> <font>1</font>( e = 1/x;) <font>3</font>return e;</td><td></td></tr>   <tbody>
+            <tbody><tr><td>0</td><td>( int x = a+b;) <font>3</font>( int y = x +10;) <font>3</font>!( x<10) <font>2</font>return 1/y;</td><td>b=0;a=10;</td></tr><tr><td>1</td><td>( int x = a+b;) <font>3</font>( int y = x +10;) <font>3</font> (x<10) <font>2</font>return 1/x;</td><td>b=0;a=9;</td></tr>   <tbody>
         </table></div>
 <div class="conlusion">
-<pre>float maxx(int a){
-			int maxx = 5;
-			float e;
-			int x=0;
-			 if (a < maxx){
-				x = 1;
-				if (a == maxx){
-					x = 2;
-					x = 4;
-				}
-			}
-			e = 1/x;
-			return e;
-}</pre><div>Path Coverage: 0.6666667</div>
-        <div>Time For C2 :0.778s</div>
-  <div>Statement Cover: 0.8</div>
-        <div>Branch Cover 0.8</div></div>
+<pre>int divisionTest(int a, int b){
+	int x = a+b;
+	int y = x +10;
+	if(x<10){
+		return 1/x;
+	}
+	else return 1/y;
+}</pre><div>Path Coverage: 1.0</div>
+        <div>Time For C2 :0.394s</div>
+  <div>Statement Cover: 1.0</div>
+        <div>Branch Cover 1.0</div></div>
 </body></html>

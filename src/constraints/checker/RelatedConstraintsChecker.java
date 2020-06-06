@@ -35,9 +35,15 @@ public class RelatedConstraintsChecker implements IConstraintsChecker {
 	@Override
 	public boolean check() {
 		boolean isRelated = false;
-
-		PathConstraint lastConstraint = constraints.getNormalConstraints()
-				.get(constraints.getNormalConstraints().size() - 1);
+		PathConstraint lastConstraint;
+		try {
+			lastConstraint = constraints.getNormalConstraints()
+					.get(constraints.getNormalConstraints().size() - 1);
+		}catch (IndexOutOfBoundsException e) {
+			return isRelated;
+			// TODO: handle exception
+		}
+		
 
 		IASTNode astLast = ASTUtils.convertToIAST(lastConstraint.getConstraint());
 		List<String> usedVariablesInLastCondition = collectUsedVariables(astLast);
@@ -50,7 +56,7 @@ public class RelatedConstraintsChecker implements IConstraintsChecker {
 				IASTNode astCon = ASTUtils.convertToIAST(constraints.getElementAt(i));
 				if (astCon != null)
 					usedVariables = collectUsedVariables(astCon);
-
+				
 				for (String usedVariable : usedVariables)
 					if (usedVariablesInLastCondition.contains(usedVariable)) {
 						isRelated = true;

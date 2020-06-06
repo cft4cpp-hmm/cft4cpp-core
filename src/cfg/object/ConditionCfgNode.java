@@ -6,6 +6,8 @@ public abstract class ConditionCfgNode extends NormalCfgNode {
 	private boolean isVisitedTrueBranch = false;
 
 	private boolean isVisitedFalseBranch = false;
+	
+	private boolean isGenForBound=false; // kha_ add for bounded test gen
 
 	public ConditionCfgNode(IASTNode node) {
 		super(node);
@@ -26,5 +28,14 @@ public abstract class ConditionCfgNode extends NormalCfgNode {
 	public void setVisitedFalseBranch(boolean isVisitedFalseBranch) {
 		this.isVisitedFalseBranch = isVisitedFalseBranch;
 	}
+
+	public boolean isGenForBound() {
+		return isGenForBound;
+	}
+
+	public void setGenForBound(boolean isGenForBound) {
+		this.isGenForBound = isGenForBound;
+	}
+	
 
 }

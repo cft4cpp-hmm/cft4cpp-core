@@ -32,6 +32,7 @@ public class NormalCfgNode extends CfgNode {
 	public String toString() {
 		if (ast != null) {
 			return ast.getRawSignature();
+//			return getContent();
 		} else
 			return getContent();
 	}

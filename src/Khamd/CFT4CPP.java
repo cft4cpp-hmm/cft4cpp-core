@@ -1,15 +1,27 @@
-package cfg.testpath;
+package Khamd;
 
 import java.io.File;
+import java.time.Duration;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.apache.log4j.Logger;
 
+import cfg.CFGGenerationforBranchvsStatementCoverage;
 import cfg.CFGGenerationforSubConditionCoverage;
 import cfg.ICFG;
 import cfg.object.AbstractConditionLoopCfgNode;
 import cfg.object.ConditionCfgNode;
 import cfg.object.EndFlagCfgNode;
 import cfg.object.ICfgNode;
+import cfg.testpath.FullTestpath;
+import cfg.testpath.FullTestpaths;
+import cfg.testpath.IPartialTestpath;
+import cfg.testpath.IStaticSolutionGeneration;
+import cfg.testpath.ITestpathGeneration;
+import cfg.testpath.ITestpathInCFG;
+import cfg.testpath.PartialTestpath;
 import config.ISettingv2;
 import config.Paths;
 import config.Settingv2;
@@ -36,27 +48,27 @@ import utils.search.Search;
  *
  * @author DucAnh
  */
-public class PossibleTestpathGeneration implements ITestpathGeneration {
+public class CFT4CPP{
 	public static final String CONSTRAINTS_FILE = Settingv2.getValue(ISettingv2.SMT_LIB_FILE_PATH);
 	public static final String Z3 = Settingv2.getValue(ISettingv2.SOLVER_Z3_PATH);
-	final static Logger logger = Logger.getLogger(PossibleTestpathGeneration.class);
+	final static Logger logger = Logger.getLogger(CFT4CPP.class);
 	/**
 	 * Represent control flow graph
 	 */
 	private ICFG cfg;
 	private int maxIterationsforEachLoop = ITestpathGeneration.DEFAULT_MAX_ITERATIONS_FOR_EACH_LOOP;
 	private FullTestpaths possibleTestpaths = new FullTestpaths();
-
-	public PossibleTestpathGeneration(ICFG cfg) {
+	public List<String> testCases;
+	public CFT4CPP(ICFG cfg) {
 		this.cfg = cfg;
 	}
 
-	public PossibleTestpathGeneration(ICFG cfg, int maxloop) {
+	public CFT4CPP(ICFG cfg, int maxloop) {
 		maxIterationsforEachLoop = maxloop;
 		this.cfg = cfg;
-
 		this.cfg.resetVisitedStateOfNodes();
 		this.cfg.setIdforAllNodes();
+		this.testCases = new ArrayList<String>();
 	}
 
 	/**
@@ -65,7 +77,7 @@ public class PossibleTestpathGeneration implements ITestpathGeneration {
 	 * @param isResetVisitedState
 	 *            true if the visit stated is marked unvisited
 	 */
-	public PossibleTestpathGeneration(ICFG cfg, int maxloop, boolean isResetVisitedState) {
+	public CFT4CPP(ICFG cfg, int maxloop, boolean isResetVisitedState) {
 		maxIterationsforEachLoop = maxloop;
 		this.cfg = cfg;
 
@@ -76,28 +88,34 @@ public class PossibleTestpathGeneration implements ITestpathGeneration {
 	}
 
 	public static void main(String[] args) throws Exception {
-		ProjectParser parser = new ProjectParser(new File(Paths.JOURNAL_TEST));
+		ProjectParser parser = new ProjectParser(new File(Paths.TSDV_R1_2));
 
 		IFunctionNode function = (IFunctionNode) Search
-				.searchNodes(parser.getRootTree(), new FunctionNodeCondition(), "find_maximum(int[],int)").get(0);
-		
+				.searchNodes(parser.getRootTree(), new FunctionNodeCondition(), "divisionTest(int,int)").get(0);
 
-		CFGGenerationforSubConditionCoverage cfgGen = new CFGGenerationforSubConditionCoverage(function);
+//		CFGGenerationforSubConditionCoverage cfgGen = new CFGGenerationforSubConditionCoverage(function);
+		
+		CFGGenerationforBranchvsStatementCoverage cfgGen = new CFGGenerationforBranchvsStatementCoverage(function);
+		
 		ICFG cfg = cfgGen.generateCFG();
 		cfg.setFunctionNode(function);
 		cfg.setIdforAllNodes();
 		cfg.resetVisitedStateOfNodes();
-
-		int maxIterations = 1;
-		PossibleTestpathGeneration tpGen = new PossibleTestpathGeneration(cfg, maxIterations);
-		tpGen.generateTestpaths();
 		
+		int maxIterations = 0;
+		
+		CFT4CPP tpGen = new CFT4CPP(cfg, maxIterations);
+		LocalDateTime before = LocalDateTime.now();
+		tpGen.generateTestpaths(function);
+		LocalDateTime after = LocalDateTime.now();
+		Duration duration = Duration.between(before,after);
 		System.out.println("Num of test paths: " + tpGen.getPossibleTestpaths().size());
-		System.out.println(tpGen.getPossibleTestpaths().get(0));
+		System.out.println("Test Case: "+tpGen.getTestCases());
+		System.out.println("Time: "+duration.toMillis()+"mili");
 	}
 
-	@Override
-	public void generateTestpaths() {
+	
+	public void generateTestpaths(IFunctionNode function) {
 		// Date startTime = Calendar.getInstance().getTime();
 		FullTestpaths testpaths_ = new FullTestpaths();
 
@@ -105,7 +123,7 @@ public class PossibleTestpathGeneration implements ITestpathGeneration {
 		FullTestpath initialTestpath = new FullTestpath();
 		initialTestpath.setFunctionNode(cfg.getFunctionNode());
 		try {
-			traverseCFG(beginNode, initialTestpath, testpaths_);
+			traverseCFG(beginNode, initialTestpath, testpaths_,function);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -127,13 +145,16 @@ public class PossibleTestpathGeneration implements ITestpathGeneration {
 		// numberOfSolvingCallsThatNoSolution + " ms");
 	}
 
-	private void traverseCFG(ICfgNode stm, FullTestpath tp, FullTestpaths testpaths) throws Exception {
+	private void traverseCFG(ICfgNode stm, FullTestpath tp, FullTestpaths testpaths, IFunctionNode function) throws Exception {
 		
 		tp.add(stm);
+		FullTestpath tp1 = (FullTestpath) tp.clone();
+		FullTestpath tp2 = (FullTestpath) tp.clone();
 //		System.out.println(this.haveSolution(tp, finalConditionType)+tp.getFullPath());
 //		System.out.println(stm.toString());
 		if (stm instanceof EndFlagCfgNode) {
 			testpaths.add((FullTestpath) tp.clone());
+			testCases.add(this.solveTestpath(function, tp));
 			tp.remove(tp.size() - 1);
 		} else {
 			ICfgNode trueNode = stm.getTrueNode();
@@ -145,32 +166,45 @@ public class PossibleTestpathGeneration implements ITestpathGeneration {
 
 					int currentIterations = tp.count(trueNode);
 					if (currentIterations < maxIterationsforEachLoop) {
+						tp1.add(falseNode);
+						if(this.haveSolution(tp1, false)) {
+							traverseCFG(falseNode, tp, testpaths,function);
+						}
+						tp2.add(trueNode);
+						if(this.haveSolution(tp2, true)) {
+							traverseCFG(trueNode, tp, testpaths,function);
+						}
 						
-						traverseCFG(falseNode, tp, testpaths);
-						traverseCFG(trueNode, tp, testpaths);
-					} else
-						traverseCFG(falseNode, tp, testpaths);
+//						traverseCFG(trueNode, tp, testpaths,function);
+					} else {
+						tp1.add(falseNode);
+						if(this.haveSolution(tp1, false)) {
+							traverseCFG(falseNode, tp, testpaths,function);
+						}
+						
+					}
+//						traverseCFG(falseNode, tp, testpaths,function);
 				} else {
 					
-//					FullTestpath tp1 = (FullTestpath) tp.clone();
+					
 //					tp1.remove(tp1.lastIndexOf(stm));
 //					ConditionCfgNode stm1 = (ConditionCfgNode) stm.clone();
 //					stm1.setContent(stm1.getContent().replace("<", "=="));
 ////					stm1.getAst().set
 //					stm1.setAst(ASTUtils.convertToIAST(stm1.getContent()));
 //					tp1.add(stm1);
-//					tp1.add(trueNode);
+					tp1.add(falseNode);
 //					System.out.println("false Node "+this.haveSolution(tp1, false));
 //					System.out.println("full: "+tp1.getFullPath());
-//					System.out.println(tp.getFullPath());
-//					if(this.haveSolution(tp1, true)) {
-						traverseCFG(falseNode, tp, testpaths);
-//					}
-//					FullTestpath tp2 = (FullTestpath) tp.clone();
-//					tp2.add(trueNode);
-//					if(this.haveSolution(tp2, true)) {
-						traverseCFG(trueNode, tp, testpaths);
-//					}
+					
+					if(this.haveSolution(tp1, false)) {
+						traverseCFG(falseNode, tp, testpaths,function);
+					}
+					
+					tp2.add(trueNode);
+					if(this.haveSolution(tp2, true)) {
+						traverseCFG(trueNode, tp, testpaths,function);
+					}
 					
 					
 //					System.out.println("true Node "+ this.haveSolution(tp2, true));
@@ -179,7 +213,7 @@ public class PossibleTestpathGeneration implements ITestpathGeneration {
 				}
 			}
 			else
-				traverseCFG(trueNode, tp, testpaths);
+				traverseCFG(trueNode, tp, testpaths,function);
 
 			tp.remove(tp.size() - 1);
 		}
@@ -261,28 +295,31 @@ public class PossibleTestpathGeneration implements ITestpathGeneration {
 			return IStaticSolutionGeneration.EVERY_SOLUTION;
 	}
 
-	@Override
+	
 	public ICFG getCfg() {
 		return cfg;
 	}
 
-	@Override
+	
 	public void setCfg(ICFG cfg) {
 		this.cfg = cfg;
 	}
 
-	@Override
+	
 	public int getMaxIterationsforEachLoop() {
 		return maxIterationsforEachLoop;
 	}
 
-	@Override
+	
 	public void setMaxIterationsforEachLoop(int maxIterationsforEachLoop) {
 		this.maxIterationsforEachLoop = maxIterationsforEachLoop;
 	}
 
-	@Override
+	
 	public FullTestpaths getPossibleTestpaths() {
 		return possibleTestpaths;
+	}
+	public List<String> getTestCases(){
+		return this.testCases;
 	}
 }
