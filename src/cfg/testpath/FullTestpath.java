@@ -18,7 +18,7 @@ public class FullTestpath extends AbstractTestpath implements IFullTestpath {
 	 *
 	 */
 	private static final long serialVersionUID = 3205932220413141035L;
-
+	private String testcase;
 	@Override
 	public IPartialTestpath getPartialTestpathAt(int endConditionId, boolean finalConditionType) {
 		IPartialTestpath tp = new PartialTestpath();
@@ -78,6 +78,12 @@ public class FullTestpath extends AbstractTestpath implements IFullTestpath {
 	@Override
 	public FullTestpath cast() {
 		return this;
+	}
+	public void setTestcase(String testcase) {
+		this.testcase = testcase;
+	}
+	public String getTestcase() {
+		return this.testcase;
 	}
 
 }

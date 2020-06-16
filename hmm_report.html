@@ -16,18 +16,35 @@
                     <th>Test Data</th>
                 </tr>
             </thead>
-            <tbody><tr><td>0</td><td>( int x = a+b;) <font>3</font>( int y = x +10;) <font>3</font>!( x<10) <font>2</font>return 1/y;</td><td>b=0;a=10;</td></tr><tr><td>1</td><td>( int x = a+b;) <font>3</font>( int y = x +10;) <font>3</font> (x<10) <font>2</font>return 1/x;</td><td>b=0;a=9;</td></tr>   <tbody>
+            <tbody><tr><td>0</td><td>!( a<0) <font>6</font>!( b<0) <font>6</font>!( a==0) <font>7</font>!( b==0) <font>5</font>( a!=b) <font>5</font>return a;</td><td>a=1;b=1;</td></tr><tr><td>1</td><td>!( a<0) <font>6</font>!( b<0) <font>6</font>!( a==0) <font>7</font> (b==0) <font>3</font>return a;</td><td>a=1;b=0;</td></tr><tr><td>2</td><td>!( a<0) <font>6</font>!( b<0) <font>6</font> (a==0) <font>3</font>return b;</td><td>b=0;a=0;</td></tr><tr><td>3</td><td>!( a<0) <font>6</font> (b<0) <font>4</font>( b=-b;) <font>4</font>!( a==0) <font>7</font>!( b==0) <font>5</font>( a!=b) <font>5</font>return a;</td><td>a=1;b=-1;</td></tr><tr><td>4</td><td>!( a<0) <font>6</font> (b<0) <font>4</font>( b=-b;) <font>4</font>!( a==0) <font>7</font> (b==0) <font>3</font>return a;</td><td></td></tr><tr><td>5</td><td>!( a<0) <font>6</font> (b<0) <font>4</font>( b=-b;) <font>4</font> (a==0) <font>3</font>return b;</td><td>b=-1;a=0;</td></tr><tr><td>6</td><td> (a<0) <font>4</font>( a=-a;) <font>4</font>!( b<0) <font>6</font>!( a==0) <font>7</font>!( b==0) <font>5</font>( a!=b) <font>5</font>return a;</td><td>a=-1;b=1;</td></tr><tr><td>7</td><td> (a<0) <font>4</font>( a=-a;) <font>4</font>!( b<0) <font>6</font>!( a==0) <font>7</font> (b==0) <font>3</font>return a;</td><td>a=-1;b=0;</td></tr><tr><td>8</td><td> (a<0) <font>4</font>( a=-a;) <font>4</font>!( b<0) <font>6</font> (a==0) <font>3</font>return b;</td><td></td></tr><tr><td>9</td><td> (a<0) <font>4</font>( a=-a;) <font>4</font> (b<0) <font>4</font>( b=-b;) <font>4</font>!( a==0) <font>7</font>!( b==0) <font>5</font>( a!=b) <font>5</font>return a;</td><td>a=-1;b=-1;</td></tr><tr><td>10</td><td> (a<0) <font>4</font>( a=-a;) <font>4</font> (b<0) <font>4</font>( b=-b;) <font>4</font>!( a==0) <font>7</font> (b==0) <font>3</font>return a;</td><td></td></tr><tr><td>11</td><td> (a<0) <font>4</font>( a=-a;) <font>4</font> (b<0) <font>4</font>( b=-b;) <font>4</font> (a==0) <font>3</font>return b;</td><td></td></tr>    <div class="table-wrapper">
+        <table class="fl-table">
+            <thead>
+                <tr>
+                    <th>Number of iteration</th>
+                    <th style="width: 800px">Test path</th>
+                    <th>Test Data</th>
+                </tr>
+            </thead>
+            <tbody>   <tbody>
         </table></div>
 <div class="conlusion">
-<pre>int divisionTest(int a, int b){
-	int x = a+b;
-	int y = x +10;
-	if(x<10){
-		return 1/x;
+<pre>int GCD(int a, int b){ //sach
+	if(a<0) a=-a;
+	if(b<0) b=-b;
+	if(a==0) return b;
+	if(b==0) return a;
+	while (a!=b)
+	{
+			if(a>b)
+				a=a-b;
+			else 
+				b=b-a;
 	}
-	else return 1/y;
-}</pre><div>Path Coverage: 1.0</div>
-        <div>Time For C2 :0.394s</div>
+	return a;
+}</pre><div>Path Coverage: 0.6666667</div>
+        <div>Time For C2 :0.981s</div>
+        <div>Time For Loop Generation: 0.0s</div>
+        <div>Loop Cover: 0.0</div>
   <div>Statement Cover: 1.0</div>
         <div>Branch Cover 1.0</div></div>
 </body></html>

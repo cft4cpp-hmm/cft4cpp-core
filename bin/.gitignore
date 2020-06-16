@@ -1,4 +1,3 @@
-/HMM/
 /Khamd/
 /_example/
 /cfg/
@@ -15,6 +14,6 @@
 /testdata/
 /testdatagen/
 /tree/
-/utils/
 /AllTestSuite.class
 /projectparser/
+/utils/

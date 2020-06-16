@@ -23,6 +23,7 @@ public class ProbFunctionExection extends FunctionExecution{
 	
 	private Graph graph;
 	private File clone;
+//	private List<File> 
 	public ProbFunctionExection(Graph graph, String pathToZ3, String pathToMingw32, String pathToGCC, String pathToGPlus) throws Exception {
 		super(pathToZ3,pathToMingw32,pathToGCC,pathToGPlus);
 		this.graph = graph;
@@ -61,6 +62,7 @@ public class ProbFunctionExection extends FunctionExecution{
 		
 	}
 	public void deleteClone() {
+		
 		Utils.deleteFileOrFolder(clone);
 	}
 	

@@ -61,6 +61,7 @@ public class Graph {
 	private int loopCover;
 	private ITestpathInCFG pathFor2Loop;
 	private ITestpathInCFG pathForKLoop;
+	private float duration;
 	public int getRealLoppiterations() {
 		return RealLoppiterations;
 	}
@@ -82,6 +83,7 @@ public class Graph {
 		this.epoches = 1;
 		this._2LoopSolution= null;
 		this.loopSolution = null;
+		
 		for(int pathNumber = 0; pathNumber< this.fullPossibleTestpaths.size(); pathNumber++) {
 			List<ICfgNode> fullCfgNodes = (ArrayList<ICfgNode>)this.fullPossibleTestpaths.get(pathNumber).getAllCfgNodes();
 			fullCfgNodes= new ArrayList<ICfgNode>(fullCfgNodes);
@@ -264,12 +266,16 @@ public class Graph {
 
 	}
 	
-	
+	public float getDuration() {
+		return this.duration;
+	}
 	public void toHtml(LocalDateTime diff1, int coverage, float timeForLoop) throws IOException {
 		
 		Duration duration = Duration.between(this.createdDate,diff1);
 		
+		
 		float diff = Math.abs((float)duration.toMillis()/1000);
+		this.duration = diff;
 //		diff-=diff1;
 		FileWriter csvWriter = new FileWriter("HMM_REPORT.html",false);
 		String valueString = "<!DOCTYPE html>\r\n" + 

@@ -22,7 +22,7 @@ public abstract class AbstractTestpath extends ArrayList<ICfgNode> implements IT
 	private String description = "";
 	private IStaticSolutionGeneration staticSolutionGen;
 	private boolean add;
-
+	
 	@Override
 	public int count(ICfgNode stm) {
 		int count = 0;

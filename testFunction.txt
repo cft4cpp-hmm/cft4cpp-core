@@ -1,1 +1,1 @@
-divisionTest(int,int)
+GCD(int,int)

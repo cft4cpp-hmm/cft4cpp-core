@@ -1,6 +1,8 @@
 package Khamd;
 
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileReader;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -88,10 +90,21 @@ public class CFT4CPP{
 	}
 
 	public static void main(String[] args) throws Exception {
+		int times = 20;
+		List<Float> timesList = new ArrayList<Float>();
+		int j = 0;
+		while(j< times) {
+		
 		ProjectParser parser = new ProjectParser(new File(Paths.TSDV_R1_2));
-
+		String fileName = "testFunction.txt";
+		File testedFile = new File(fileName);
+		String func_name ="";
+		BufferedReader br = new BufferedReader(new FileReader(testedFile));
+		while ((func_name= br.readLine())!=null) {
+			break;
+		}
 		IFunctionNode function = (IFunctionNode) Search
-				.searchNodes(parser.getRootTree(), new FunctionNodeCondition(), "divisionTest(int,int)").get(0);
+				.searchNodes(parser.getRootTree(), new FunctionNodeCondition(),func_name).get(0);
 
 //		CFGGenerationforSubConditionCoverage cfgGen = new CFGGenerationforSubConditionCoverage(function);
 		
@@ -102,25 +115,35 @@ public class CFT4CPP{
 		cfg.setIdforAllNodes();
 		cfg.resetVisitedStateOfNodes();
 		
-		int maxIterations = 0;
+		int maxIterations = 1;
 		
 		CFT4CPP tpGen = new CFT4CPP(cfg, maxIterations);
 		LocalDateTime before = LocalDateTime.now();
 		tpGen.generateTestpaths(function);
+		
 		LocalDateTime after = LocalDateTime.now();
 		Duration duration = Duration.between(before,after);
 		System.out.println("Num of test paths: " + tpGen.getPossibleTestpaths().size());
 		System.out.println("Test Case: "+tpGen.getTestCases());
 		System.out.println("Time: "+duration.toMillis()+"mili");
+		j++;
+		timesList.add((float)duration.toMillis()/1000);
+		}
+		float sum = 0;
+		for(float time: timesList) {
+			sum+=time;
+		}
+		System.out.println("Time Average: "+ sum/timesList.size());
 	}
 
 	
 	public void generateTestpaths(IFunctionNode function) {
 		// Date startTime = Calendar.getInstance().getTime();
 		FullTestpaths testpaths_ = new FullTestpaths();
-
+		
 		ICfgNode beginNode = cfg.getBeginNode();
 		FullTestpath initialTestpath = new FullTestpath();
+		initialTestpath.setTestcase(null);
 		initialTestpath.setFunctionNode(cfg.getFunctionNode());
 		try {
 			traverseCFG(beginNode, initialTestpath, testpaths_,function);
@@ -152,9 +175,14 @@ public class CFT4CPP{
 		FullTestpath tp2 = (FullTestpath) tp.clone();
 //		System.out.println(this.haveSolution(tp, finalConditionType)+tp.getFullPath());
 //		System.out.println(stm.toString());
+		String solution = IStaticSolutionGeneration.NO_SOLUTION;
 		if (stm instanceof EndFlagCfgNode) {
 			testpaths.add((FullTestpath) tp.clone());
-			testCases.add(this.solveTestpath(function, tp));
+			if(tp.getTestcase()==null) {
+				testCases.add(this.solveTestpath(function, tp));
+			}
+			else 
+				testCases.add(tp.getTestcase());
 			tp.remove(tp.size() - 1);
 		} else {
 			ICfgNode trueNode = stm.getTrueNode();
@@ -167,19 +195,28 @@ public class CFT4CPP{
 					int currentIterations = tp.count(trueNode);
 					if (currentIterations < maxIterationsforEachLoop) {
 						tp1.add(falseNode);
-						if(this.haveSolution(tp1, false)) {
+						solution = this.haveSolution(tp1, false);
+						if(!solution.equals(IStaticSolutionGeneration.NO_SOLUTION)) {
+							tp.setTestcase(solution);
 							traverseCFG(falseNode, tp, testpaths,function);
+							
 						}
 						tp2.add(trueNode);
-						if(this.haveSolution(tp2, true)) {
+						solution = this.haveSolution(tp2, true);
+						if(!solution.equals(IStaticSolutionGeneration.NO_SOLUTION)) {
+							tp.setTestcase(solution);
 							traverseCFG(trueNode, tp, testpaths,function);
+							
 						}
 						
 //						traverseCFG(trueNode, tp, testpaths,function);
 					} else {
 						tp1.add(falseNode);
-						if(this.haveSolution(tp1, false)) {
+						solution = this.haveSolution(tp1, false);
+						if(!solution.equals(IStaticSolutionGeneration.NO_SOLUTION)) {
+							tp.setTestcase(solution);
 							traverseCFG(falseNode, tp, testpaths,function);
+							
 						}
 						
 					}
@@ -196,14 +233,20 @@ public class CFT4CPP{
 					tp1.add(falseNode);
 //					System.out.println("false Node "+this.haveSolution(tp1, false));
 //					System.out.println("full: "+tp1.getFullPath());
-					
-					if(this.haveSolution(tp1, false)) {
+					solution = this.haveSolution(tp1, false);
+					if(!solution.equals(IStaticSolutionGeneration.NO_SOLUTION)) {
+						tp.setTestcase(solution);
 						traverseCFG(falseNode, tp, testpaths,function);
+						
 					}
 					
 					tp2.add(trueNode);
-					if(this.haveSolution(tp2, true)) {
+					solution = this.haveSolution(tp2, true);
+					
+					if(!solution.equals(IStaticSolutionGeneration.NO_SOLUTION)) {
+						tp.setTestcase(solution);
 						traverseCFG(trueNode, tp, testpaths,function);
+						
 					}
 					
 					
@@ -219,16 +262,17 @@ public class CFT4CPP{
 		}
 	}
 
-	protected boolean haveSolution(FullTestpath tp, boolean finalConditionType) throws Exception {
+	protected String haveSolution(FullTestpath tp, boolean finalConditionType) throws Exception {
 		IPartialTestpath tp1 = createPartialTestpath(tp, finalConditionType);
 
 		String solution = solveTestpath(cfg.getFunctionNode(), tp1);
-		
-		if (!solution.equals(IStaticSolutionGeneration.NO_SOLUTION))
-			return true;
-		else {
-			return false;
-		}
+//		
+//		if (!solution.equals(IStaticSolutionGeneration.NO_SOLUTION))
+//			return solution;
+//		else {
+//			return false;
+//		}
+		return solution;
 	}
 
 	protected IPartialTestpath createPartialTestpath(FullTestpath fullTp, boolean finalConditionType) {
@@ -260,6 +304,7 @@ public class CFT4CPP{
 				se.getConstraints().getNormalConstraints(), function);
 		boolean isRelated = relatedConstraintsChecker.check();
 		//
+//		System.out.println("check"+ isRelated);
 		if (isRelated) {
 			if (se.getConstraints().getNormalConstraints().size()
 					+ se.getConstraints().getNullorNotNullConstraints().size() > 0) {
