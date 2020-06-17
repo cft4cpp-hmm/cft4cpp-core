@@ -33,6 +33,8 @@ import cfg.testpath.FullTestpath;
 import cfg.testpath.FullTestpaths;
 import cfg.testpath.IFullTestpath;
 import cfg.testpath.ITestpathInCFG;
+import testdata.object.TestpathString_Marker;
+import testdatagen.coverage.CFGUpdater_Mark;
 import testdatagen.se.ISymbolicExecution;
 import testdatagen.se.Parameter;
 import testdatagen.se.PathConstraint;
@@ -159,24 +161,39 @@ public class Graph {
 		
 	}
 	
-	public float computeBranchCover() {
-		Set<Edge> setEdges = new HashSet<Edge>();
-		Set<Edge> visitedEdges = new HashSet<Edge>();
-		for(ProbTestPath testPath: this.getFullProbTestPaths()) {
-			for(Edge edge: testPath.getEdge()) {
-				if(edge.isVisited()) {
-					visitedEdges.add(edge);
-				}
-				setEdges.add(edge);
-			}
+	public float computeBranchCover() throws Exception {
+		List<String> testDatas = new ArrayList<String>();
+		for(ProbTestPath path: this.getFullProbTestPaths()) {
+			testDatas.add(path.getTestCase());
+		}
+//		CFGUpdater_Mark updater = 
+		ProbFunctionExection probFunction = new ProbFunctionExection(this, Main.pathToZ3, Main.pathToMingw32, Main.pathToGCC, Main.pathToGPlus);
+		TestpathString_Marker testpath;
+		for(String testData: testDatas) {
+			testpath = probFunction.getEncodedPath(testData);
+			CFGUpdater_Mark updater = new CFGUpdater_Mark(testpath, this.getCfg());
+			
+		}
+		probFunction.deleteClone();
+		return this.getCfg().computeBranchCoverage();
+	}
+	public float computeBranchCover(List<String> testDatas) throws Exception {
+//		List<String> testDatas = new ArrayList<String>();
+		for(ProbTestPath path: this.getFullProbTestPaths()) {
+			testDatas.add(path.getTestCase());
+		}
+//		CFGUpdater_Mark updater = 
+		ProbFunctionExection probFunction = new ProbFunctionExection(this, Main.pathToZ3, Main.pathToMingw32, Main.pathToGCC, Main.pathToGPlus);
+		TestpathString_Marker testpath;
+		for(String testData: testDatas) {
+			testpath = probFunction.getEncodedPath(testData.replace(";;", ";"));
+			CFGUpdater_Mark updater = new CFGUpdater_Mark(testpath, this.getCfg());
 		}
 		
-//		return (float)visitedEdges.size()/setEdges.size();
-		if(visitedEdges.size()!=0) {
-			this.branchCover = (float)visitedEdges.size()/setEdges.size();
-		}
-		return this.branchCover;
+		probFunction.deleteClone();
+		return this.getCfg().computeBranchCoverage();
 	}
+	
 	public float computeStatementCov() {
 		int visitedNode = 0;
 		for(ICfgNode cfgNode : this.cfg.getAllNodes()) {
@@ -269,7 +286,7 @@ public class Graph {
 	public float getDuration() {
 		return this.duration;
 	}
-	public void toHtml(LocalDateTime diff1, int coverage, float timeForLoop) throws IOException {
+	public void toHtml(LocalDateTime diff1, int coverage, float timeForLoop) throws Exception {
 		
 		Duration duration = Duration.between(this.createdDate,diff1);
 		
@@ -343,9 +360,15 @@ public class Graph {
 //		String coverInfoC1vsC2 = "  <div>Statement Cover: "+this.computeStatementCov()+"</div>\r\n"+
 //		        "        <div>Branch Cover "+this.computeBranchCover()+"</div></div>\r\n";
 		
-		String coverInfo = coverage == 1? "        <div>Cover: "+this.computeBranchCover()+"</div>\r\n"+
-		        "        <div> "+1+"</div></div>\r\n":"  <div>Statement Cover: "+this.computeStatementCov()+"</div>\r\n"+
-				        "        <div>Branch Cover "+this.computeStatementCov()+"</div></div>\r\n";
+		String coverInfo = "";
+		try {
+			coverInfo = coverage == 1? "        <div>Cover: "+this.computeBranchCover()+"</div>\r\n"+
+			        "        <div> "+1+"</div></div>\r\n":"  <div>Statement Cover: "+this.computeStatementCov()+"</div>\r\n"+
+					        "        <div>Branch Cover "+this.computeStatementCov()+"</div></div>\r\n";
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		
 		valueString+="   <tbody>\r\n" + 
 				"        </table></div>\r\n" + 
@@ -363,7 +386,7 @@ public class Graph {
 //		        "        <div> "+1+"</div></div>\r\n"+
 //				"    </div>\r\n" + 
 				"</body></html>";
-		
+//		valueString += this.computeBranchCover();
 		csvWriter.append(valueString);
 		csvWriter.close();
 	}

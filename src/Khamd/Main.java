@@ -317,7 +317,7 @@ public class Main {
 	
 	
 	public static void main(String[] args) {
-		int times = 20;
+		int times = 1;
 		int j = 0;
 		List<Float> timesList = new ArrayList<Float>();
 		while(j< times) {

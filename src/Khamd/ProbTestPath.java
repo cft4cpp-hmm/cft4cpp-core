@@ -9,6 +9,7 @@ import javax.xml.crypto.dsig.keyinfo.RetrievalMethod;
 import com.ibm.icu.text.DecimalFormat;
 
 import cfg.object.ICfgNode;
+import cfg.testpath.IStaticSolutionGeneration;
 import testdatagen.se.IPathConstraints;
 import testdatagen.se.PathConstraint;
 import testdatagen.se.PathConstraints;
@@ -31,7 +32,7 @@ public class ProbTestPath {
 		this.edges = new ArrayList<Edge>();
 		this.visitedNumber=0;
 		this.isGenerated=false;
-		this.testCase="";
+		this.testCase=IStaticSolutionGeneration.NO_SOLUTION;
 		this.realString="";
 		toString="";
 	}

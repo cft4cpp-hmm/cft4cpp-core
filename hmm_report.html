@@ -16,18 +16,18 @@
                     <th>Test Data</th>
                 </tr>
             </thead>
-            <tbody><tr><td>0</td><td>( int x = a+b;) <font>3</font>( int y = x +10;) <font>3</font>!( x<10) <font>2</font>return 1/y;</td><td>b=0;a=10;</td></tr><tr><td>1</td><td>( int x = a+b;) <font>3</font>( int y = x +10;) <font>3</font> (x<10) <font>2</font>return 1/x;</td><td>b=0;a=9;</td></tr>   <tbody>
+            <tbody><tr><td>0</td><td>!( 321 + y * x *1234> 1000) <font>2</font>return 0;</td><td>y=1;x=0;</td></tr><tr><td>1</td><td> (321 + y * x *1234> 1000) <font>2</font>return 1;</td><td>y=1;x=1;</td></tr>   <tbody>
         </table></div>
 <div class="conlusion">
-<pre>int divisionTest(int a, int b){
-	int x = a+b;
-	int y = x +10;
-	if(x<10){
-		return 1/x;
-	}
-	else return 1/y;
+<pre>int PlusTest(int x, int y){
+	//int z = y + x;
+	
+	if (321 + y * x *1234> 1000)
+		return 1;
+	else
+		return 0;
 }</pre><div>Path Coverage: 1.0</div>
-        <div>Time For C2 :0.394s</div>
+        <div>Time For C2 :0.267s</div>
   <div>Statement Cover: 1.0</div>
         <div>Branch Cover 1.0</div></div>
-</body></html>
+</body></html>0.0

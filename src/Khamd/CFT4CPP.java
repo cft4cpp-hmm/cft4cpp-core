@@ -22,11 +22,16 @@ import cfg.testpath.IStaticSolutionGeneration;
 import cfg.testpath.ITestpathGeneration;
 import cfg.testpath.ITestpathInCFG;
 import cfg.testpath.PartialTestpath;
+import config.FunctionConfig;
 import config.ISettingv2;
+import config.ParameterBound;
 import config.Paths;
 import config.Settingv2;
 import constraints.checker.RelatedConstraintsChecker;
+import normalizer.FunctionNormalizer;
 import parser.projectparser.ProjectParser;
+import testdata.object.TestpathString_Marker;
+import testdatagen.coverage.CFGUpdater_Mark;
 import testdatagen.se.ISymbolicExecution;
 import testdatagen.se.Parameter;
 import testdatagen.se.PathConstraint;
@@ -89,29 +94,51 @@ public class CFT4CPP{
 
 	public static void main(String[] args) throws Exception {
 		ProjectParser parser = new ProjectParser(new File(Paths.TSDV_R1_2));
-
-		IFunctionNode function = (IFunctionNode) Search
-				.searchNodes(parser.getRootTree(), new FunctionNodeCondition(), "divisionTest(int,int)").get(0);
+		String functionName = "divisionTest(int,int)";
+		IFunctionNode function;
+				
+		function = (IFunctionNode) Search.searchNodes(parser.getRootTree(), new FunctionNodeCondition(), functionName).get(0);
+		FunctionNormalizer fnNorm = ((IFunctionNode) function).normalizedAST();
+//		ICFG cfg;
+		
+		
+		
+		FunctionConfig config = new FunctionConfig();
+		config.setCharacterBound(new ParameterBound(32, 100));
+		config.setIntegerBound(new ParameterBound(0, 100));
+		config.setSizeOfArray(20);
+		 ((IFunctionNode) function).setFunctionConfig(config);
+		
+		ICFG cfg = ((IFunctionNode) function).generateCFG();
 
 //		CFGGenerationforSubConditionCoverage cfgGen = new CFGGenerationforSubConditionCoverage(function);
 		
-		CFGGenerationforBranchvsStatementCoverage cfgGen = new CFGGenerationforBranchvsStatementCoverage(function);
-		
-		ICFG cfg = cfgGen.generateCFG();
+//		CFGGenerationforBranchvsStatementCoverage cfgGen = new CFGGenerationforBranchvsStatementCoverage(function);
+		int maxIterations = 0;
+//		ICFG cfg = cfgGen.generateCFG();
 		cfg.setFunctionNode(function);
 		cfg.setIdforAllNodes();
 		cfg.resetVisitedStateOfNodes();
+		cfg.generateAllPossibleTestpaths(maxIterations);
 		
-		int maxIterations = 0;
 		
 		CFT4CPP tpGen = new CFT4CPP(cfg, maxIterations);
 		LocalDateTime before = LocalDateTime.now();
 		tpGen.generateTestpaths(function);
 		LocalDateTime after = LocalDateTime.now();
 		Duration duration = Duration.between(before,after);
+		
 		System.out.println("Num of test paths: " + tpGen.getPossibleTestpaths().size());
 		System.out.println("Test Case: "+tpGen.getTestCases());
 		System.out.println("Time: "+duration.toMillis()+"mili");
+		
+		ProbFunctionExection probFunction = new ProbFunctionExection(Paths.TSDV_R1_2, functionName, cfg);
+		TestpathString_Marker testpath = probFunction.getEncodedPath(tpGen.getTestCases().get(0));
+		CFGUpdater_Mark updater = new CFGUpdater_Mark(testpath, cfg);
+		System.out.println(testpath);
+		System.out.println(cfg.computeBranchCoverage());
+		
+		
 	}
 
 	
