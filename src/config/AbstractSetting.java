@@ -53,6 +53,7 @@ public abstract class AbstractSetting implements ISettingv2 {
 		Attributes settings = new Attributes();
 
 		String content = Utils.readFileContent(getAbsoluteSettingPath());
+		
 		String[] data = content.split(SpecialCharacter.LINE_BREAK);
 		for (String dataItem : data)
 			if (dataItem.contains("=")) {

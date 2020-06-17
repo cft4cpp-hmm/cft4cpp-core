@@ -1,3 +1,4 @@
+/GUI/
 /HMM/
 /Khamd/
 /_example/
@@ -7,14 +8,16 @@
 /constraints/
 /exception/
 /externalvariable/
+/image/
 /instrument/
 /interfaces/
+/log4j.properties
 /normalizer/
 /oop/
 /parser/
+/projectparser/
 /testdata/
 /testdatagen/
 /tree/
 /utils/
 /AllTestSuite.class
-/projectparser/

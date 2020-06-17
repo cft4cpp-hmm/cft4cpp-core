@@ -4,6 +4,7 @@
               To include a user specific buildfile here, simply create one in the same
               directory with the processing instruction <?eclipse.ant.import?>
               as the first entry and export the buildfile again. --><project basedir="." default="build" name="cft4cpp-core">
+			  
     <property environment="env"/>
     <property name="ECLIPSE_HOME" value="../../../Tools/eclipse Java/"/>
     <property name="junit.output.dir" value="junit"/>
@@ -310,4 +311,6 @@
             <report format="frames" todir="${junit.output.dir}"/>
         </junitreport>
     </target>
+              	
+	
 </project>
