@@ -323,6 +323,7 @@ public class FunctionExecution implements ITestdataExecution {
 		if (testpath.equals(ITestpathInCFG.SEPARATE_BETWEEN_NODES))
 			testpath = "";
 		
+		
 		return testpath;
 	}
 
@@ -461,13 +462,12 @@ public class FunctionExecution implements ITestdataExecution {
 						.getStandardTestpathByProperty(FunctionInstrumentationForStatementvsBranch_Marker.STATEMENT);
 				
 				TestpathString_Marker testpath = encodedTestpath;
-				
-
+//				testpath.set
 //				ICFG cfg=this.getIcfg();
 //				if(cfg == null) return null;
-//				CFGUpdater_Mark updater = new CFGUpdater_Mark(testpath, cfg);
+				CFGUpdater_Mark updater = new CFGUpdater_Mark(testpath, cfg);
 //				
-//				updater.updateVisitedNodes();
+				updater.updateVisitedNodes();
 				
 //				logger.debug("visited statements: " + cfg.getVisitedStatements());
 //				logger.debug("Visited branches: " + cfg.getVisitedBranches());

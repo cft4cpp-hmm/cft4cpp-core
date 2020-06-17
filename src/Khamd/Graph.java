@@ -172,6 +172,7 @@ public class Graph {
 		for(String testData: testDatas) {
 			testpath = probFunction.getEncodedPath(testData);
 			CFGUpdater_Mark updater = new CFGUpdater_Mark(testpath, this.getCfg());
+			updater.updateVisitedNodes();
 			
 		}
 		probFunction.deleteClone();
@@ -386,7 +387,7 @@ public class Graph {
 //		        "        <div> "+1+"</div></div>\r\n"+
 //				"    </div>\r\n" + 
 				"</body></html>";
-//		valueString += this.computeBranchCover();
+		valueString += this.computeBranchCover();
 		csvWriter.append(valueString);
 		csvWriter.close();
 	}
