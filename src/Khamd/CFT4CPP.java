@@ -7,7 +7,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.log4j.Logger;
+import org.eclipse.cdt.core.settings.model.COutputEntry;
 
+import HMM.HMMGraph;
+import HMM.Node;
 import cfg.CFGGenerationforBranchvsStatementCoverage;
 import cfg.CFGGenerationforSubConditionCoverage;
 import cfg.ICFG;
@@ -64,17 +67,48 @@ public class CFT4CPP{
 	private int maxIterationsforEachLoop = ITestpathGeneration.DEFAULT_MAX_ITERATIONS_FOR_EACH_LOOP;
 	private FullTestpaths possibleTestpaths = new FullTestpaths();
 	public List<String> testCases;
-	public CFT4CPP(ICFG cfg) {
-		this.cfg = cfg;
+	public IFunctionNode function;
+	
+	
+	public CFT4CPP(ICFG cfg1, int maxloop, String functionName) throws Exception {
+		this.cfg = cfg1;
+		if(cfg1==null) {
+			ProjectParser parser = new ProjectParser(new File(Paths.TSDV_R1_2));
+			IFunctionNode function;
+					
+			function = (IFunctionNode) Search.searchNodes(parser.getRootTree(), new FunctionNodeCondition(), functionName).get(0);
+			FunctionNormalizer fnNorm = ((IFunctionNode) function).normalizedAST();
+//			ICFG cfg;
+			
+			
+			
+			FunctionConfig config = new FunctionConfig();
+			config.setCharacterBound(new ParameterBound(32, 100));
+			config.setIntegerBound(new ParameterBound(0, 100));
+			config.setSizeOfArray(20);
+			 ((IFunctionNode) function).setFunctionConfig(config);
+			
+			ICFG cfg = ((IFunctionNode) function).generateCFG();
+
+//			CFGGenerationforSubConditionCoverage cfgGen = new CFGGenerationforSubConditionCoverage(function);
+			
+//			CFGGenerationforBranchvsStatementCoverage cfgGen = new CFGGenerationforBranchvsStatementCoverage(function);
+			int maxIterations = 0;
+//			ICFG cfg = cfgGen.generateCFG();
+			cfg.setFunctionNode(function);
+			cfg.setIdforAllNodes();
+			cfg.resetVisitedStateOfNodes();
+			cfg.generateAllPossibleTestpaths(maxIterations);
+			this.cfg = cfg;
+			this.function = function;
+			this.cfg.resetVisitedStateOfNodes();
+			this.cfg.setIdforAllNodes();
+			this.testCases = new ArrayList<String>();
+			this.maxIterationsforEachLoop = maxloop;
+		}
 	}
 
-	public CFT4CPP(ICFG cfg, int maxloop) {
-		maxIterationsforEachLoop = maxloop;
-		this.cfg = cfg;
-		this.cfg.resetVisitedStateOfNodes();
-		this.cfg.setIdforAllNodes();
-		this.testCases = new ArrayList<String>();
-	}
+
 
 	/**
 	 * @param cfg
@@ -92,56 +126,44 @@ public class CFT4CPP{
 		}
 	}
 
+	
 	public static void main(String[] args) throws Exception {
-		ProjectParser parser = new ProjectParser(new File(Paths.TSDV_R1_2));
-		String functionName = "divisionTest(int,int)";
-		IFunctionNode function;
-				
-		function = (IFunctionNode) Search.searchNodes(parser.getRootTree(), new FunctionNodeCondition(), functionName).get(0);
-		FunctionNormalizer fnNorm = ((IFunctionNode) function).normalizedAST();
-//		ICFG cfg;
-		
-		
-		
-		FunctionConfig config = new FunctionConfig();
-		config.setCharacterBound(new ParameterBound(32, 100));
-		config.setIntegerBound(new ParameterBound(0, 100));
-		config.setSizeOfArray(20);
-		 ((IFunctionNode) function).setFunctionConfig(config);
-		
-		ICFG cfg = ((IFunctionNode) function).generateCFG();
-
-//		CFGGenerationforSubConditionCoverage cfgGen = new CFGGenerationforSubConditionCoverage(function);
-		
-//		CFGGenerationforBranchvsStatementCoverage cfgGen = new CFGGenerationforBranchvsStatementCoverage(function);
-		int maxIterations = 0;
-//		ICFG cfg = cfgGen.generateCFG();
-		cfg.setFunctionNode(function);
-		cfg.setIdforAllNodes();
-		cfg.resetVisitedStateOfNodes();
-		cfg.generateAllPossibleTestpaths(maxIterations);
-		
-		
-		CFT4CPP tpGen = new CFT4CPP(cfg, maxIterations);
-		LocalDateTime before = LocalDateTime.now();
-		tpGen.generateTestpaths(function);
-		LocalDateTime after = LocalDateTime.now();
-		Duration duration = Duration.between(before,after);
-		
-		System.out.println("Num of test paths: " + tpGen.getPossibleTestpaths().size());
-		System.out.println("Test Case: "+tpGen.getTestCases());
-		System.out.println("Time: "+duration.toMillis()+"mili");
-		
-		ProbFunctionExection probFunction = new ProbFunctionExection(Paths.TSDV_R1_2, functionName, cfg);
-		TestpathString_Marker testpath = probFunction.getEncodedPath(tpGen.getTestCases().get(0));
-		CFGUpdater_Mark updater = new CFGUpdater_Mark(testpath, cfg);
-		System.out.println(testpath);
-		System.out.println(cfg.computeBranchCoverage());
-		
+		CFT4CPP tpGen = new CFT4CPP(null, 1, "sum(int,int)");
+		tpGen.run();
 		
 	}
-
 	
+	public void run() throws Exception {
+		LocalDateTime before = LocalDateTime.now();
+		this.generateTestpaths(this.function);
+//		LocalDateTime after = LocalDateTime.now();
+//		Duration duration = Duration.between(before,after);
+	
+		
+		Graph graph = new Graph(before, cfg, this.getPossibleTestpaths(), this.function, Paths.TSDV_R1_2, 1);
+		HMMGraph hmmGraph = new HMMGraph(1);
+		Node node;
+		Node nextNode;
+		String solution ;
+	
+		for(ProbTestPath testPath: graph.getFullProbTestPaths()) {
+			for(Edge edge: testPath.getEdge()) {
+				node = new Node(edge.getNode());
+				nextNode = new Node(edge.getNextNode());
+				hmmGraph.addNode(node, nextNode, (float)edge.getWeight());
+			}
+		}
+		
+		for(int i = 0; i< this.getPossibleTestpaths().size(); i++) {
+			FullTestpath testpath = (FullTestpath) this.getPossibleTestpaths().get(i);
+			if(!testpath.getTestCase().equals(IStaticSolutionGeneration.NO_SOLUTION)) {
+				graph.updateGraph(i, 1, hmmGraph, 1);
+				graph.getFullProbTestPaths().get(i).setTestCase(testpath.getTestCase());
+			}
+		}
+		graph.toHtml(LocalDateTime.now(), 0, 1, "CFT4Cpp");
+		
+	}
 	public void generateTestpaths(IFunctionNode function) {
 		// Date startTime = Calendar.getInstance().getTime();
 		FullTestpaths testpaths_ = new FullTestpaths();
@@ -180,8 +202,11 @@ public class CFT4CPP{
 //		System.out.println(this.haveSolution(tp, finalConditionType)+tp.getFullPath());
 //		System.out.println(stm.toString());
 		if (stm instanceof EndFlagCfgNode) {
-			testpaths.add((FullTestpath) tp.clone());
-			testCases.add(this.solveTestpath(function, tp));
+			FullTestpath tpclone =(FullTestpath) tp.clone();
+			tpclone.setTestCase(this.solveTestpath(function, tp));
+			testpaths.add(tpclone);
+			testCases.add(tpclone.getTestCase());
+			
 			tp.remove(tp.size() - 1);
 		} else {
 			ICfgNode trueNode = stm.getTrueNode();

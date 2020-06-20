@@ -99,7 +99,7 @@ public abstract class AbstractJUnitTest {
 
 		String[] args = new String[] { Console.LOAD_PROJECT, Paths.CURRENT_PROJECT.ORIGINAL_PROJECT_PATH,
 				Console.TESTED_FUNCTIONS, inputPath, Console.CONFIG, configurePath, Console.LOG4J_LEVEL, "debug" };
-		Console console = new Console(args);
+		Console console = new Console(args,"PDF(int,int,int)");
 
 		// Display output
 		List<ConsoleOutput> outputList = console.getOutput();
@@ -208,7 +208,7 @@ public abstract class AbstractJUnitTest {
 
 		Console resultsAllInOne = new Console(new String[] { Console.LOAD_PROJECT,
 				Paths.CURRENT_PROJECT.ORIGINAL_PROJECT_PATH, Console.TESTED_FUNCTIONS, inputPath, Console.CONFIG,
-				configurePath, Console.LOG4J_LEVEL, "debug" });
+				configurePath, Console.LOG4J_LEVEL, "debug" }, "PDF(int,int,int)");
 
 		runningTime /= MAX_GENERATION;
 		resultsAllInOne.getOutput().get(0).setRunningTime(runningTime);

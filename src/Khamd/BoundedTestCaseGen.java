@@ -61,12 +61,13 @@ import org.apache.xmlbeans.impl.common.IdentityConstraint.ConstraintState;
 
 public class BoundedTestCaseGen {
 	final static Logger logger = Logger.getLogger(BoundedTestCaseGen.class);
-	
-	public static void main(String[] args) throws Exception {
-		CFG cfg;
+	private IFunctionNode function;
+	private ICFG cfg;
+	public BoundedTestCaseGen(int maxloop, String functionName) throws Exception {
+		CFG cfg = null;
 		ProjectParser parser = new ProjectParser(new File(Paths.TSDV_R1_2));
 		IFunctionNode function;
-		String functionName = "maxx(int)";
+		
 		function = (IFunctionNode) Search
 				.searchNodes(parser.getRootTree(), new FunctionNodeCondition(), functionName)
 				.get(0);
@@ -80,20 +81,42 @@ public class BoundedTestCaseGen {
 		IFunctionNode clone = (IFunctionNode) function.clone();
 		clone.setAST(Utils.getFunctionsinAST(normalizedCoverage.toCharArray()).get(0));
 		CFGGenerationforSubConditionCoverage cfgGen = new CFGGenerationforSubConditionCoverage(clone);
+		this.function = function;
+		this.cfg = cfg;
 		
-		cfg = (CFG) cfgGen.generateCFG();
-		cfg.setFunctionNode(clone);
+	}
+	public static void main(String[] args) throws Exception {
+//		CFG cfg;
+//		ProjectParser parser = new ProjectParser(new File(Paths.TSDV_R1_2));
+//		IFunctionNode function;
+//		String functionName = "maxx(int)";
+//		function = (IFunctionNode) Search
+//				.searchNodes(parser.getRootTree(), new FunctionNodeCondition(), functionName)
+//				.get(0);
+////		function.getAST().toString().replaceAll("<", "==");
+//		FunctionConfig functionConfig = new FunctionConfig();
+//		functionConfig.setSolvingStrategy(ISettingv2.SUPPORT_SOLVING_STRATEGIES[0]);
+//		((IFunctionNode ) function).setFunctionConfig(functionConfig);
+//		FunctionNormalizer fnNorm = ((IFunctionNode) function).normalizedAST();
+//		String normalizedCoverage = fnNorm.getNormalizedSourcecode();
+//		((IFunctionNode ) function).setAST(fnNorm.getNormalizedAST());
+//		IFunctionNode clone = (IFunctionNode) function.clone();
+//		clone.setAST(Utils.getFunctionsinAST(normalizedCoverage.toCharArray()).get(0));
+//		CFGGenerationforSubConditionCoverage cfgGen = new CFGGenerationforSubConditionCoverage(clone);
+//		
+//		cfg = (CFG) cfgGen.generateCFG();
+//		cfg.setFunctionNode(clone);
 		//
 		
-		BoundedTestCaseGen gen = new BoundedTestCaseGen();
-		gen.analyze(function, cfg);
-		ICfgNode a = null;
-		for(ICfgNode bCfgNode : cfg.getAllNodes()) {
-			if(bCfgNode.toString().contains("a")) {
-				a = bCfgNode;
-				break;
-			}
-		}
+		BoundedTestCaseGen gen = new BoundedTestCaseGen(1, "maxx(int)");
+		gen.analyze();
+//		ICfgNode a = null;
+//		for(ICfgNode bCfgNode : cfg.getAllNodes()) {
+//			if(bCfgNode.toString().contains("a")) {
+//				a = bCfgNode;
+//				break;
+//			}
+//		}
 		
 //		Parameter paramaters = new Parameter();
 //		for (INode n : ((FunctionNode) function).getArguments())
@@ -121,9 +144,9 @@ public class BoundedTestCaseGen {
 //		
 				
 	}
-	public void analyze(IFunctionNode functionNode, CFG cfg) throws Exception {
+	public void analyze() throws Exception {
 		Hashtable<IVariableNode, HashSet<Number>> dict = new Hashtable<IVariableNode, HashSet<Number>>();
-		List<IVariableNode> arguments = functionNode.getArguments();
+		List<IVariableNode> arguments = this.function.getArguments();
 		for(IVariableNode variable : arguments) {
 			dict.put(variable, new HashSet<Number>());
 		}
@@ -133,7 +156,7 @@ public class BoundedTestCaseGen {
 				for(ICfgNode node: cfg.getAllNodes()) {
 					if(node.toString().contains(variable.toString()) && 
 					(node.toString().contains(">")||node.toString().contains(">=")||node.toString().contains("<")||node.toString().contains("<=")||node.toString().contains("==")||node.toString().contains("!="))) {
-						this.analyzeNode(node, dict.get(variable),variable, cfg, functionNode, dict);
+						this.analyzeNode(node, dict.get(variable),variable, cfg, this.function, dict);
 //						this.solveTestPath(cfg, node, dict, functionNode);
 					}
 					

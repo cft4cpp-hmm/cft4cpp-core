@@ -106,6 +106,7 @@ public class CFG implements ICFG {
 
 	@Override
 	public void resetVisitedStateOfNodes() {
+		
 		for (ICfgNode stm : getAllNodes())
 			stm.setVisit(false);
 	}

@@ -71,15 +71,15 @@ import utils.search.FunctionNodeCondition;
 import utils.search.Search;
 
 public class Main {
-//	public static String pathToZ3 ="D:\\cft4cpp-core\\local\\z3\\bin\\z3.exe";
-//	public static String pathToMingw32 = "D:\\program files\\Dev-Cpp\\MinGW64\\bin\\mingw32-make.exe";
-//	public static String pathToGCC = "D:\\program files\\Dev-Cpp\\MinGW64\\bin\\gcc.exe";
-//	public static String pathToGPlus = "D:\\program files\\Dev-Cpp\\MinGW64\\bin\\g++.exe";
+	public static String pathToZ3 ="..\\cft4cpp-core\\local\\z3\\bin\\z3.exe";
+	public static String pathToMingw32 = "..\\cft4cpp-core\\bin\\mingw32-make.exe";
+	public static String pathToGCC = "..\\cft4cpp-core\\bin\\gcc.exe";
+	public static String pathToGPlus = "..\\cft4cpp-core\\bin\\g++.exe";
 //	public static String pathToConstraint = "D:\\cft4cpp-core\\myConstraint.smt2";
-	public static String pathToZ3 = AbstractSetting.getValue(Settingv2.SOLVER_Z3_PATH);
-	public static String pathToMingw32 = AbstractSetting.getValue(Settingv2.GNU_MAKE_PATH);
-	public static String pathToGCC = AbstractSetting.getValue(Settingv2.GNU_GCC_PATH);
-	public static String pathToGPlus = AbstractSetting.getValue(Settingv2.GNU_GPlusPlus_PATH);
+//	public static String pathToZ3 = AbstractSetting.getValue(Settingv2.SOLVER_Z3_PATH);
+//	public static String pathToMingw32 = AbstractSetting.getValue(Settingv2.GNU_MAKE_PATH);
+//	public static String pathToGCC = AbstractSetting.getValue(Settingv2.GNU_GCC_PATH);
+//	public static String pathToGPlus = AbstractSetting.getValue(Settingv2.GNU_GPlusPlus_PATH);
 	public static String pathToConstraint = "myConstraint.smt2";
 	
 	public static SmtLibGeneration smt = new SmtLibGeneration();
@@ -101,6 +101,7 @@ public class Main {
 	
 	
 	public void run() throws Exception {
+		
 		int times = 1;
 		int j = 0;
 		List<Float> timesList = new ArrayList<Float>();
@@ -300,7 +301,7 @@ public class Main {
 			
 			hmmGraph.recomputeProbability();
 //			graph.setLoopCover(loopCover);
-			graph.toHtml(afterGenForC,coverage,(float)duration.toMillis()/1000);
+			graph.toHtml(afterGenForC,coverage,(float)duration.toMillis()/1000, "WCFT4Cpp");
 			timesList.add(graph.getDuration());
 			
 		}catch(Exception ex) {
@@ -317,6 +318,7 @@ public class Main {
 	
 	
 	public static void main(String[] args) {
+//		System.out.println("current: "+ Paths.CURRENT_PROJECT.ORIGINAL_PROJECT_PATH);
 		int times = 1;
 		int j = 0;
 		List<Float> timesList = new ArrayList<Float>();
@@ -536,7 +538,7 @@ public class Main {
 			
 			hmmGraph.recomputeProbability();
 //			graph.setLoopCover(loopCover);
-			graph.toHtml(afterGenForC,coverage,(float)duration.toMillis()/1000);
+			graph.toHtml(afterGenForC,coverage,(float)duration.toMillis()/1000,"WCFT4Cpp");
 			timesList.add(graph.getDuration());
 			
 		}catch(Exception ex) {

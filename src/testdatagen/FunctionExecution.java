@@ -13,6 +13,7 @@ import org.apache.log4j.Logger;
 import org.apache.log4j.PropertyConfigurator;
 import org.eclipse.cdt.core.dom.ast.cpp.ICPPASTFunctionDefinition;
 
+import Khamd.Main;
 import cfg.CFGGenerationforBranchvsStatementCoverage;
 import cfg.CFGGenerationforSubConditionCoverage;
 import cfg.ICFG;
@@ -147,11 +148,11 @@ public class FunctionExecution implements ITestdataExecution {
 	public FunctionExecution() {
 		
 //		Settingv2.create();
-		AbstractSetting.setValue(ISettingv2.SOLVER_Z3_PATH, "D:\\cft4cpp-core\\local\\z3\\bin\\z3.exe");
+		AbstractSetting.setValue(ISettingv2.SOLVER_Z3_PATH, Main.pathToZ3);
 		AbstractSetting.setValue(ISettingv2.GNU_MAKE_PATH,
-				"D:\\program files\\Dev-Cpp\\MinGW64\\bin\\mingw32-make.exe");
-		AbstractSetting.setValue(ISettingv2.GNU_GCC_PATH, "D:\\program files\\Dev-Cpp\\MinGW64\\bin\\gcc.exe");
-		AbstractSetting.setValue(ISettingv2.GNU_GPlusPlus_PATH, "D:\\program files\\Dev-Cpp\\MinGW64\\bin\\g++.exe");
+				Main.pathToMingw32);
+		AbstractSetting.setValue(ISettingv2.GNU_GCC_PATH, Main.pathToGCC);
+		AbstractSetting.setValue(ISettingv2.GNU_GPlusPlus_PATH, Main.pathToGPlus);
 	}
 	public FunctionExecution(String pathToZ3, String pathToMingw32, String pathToGCC, String pathToGPlus) {
 		Settingv2.create();
@@ -239,12 +240,12 @@ public class FunctionExecution implements ITestdataExecution {
 					Utils.writeContentToFile(testdriverGen.getCompleteSourceFile(), backup.getFnParent());
 					
 					getExePath(rootProject, executionFilePath);
-					logger.debug("Paths.CURRENT_PROJECT.EXE_PATH = " + Paths.CURRENT_PROJECT.EXE_PATH);
+//					logger.debug("Paths.CURRENT_PROJECT.EXE_PATH = " + Paths.CURRENT_PROJECT.EXE_PATH);
 
 					/**
 					 * Compile the tested project
 					 */
-					String cmd = "\"D:\\program files\\Dev-Cpp\\MinGW64\\bin\\mingw32-make.exe\"" + " -f "
+					String cmd = AbstractSetting.getValue(ISettingv2.GNU_MAKE_PATH) + " -f "
 							+ getClonedProject() + "\\Makefile.win" + " clean all";
 //					logger.debug("Command line: " + cmd);
 				
@@ -465,9 +466,9 @@ public class FunctionExecution implements ITestdataExecution {
 //				testpath.set
 //				ICFG cfg=this.getIcfg();
 //				if(cfg == null) return null;
-				CFGUpdater_Mark updater = new CFGUpdater_Mark(testpath, cfg);
-//				
-				updater.updateVisitedNodes();
+//				CFGUpdater_Mark updater = new CFGUpdater_Mark(testpath, cfg);
+////				
+//				updater.updateVisitedNodes();
 				
 //				logger.debug("visited statements: " + cfg.getVisitedStatements());
 //				logger.debug("Visited branches: " + cfg.getVisitedBranches());

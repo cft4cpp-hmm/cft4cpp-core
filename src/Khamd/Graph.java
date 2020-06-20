@@ -33,6 +33,7 @@ import cfg.testpath.FullTestpath;
 import cfg.testpath.FullTestpaths;
 import cfg.testpath.IFullTestpath;
 import cfg.testpath.ITestpathInCFG;
+import config.AbstractSetting;
 import testdata.object.TestpathString_Marker;
 import testdatagen.coverage.CFGUpdater_Mark;
 import testdatagen.se.ISymbolicExecution;
@@ -162,21 +163,22 @@ public class Graph {
 	}
 	
 	public float computeBranchCover() throws Exception {
-		List<String> testDatas = new ArrayList<String>();
-		for(ProbTestPath path: this.getFullProbTestPaths()) {
-			testDatas.add(path.getTestCase());
+		Set<Edge> setEdges = new HashSet<Edge>();
+		Set<Edge> visitedEdges = new HashSet<Edge>();
+		for(ProbTestPath testPath: this.getFullProbTestPaths()) {
+			for(Edge edge: testPath.getEdge()) {
+				if(edge.isVisited()) {
+					visitedEdges.add(edge);
+				}
+				setEdges.add(edge);
+			}
 		}
-//		CFGUpdater_Mark updater = 
-		ProbFunctionExection probFunction = new ProbFunctionExection(this, Main.pathToZ3, Main.pathToMingw32, Main.pathToGCC, Main.pathToGPlus);
-		TestpathString_Marker testpath;
-		for(String testData: testDatas) {
-			testpath = probFunction.getEncodedPath(testData);
-			CFGUpdater_Mark updater = new CFGUpdater_Mark(testpath, this.getCfg());
-			updater.updateVisitedNodes();
-			
+		
+//		return (float)visitedEdges.size()/setEdges.size();
+		if(visitedEdges.size()!=0) {
+			this.branchCover = (float)visitedEdges.size()/setEdges.size();
 		}
-		probFunction.deleteClone();
-		return this.getCfg().computeBranchCoverage();
+		return this.branchCover;
 	}
 	public float computeBranchCover(List<String> testDatas) throws Exception {
 //		List<String> testDatas = new ArrayList<String>();
@@ -287,7 +289,7 @@ public class Graph {
 	public float getDuration() {
 		return this.duration;
 	}
-	public void toHtml(LocalDateTime diff1, int coverage, float timeForLoop) throws Exception {
+	public void toHtml(LocalDateTime diff1, int coverage, float timeForLoop, String toolName) throws Exception {
 		
 		Duration duration = Duration.between(this.createdDate,diff1);
 		
@@ -295,7 +297,7 @@ public class Graph {
 		float diff = Math.abs((float)duration.toMillis()/1000);
 		this.duration = diff;
 //		diff-=diff1;
-		FileWriter csvWriter = new FileWriter("HMM_REPORT.html",false);
+		FileWriter csvWriter = new FileWriter(AbstractSetting.getValue("TEST_REPORT")+".html",false);
 		String valueString = "<!DOCTYPE html>\r\n" + 
 				"<html>\r\n" + 
 				"\r\n" + 
@@ -304,7 +306,7 @@ public class Graph {
 				"</head>\r\n" + 
 				"\r\n" + 
 				"<body>\r\n" + 
-				"    <h2>Markov Chain Report</h2>\r\n" + 
+				"    <h2>TEST REPORT</h2>\r\n" + 
 				
 				"    <div class=\"table-wrapper\">\r\n" + 
 				"        <table class=\"fl-table\">\r\n" + 
@@ -317,39 +319,15 @@ public class Graph {
 				"            </thead>\r\n" + 
 				"            <tbody>";
 		for(ProbTestPath testPath: this.getFullProbTestPaths()) {
-			valueString+=testPath.toString();
-		}
-		String loopString = "";
-		try {
-			if(this.hasLoop()) {
-				 loopString = "    <div class=\"table-wrapper\">\r\n" + 
-						"        <table class=\"fl-table\">\r\n" + 
-						"            <thead>\r\n" + 
-						"                <tr>\r\n" + 
-						"                    <th>Number of iteration</th>\r\n" + 
-						"                    <th style=\"width: 800px\">Test path</th>\r\n" + 
-						"                    <th>Test Data</th>\r\n" + 
-						"                </tr>\r\n" + 
-						"            </thead>\r\n" + 
-						"            <tbody>";
-//				try {
-					loopString+= "<tr><td>"+2+"</td><td>"+this.getPathFor2Loop().toString().substring(0, 50) + "...</td><td>"+(this.get_2LoopSolution()==null?"no solution":this.get_2LoopSolution())+"</td>";
-					loopString+= "<tr><td>"+this.getK()+"</td><td>"+this.getPathForKLoop().toString().substring(0,50) + "...</td><td>"+(this.getLoopSolution()==null?"no solution":this.getLoopSolution())+"</td>";
-					
-//				}catch (Exception e) {
-//					// TODO: handle exception
-//					loopString+= "<tr><td>"+2+"</td><td>"+"no test path" + "...</td><td>"+(this.get_2LoopSolution()==null?"no solution":this.get_2LoopSolution())+"</td>";
-//					loopString+= "<tr><td>"+this.getK()+"</td><td>"+"no test path" + "...</td><td>"+(this.getLoopSolution()==null?"no solution":this.getLoopSolution())+"</td>";
-//					
-//				}
-				
-				loopString+="   <tbody>\r\n" + 
-						"        </table></div>\r\n";
+			if(toolName=="WCFT4Cpp") {
+				valueString+=testPath.toString();
 			}
-		}catch (Exception e) {
-			// TODO: handle exception
-		}
+			else valueString+=testPath.toStringForCFT4Cpp();
+			}
+			
+		String loopString = "";
 		
+	
 		valueString+=loopString;
 		float stateCov = this.getCfg().computeStatementCoverage();
 		float branchCov = this.getCfg().computeBranchCoverage();
@@ -363,9 +341,8 @@ public class Graph {
 		
 		String coverInfo = "";
 		try {
-			coverInfo = coverage == 1? "        <div>Cover: "+this.computeBranchCover()+"</div>\r\n"+
-			        "        <div> "+1+"</div></div>\r\n":"  <div>Statement Cover: "+this.computeStatementCov()+"</div>\r\n"+
-					        "        <div>Branch Cover "+this.computeStatementCov()+"</div></div>\r\n";
+			coverInfo = 
+					        "        <div>C2 Coverage "+this.computeStatementCov()+"</div></div>\r\n";
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -377,17 +354,14 @@ public class Graph {
 		        "<pre>"+this.functionNode.getAST().getRawSignature().toString()+
 		        
 		        "</pre>"+
-		        "<div>Path Coverage: "+this.getCoverage()+"</div>\r\n" + 
+		       
 		        "        <div>Time For "+(coverage==0?"C2 :":"C3: ") + diff+"s</div>\r\n" + 
 		        
-(this.hasLoop()?  "        <div>Time For Loop Generation: "+timeForLoop+"s</div>\r\n" + 
-		        "        <div>Loop Cover: "+(float)this.getLoopCover()/4+"</div>\r\n" :"")+
 		        coverInfo+
 //		        "        <div>Cover: "+this.computeBranchCover()+"</div>\r\n"+
 //		        "        <div> "+1+"</div></div>\r\n"+
 //				"    </div>\r\n" + 
 				"</body></html>";
-		valueString += this.computeBranchCover();
 		csvWriter.append(valueString);
 		csvWriter.close();
 	}

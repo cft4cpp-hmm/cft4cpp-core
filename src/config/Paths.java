@@ -47,7 +47,7 @@ public class Paths {
 	public static String ASTYLE = "..\\cft4cpp-core\\lib\\AStyle.exe";
 	public static String TSDV_R1 = "..\\cft4cpp-core\\data-test\\tsdv\\Sample_for_R1\\";
 	public static String TSDV_R1_10 = "..\\cft4cpp-core\\data-test\\tsdv\\Sample_for_R1_10file\\";
-	public static String TSDV_R1_2 = "..\\cft4cpp-core\\data-test\\tsdv\\Sample_for_R1_2\\";
+	public static String TSDV_R1_2 = "..\\cft4cpp-core\\data-test\\Sample_for_R1_2\\";
 	public static String TSDV_R1_3 = "..\\cft4cpp-core\\data-test\\tsdv\\Sample_for_R1_3_Cpp11\\";
 	public static String TSDV_R1_4 = "..\\cft4cpp-core\\data-test\\tsdv\\Sample_for_R1_4\\";
 	public static String CORE_UTILS = "..\\cft4cpp-core\\data-test\\ducanh\\coreutils-8.24";

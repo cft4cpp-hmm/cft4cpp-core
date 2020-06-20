@@ -29,7 +29,7 @@ public class Console {
 	final static Logger logger = Logger.getLogger(Console.class);
 	private ConsoleInput input = new ConsoleInput();
 
-	public Console(String[] args) {
+	public Console(String[] args, String functionName) {
 		Paths.START_FROM_COMMANDLINE = true;
 
 		if (!new File(AbstractSetting.settingPath).exists()) {
@@ -44,7 +44,7 @@ public class Console {
 			input.checkVariablesConfiguration();
 			logger.info("OK. Start generating test data");
 			try {
-				input.findTestdata();
+				input.findTestdata(functionName);
 			} catch (Exception e) {
 				logger.error("Error in generating test data");
 				e.printStackTrace();
@@ -54,6 +54,39 @@ public class Console {
 		}
 	}
 
+	public Console(String functionName) throws IOException {
+		String TESTING_PROJET_PATH = Paths.TSDV_R1_2;
+		String TESTING_FUNCTIONS_LIST = "/cft4cpp-core/local/test.txt";
+		String CONFIGURATION_FILE_PATH = "/cft4cpp-core/local/setting.properties";
+		/** 
+		 * AUTHOR: THE END OF CONFIGURATION
+		 */
+		String [] args = new String[] { Console.LOAD_PROJECT, new File(TESTING_PROJET_PATH).getCanonicalPath(),
+				Console.TESTED_FUNCTIONS, TESTING_FUNCTIONS_LIST, Console.CONFIG, CONFIGURATION_FILE_PATH,
+				Console.LOG4J_LEVEL, "debug" };
+		Paths.START_FROM_COMMANDLINE = true;
+
+		if (!new File(AbstractSetting.settingPath).exists()) {
+			logger.info("Setting does not exist. Create!");
+			Settingv2.create();
+		}
+
+		input = analyzeArgs(args);
+
+		logger.info("Check the correctness of options");
+		try {
+			input.checkVariablesConfiguration();
+			logger.info("OK. Start generating test data");
+			try {
+				input.findTestdata(functionName);
+			} catch (Exception e) {
+				logger.error("Error in generating test data");
+				e.printStackTrace();
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
 	/**
 	 * Example: args = new String[] { Console.LOAD_PROJECT, new
 	 * File(Paths.SYMBOLIC_EXECUTION_TEST).getCanonicalPath(),
@@ -71,17 +104,17 @@ public class Console {
 		/**
 		 * AUTHOR: PLEASE CONFIGURE HERE
 		 */
-		String TESTING_PROJET_PATH = Paths.TSDV_R1_2;
-		String TESTING_FUNCTIONS_LIST = "D:/cft4cpp-core/local/test.txt";
-		String CONFIGURATION_FILE_PATH = "D:/cft4cpp-core/local/setting.properties";
-		/** 
-		 * AUTHOR: THE END OF CONFIGURATION
-		 */
-		args = new String[] { Console.LOAD_PROJECT, new File(TESTING_PROJET_PATH).getCanonicalPath(),
-				Console.TESTED_FUNCTIONS, TESTING_FUNCTIONS_LIST, Console.CONFIG, CONFIGURATION_FILE_PATH,
-				Console.LOG4J_LEVEL, "debug" };
+//		String TESTING_PROJET_PATH = Paths.TSDV_R1_2;
+//		String TESTING_FUNCTIONS_LIST = "/cft4cpp-core/local/test.txt";
+//		String CONFIGURATION_FILE_PATH = "/cft4cpp-core/local/setting.properties";
+//		/** 
+//		 * AUTHOR: THE END OF CONFIGURATION
+//		 */
+//		args = new String[] { Console.LOAD_PROJECT, new File(TESTING_PROJET_PATH).getCanonicalPath(),
+//				Console.TESTED_FUNCTIONS, TESTING_FUNCTIONS_LIST, Console.CONFIG, CONFIGURATION_FILE_PATH,
+//				Console.LOG4J_LEVEL, "debug" };
 
-		Console console = new Console(args);
+		Console console = new Console("PDF(int,int,int)");
 		console.exportToHtml(new File(AbstractSetting.getValue(Settingv2.TEST_REPORT)+".html"), "xxx");
 		
 	}

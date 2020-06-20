@@ -41,7 +41,7 @@ public class ConsoleInput {
 	protected List<String> unreachNumTestpaths = new ArrayList<>();
 	protected List<String> exceptionMethods = new ArrayList<>();
 
-	public void findTestdata() throws Exception {
+	public void findTestdata(String function) throws Exception {
 		FunctionConfig functionConfig = loadVariablesConfiguration(variableConfigurationFile);
 
 		File cloneProject = Utils.copy(projectFile.getCanonicalPath());
@@ -50,7 +50,7 @@ public class ConsoleInput {
 
 		IProjectNode root = new ProjectParser(cloneProject, null).getRootTree();
 
-		for (String function : loadTestedFunctions(testFunctionsFile)) {
+		
 			logger.info("");
 			logger.info("");
 			logger.info("Function: " + function);
@@ -60,7 +60,7 @@ public class ConsoleInput {
 				logger.info("Founded only a function");
 				IFunctionNode functionNode = (IFunctionNode) functionNodes.get(0);
 				((FunctionNode) functionNode).setFunctionConfig(functionConfig);
-				logger.info("Function: \n" + functionNode.getAST().getRawSignature());
+				
 
 				ConsoleOutput consoleOutput = generateTestdata(functionNode);
 				consoleOutput.setFunctionNode(functionNode);
@@ -71,7 +71,7 @@ public class ConsoleInput {
 
 			else if (functionNodes.size() > 1)
 				logger.error("Find many functions. Ignore.");
-		}
+		
 
 		logger.debug("Delete the clone project");
 		Utils.deleteFileOrFolder(cloneProject);

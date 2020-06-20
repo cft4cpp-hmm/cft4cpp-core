@@ -7,6 +7,7 @@ import java.util.concurrent.TimeUnit;
 import org.apache.log4j.Logger;
 import org.eclipse.cdt.core.settings.model.COutputEntry;
 
+import Khamd.Main;
 import config.AbstractSetting;
 import config.ISettingv2;
 import config.Paths;
@@ -87,10 +88,10 @@ public class FastFunctionExecution extends FunctionExecution {
 						logger.debug(
 								Paths.CURRENT_PROJECT.EXE_PATH + " does not exist, so we have to compile project!");
 						if (!new File(Paths.CURRENT_PROJECT.EXE_PATH).exists()) {
-							String cmd = "\"D:\\program files\\Dev-Cpp\\MinGW64\\bin\\mingw32-make.exe\"" + " -f "
+							String cmd = AbstractSetting.getValue(ISettingv2.GNU_MAKE_PATH) + " -f "
 									+ getClonedProject() + "\\Makefile.win" + " clean all";
 //							logger.debug("Command line: " + cmd);
-						
+//							logger.debug("curent"+Paths.CURRENT_P);
 //							logger.debug("Start compiling");
 							
 							Process process = Runtime.getRuntime().exec(cmd, null, new File(getClonedProject()));

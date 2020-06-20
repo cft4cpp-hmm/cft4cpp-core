@@ -6,6 +6,7 @@ import java.util.List;
 import cfg.ICFG;
 import cfg.object.ConditionCfgNode;
 import cfg.object.ICfgNode;
+import junit.framework.TestCase;
 
 /**
  * Represent full test path from the beginning node to the end node
@@ -18,6 +19,7 @@ public class FullTestpath extends AbstractTestpath implements IFullTestpath {
 	 *
 	 */
 	private static final long serialVersionUID = 3205932220413141035L;
+	private String TestCase;
 
 	@Override
 	public IPartialTestpath getPartialTestpathAt(int endConditionId, boolean finalConditionType) {
@@ -79,5 +81,14 @@ public class FullTestpath extends AbstractTestpath implements IFullTestpath {
 	public FullTestpath cast() {
 		return this;
 	}
-
+	
+	public String getTestCase() {
+		if(this.TestCase==null) {
+			return IStaticSolutionGeneration.NO_SOLUTION;
+		}
+		return this.TestCase;
+	}
+	public void setTestCase(String testcase) {
+		this.TestCase = testcase;
+	}
 }

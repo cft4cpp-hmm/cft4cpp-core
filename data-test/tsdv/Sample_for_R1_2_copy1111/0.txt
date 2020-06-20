@@ -1,5 +1,0 @@
-statement={###line-of-blockin-function=1###openning-function=true
-line-in-function=2###offset=33###statement=int x = a+b;
-line-in-function=3###offset=48###statement=int y = x +10;
-line-in-function=4###offset=68###statement=x<10###control-block=if
-line-in-function=7###offset=101###statement=return 1/y;
