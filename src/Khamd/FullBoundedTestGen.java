@@ -115,27 +115,9 @@ public class FullBoundedTestGen {
 	
 
 	public static void main(String[] args) throws Exception {
-//		CFG cfg;
-//		ProjectParser parser = new ProjectParser(new File(Paths.TSDV_R1_2));
-//		IFunctionNode function;
-//		String functionName = "PDF(int,int,int)";
-//		function = (IFunctionNode) Search
-//				.searchNodes(parser.getRootTree(), new FunctionNodeCondition(), functionName)
-//				.get(0);
-////		function.getAST().toString().replaceAll("<", "==");
-//		FunctionConfig functionConfig = new FunctionConfig();
-//		functionConfig.setSolvingStrategy(ISettingv2.SUPPORT_SOLVING_STRATEGIES[0]);
-//		((IFunctionNode ) function).setFunctionConfig(functionConfig);
-//		FunctionNormalizer fnNorm = ((IFunctionNode) function).normalizedAST();
-//		String normalizedCoverage = fnNorm.getNormalizedSourcecode();
-//		((IFunctionNode ) function).setAST(fnNorm.getNormalizedAST());
-//		IFunctionNode clone = (IFunctionNode) function.clone();
-//		clone.setAST(Utils.getFunctionsinAST(normalizedCoverage.toCharArray()).get(0));
-//		CFGGenerationforSubConditionCoverage cfgGen = new CFGGenerationforSubConditionCoverage(clone);
-//		
-//		cfg = (CFG) cfgGen.generateCFG();
-//		cfg.setFunctionNode(clone);
-		FullBoundedTestGen tpGen = new FullBoundedTestGen(null,1, "leapYear(int)");
+		int maxLoop = 1;
+		String funcName = "leapYear(int)";
+		FullBoundedTestGen tpGen = new FullBoundedTestGen(null,maxLoop, funcName);  
 
 		tpGen.toHtml();
 		
@@ -273,11 +255,7 @@ protected String haveSolution(FullTestpath tp, boolean finalConditionType) throw
 
 	String solution = solveTestpath(cfg.getFunctionNode(), tp1);
 	return solution;
-//	if (!solution.equals(IStaticSolutionGeneration.NO_SOLUTION))
-//		return true;
-//	else {
-//		return false;
-//	}
+
 }
 
 protected IPartialTestpath createPartialTestpath(FullTestpath fullTp, boolean finalConditionType) {
