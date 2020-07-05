@@ -135,7 +135,7 @@ public class FullBoundedTestGen {
 //		
 //		cfg = (CFG) cfgGen.generateCFG();
 //		cfg.setFunctionNode(clone);
-		FullBoundedTestGen tpGen = new FullBoundedTestGen(null,1, "PDF(int,int,int)");
+		FullBoundedTestGen tpGen = new FullBoundedTestGen(null,1, "leapYear(int)");
 
 		tpGen.toHtml();
 		
@@ -230,10 +230,10 @@ private void traverseCFG(ICfgNode stm, FullTestpath tp, FullTestpaths testpaths,
 				} else {
 					
 						Random rand = new Random();
-						for(int i = -1; i<2;i++) {
+						for(int i = -1; i< 2;i++) {
 							FullTestpath tp1 = (FullTestpath) tp.clone();
 							ConditionCfgNode stm1 = (ConditionCfgNode) stm.clone();
-
+							
 							tp1.remove(tp.lastIndexOf(stm));
 							stm1.setContent(stm1.getContent().replaceAll("<=|>=|<|>|!=", "=="));
 							stm1.setAst(ASTUtils.convertToIAST(stm1.getContent()+"+"+i));
@@ -241,11 +241,13 @@ private void traverseCFG(ICfgNode stm, FullTestpath tp, FullTestpaths testpaths,
 							tp1.add(trueNode);
 							
 							String result = this.haveSolution(tp1, true);
+							
 							for(IVariableNode variable: this.variables) {
-								if(!result.contains(variable.toString())){
+								if(!result.contains(variable.toString()) && !result.equals(IStaticSolutionGeneration.NO_SOLUTION)){
 									result += variable.toString()+"="+rand.nextInt(100)+";";
 								}
 							}
+							
 							if(!result.equals(IStaticSolutionGeneration.NO_SOLUTION)) {
 								testCases.add(result.replaceAll(";;", ";"));
 							}
@@ -253,8 +255,6 @@ private void traverseCFG(ICfgNode stm, FullTestpath tp, FullTestpaths testpaths,
 
 						}
 						
-						
-
 					
 					traverseCFG(falseNode, tp, testpaths,testCases);
 

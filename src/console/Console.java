@@ -28,10 +28,11 @@ public class Console {
 	public static final String LOG4J_LEVEL = "-log4j";
 	final static Logger logger = Logger.getLogger(Console.class);
 	private ConsoleInput input = new ConsoleInput();
-
+//	private ConsoleInput input;
+	
 	public Console(String[] args, String functionName) {
 		Paths.START_FROM_COMMANDLINE = true;
-
+//		input = new ConsoleInput();
 		if (!new File(AbstractSetting.settingPath).exists()) {
 			logger.info("Setting does not exist. Create!");
 			Settingv2.create();
@@ -56,11 +57,12 @@ public class Console {
 
 	public Console(String functionName) throws IOException {
 		String TESTING_PROJET_PATH = Paths.TSDV_R1_2;
-		String TESTING_FUNCTIONS_LIST = "/cft4cpp-core/local/test.txt";
-		String CONFIGURATION_FILE_PATH = "/cft4cpp-core/local/setting.properties";
+		String TESTING_FUNCTIONS_LIST = "..\\cft4cpp-core\\enviroment\\test.txt";
+		String CONFIGURATION_FILE_PATH = "..\\cft4cpp-core\\enviroment\\setting.properties";
 		/** 
 		 * AUTHOR: THE END OF CONFIGURATION
 		 */
+//		input = new ConsoleInput();
 		String [] args = new String[] { Console.LOAD_PROJECT, new File(TESTING_PROJET_PATH).getCanonicalPath(),
 				Console.TESTED_FUNCTIONS, TESTING_FUNCTIONS_LIST, Console.CONFIG, CONFIGURATION_FILE_PATH,
 				Console.LOG4J_LEVEL, "debug" };
@@ -114,9 +116,8 @@ public class Console {
 //				Console.TESTED_FUNCTIONS, TESTING_FUNCTIONS_LIST, Console.CONFIG, CONFIGURATION_FILE_PATH,
 //				Console.LOG4J_LEVEL, "debug" };
 
-		Console console = new Console("PDF(int,int,int)");
+		Console console = new Console("average(double[],double,double)");
 		console.exportToHtml(new File(AbstractSetting.getValue(Settingv2.TEST_REPORT)+".html"), "xxx");
-		
 	}
 
 	private ConsoleInput analyzeArgs(String[] args) {
@@ -205,9 +206,10 @@ public class Console {
 			+ toCell("Test data execution") + toCell("Compilation") + toCell("Z3 Solver") + toCell("Symbolic execution")
 			+ toCell("Normalization time") + toCell("(Macro normalization time)"));
 
-	static String allFunctionsTestReport = "";
+//	static String allFunctionsTestReport = "";
 
 	public void exportToHtml(File htmlFile, String methodName) {
+		String allFunctionsTestReport = "";
 		String fullHtml = "";
 		String style = "<style> table { font-size: 12px; font-family: arial, sans-serif; border-collapse: collapse; width: 100%; } td, th { border: 1px solid #dddddd; text-align: left; padding: 8px; } tr:nth-child(even) { background-color: #dddddd; } </style>";
 
@@ -334,6 +336,7 @@ public class Console {
 		String iterationInforHtml = "<!DOCTYPE html> <html> <head>" + style + "</head><body>"
 				+ visitedBranchesChangesOverIterations + "</body></html>";
 		Utils.writeContentToFile(iterationInforHtml, htmlFile.getParent() + File.separator + "infor.html");
+		
 	}
 
 	static String toCell(String content) {

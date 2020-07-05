@@ -121,7 +121,7 @@ public class Paths {
 
 		public static String CURRENT_TESTDRIVER_EXECUTION_PATH = "";
 
-		public static String LOCAL_FOLDER = "./local";
+		public static String LOCAL_FOLDER = "./enviroment";
 
 		public static void reset() {
 			CURRENT_PROJECT.TESTDRIVER_EXECUTION_NAME_POSTFIX = CURRENT_PROJECT.CLONE_PROJECT_PATH = CURRENT_PROJECT.MAKEFILE_PATH = CURRENT_PROJECT.EXE_PATH = "";

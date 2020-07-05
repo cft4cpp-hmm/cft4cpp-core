@@ -20,11 +20,14 @@ import cfg.object.EndFlagCfgNode;
 import cfg.object.ICfgNode;
 import cfg.testpath.FullTestpath;
 import cfg.testpath.FullTestpaths;
+import cfg.testpath.IFullTestpath;
 import cfg.testpath.IPartialTestpath;
 import cfg.testpath.IStaticSolutionGeneration;
 import cfg.testpath.ITestpathGeneration;
 import cfg.testpath.ITestpathInCFG;
+import cfg.testpath.NormalizedTestpath;
 import cfg.testpath.PartialTestpath;
+import cfg.testpath.PossibleTestpathGeneration;
 import config.FunctionConfig;
 import config.ISettingv2;
 import config.ParameterBound;
@@ -128,7 +131,7 @@ public class CFT4CPP{
 
 	
 	public static void main(String[] args) throws Exception {
-		CFT4CPP tpGen = new CFT4CPP(null, 1, "sum(int,int)");
+		CFT4CPP tpGen = new CFT4CPP(null, 1, "simpleWhileTest(int,int)");
 		tpGen.run();
 		
 	}
@@ -139,8 +142,10 @@ public class CFT4CPP{
 //		LocalDateTime after = LocalDateTime.now();
 //		Duration duration = Duration.between(before,after);
 	
+		PossibleTestpathGeneration tpGen = new PossibleTestpathGeneration(cfg, Main.depth);
+		tpGen.generateTestpaths();
 		
-		Graph graph = new Graph(before, cfg, this.getPossibleTestpaths(), this.function, Paths.TSDV_R1_2, 1);
+		Graph graph = new Graph(before, cfg, tpGen.getPossibleTestpaths(), this.function, Paths.TSDV_R1_2, 1);
 		HMMGraph hmmGraph = new HMMGraph(1);
 		Node node;
 		Node nextNode;
@@ -157,11 +162,29 @@ public class CFT4CPP{
 		for(int i = 0; i< this.getPossibleTestpaths().size(); i++) {
 			FullTestpath testpath = (FullTestpath) this.getPossibleTestpaths().get(i);
 			if(!testpath.getTestCase().equals(IStaticSolutionGeneration.NO_SOLUTION)) {
+				for(IFullTestpath testpath1 : graph.getFullPossibleFullTestpaths()) {
+					if(testpath1.getAllCfgNodes().equals(testpath.getAllCfgNodes())) {
+						graph.updateGraph(graph.getFullPossibleFullTestpaths().indexOf(testpath1), 1, hmmGraph, Main.version);
+					}
+				}
+				
 				graph.updateGraph(i, 1, hmmGraph, 1);
 				graph.getFullProbTestPaths().get(i).setTestCase(testpath.getTestCase());
 			}
 		}
+		
 		graph.toHtml(LocalDateTime.now(), 0, 1, "CFT4Cpp");
+		System.out.println(graph.computeBranchCover());
+//		System.out.println(cfg.getVisitedBranches());
+		TestpathString_Marker marker = new TestpathString_Marker();
+//		marker.
+		
+		IFullTestpath testpath = graph.getFullPossibleFullTestpaths().get(0);
+		marker.setEncodedTestpath(testpath.getAllCfgNodes().toString());
+		cfg.updateVisitedNodes_Marker(marker);
+//		System.out.println(marker.getStandardTestpathByAllProperties());
+//		System.out.println(cfg.computeBranchCoverage());
+		
 		
 	}
 	public void generateTestpaths(IFunctionNode function) {
@@ -374,4 +397,9 @@ public class CFT4CPP{
 	public List<String> getTestCases(){
 		return this.testCases;
 	}
+	
+//	public static String getNormalize(IFullTestpath testpath) {
+//		String ouput = "";
+//		for(int i=0; i< testpath.getFu)
+//	}
 }

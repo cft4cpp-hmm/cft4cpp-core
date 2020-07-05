@@ -98,14 +98,14 @@ public class FunctionExecution implements ITestdataExecution {
 		 */
 		ProjectParser parser = new ProjectParser(clone);
 		FunctionNode testedFunction = (FunctionNode) Search
-				.searchNodes(parser.getRootTree(), new FunctionNodeCondition(), "myTest(int)").get(0);
+				.searchNodes(parser.getRootTree(), new FunctionNodeCondition(), "maxx(int)").get(0);
 
 		FunctionConfig config = new FunctionConfig();
 		config.setCharacterBound(new ParameterBound(32, 100));
 		config.setIntegerBound(new ParameterBound(0, 100));
 		testedFunction.setFunctionConfig(config);
 
-		String variableValues = "x=1;";
+		String variableValues = "a=1;";
 
 		/**
 		 * Find test path given a test case
@@ -141,8 +141,11 @@ public class FunctionExecution implements ITestdataExecution {
 		execution.setTestedFunction(testedFunction);
 		execution.setPreparedInput(variableValues);
 		execution.setClonedProject(clone.getCanonicalPath());
+		TestpathString_Marker testpath = execution.analyze(execution.getTestedFunction(), execution.getPreparedInput());
+		cfg.updateVisitedNodes_Marker(testpath);
+		System.out.println(cfg.computeBranchCoverage());
+		System.out.println(testpath);
 		
-		logger.debug(execution.analyze(execution.getTestedFunction(), execution.getPreparedInput()));
 	}
 
 	public FunctionExecution() {
@@ -245,15 +248,16 @@ public class FunctionExecution implements ITestdataExecution {
 					/**
 					 * Compile the tested project
 					 */
-					String cmd = AbstractSetting.getValue(ISettingv2.GNU_MAKE_PATH) + " -f "
-							+ getClonedProject() + "\\Makefile.win" + " clean all";
+					String cmd ="\""+ AbstractSetting.getValue(ISettingv2.GNU_MAKE_PATH) + "\""+ " -f "
+							+ "\"" + getClonedProject() + "\\Makefile.win" + "\"" + " clean all";
+					
 //					logger.debug("Command line: " + cmd);
 				
 					
 					
 						logger.debug("Start compiling");
 						Process process = Runtime.getRuntime().exec(cmd, null, new File(getClonedProject()));
-						process.waitFor(3, TimeUnit.SECONDS);
+						process.waitFor(5, TimeUnit.SECONDS);
 						logger.debug("Finish compiling");
 					
 					
@@ -427,7 +431,7 @@ public class FunctionExecution implements ITestdataExecution {
 				logger.info("Finish. We are getting a execution path from hard disk");
 // note 1
 				encodedTestpath.setEncodedTestpath(normalizeTestpathFromFile(Utils.readFileContent(executionFilePath)));
-
+				
 				if (encodedTestpath.getEncodedTestpath().length() == 0) {
 					initialization = "";
 					Thread.sleep(10);
@@ -451,6 +455,7 @@ public class FunctionExecution implements ITestdataExecution {
 					for (int i = 0; i < THRESHOLD - 1; i++) {
 						tmp_shortenTp += executedStms[i] + ITestpathInCFG.SEPARATE_BETWEEN_NODES;
 					}
+					
 					tmp_shortenTp += executedStms[THRESHOLD - 1];
 					encodedTestpath.setEncodedTestpath(tmp_shortenTp);
 				}

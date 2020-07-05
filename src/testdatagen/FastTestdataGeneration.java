@@ -312,13 +312,13 @@ public class FastTestdataGeneration extends AbstractTestdataGeneration {
 									ISymbolicExecution se = new SymbolicExecution(executedTestpath, paramaters,
 											originalFunction);
 
-									logger.debug("Done. Constraints: \n" + se.getConstraints().toString()
-											.replace(ISymbolicVariable.PREFIX_SYMBOLIC_VALUE, "")
-											.replace(
-													ISymbolicVariable.SEPARATOR_BETWEEN_STRUCTURE_NAME_AND_ITS_ATTRIBUTES,
-													".")
-											.replace(ISymbolicVariable.ARRAY_CLOSING, "]")
-											.replace(ISymbolicVariable.ARRAY_OPENING, "["));
+//									logger.debug("Done. Constraints: \n" + se.getConstraints().toString()
+//											.replace(ISymbolicVariable.PREFIX_SYMBOLIC_VALUE, "")
+//											.replace(
+//													ISymbolicVariable.SEPARATOR_BETWEEN_STRUCTURE_NAME_AND_ITS_ATTRIBUTES,
+//													".")
+//											.replace(ISymbolicVariable.ARRAY_CLOSING, "]")
+//											.replace(ISymbolicVariable.ARRAY_OPENING, "["));
 
 									/**
 									 * STEP 4. NEGATE PATH CONSTRAINTS

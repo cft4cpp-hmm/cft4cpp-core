@@ -67,6 +67,10 @@ public class ProbTestPath {
 		return true;
 	}
 	public String toString() {
+		if(this.getTestCase().equals(IStaticSolutionGeneration.NO_SOLUTION)&&Main.nameOfMethod.equals("STCFG")) {
+			return null;
+		}
+		
 		if(!this.toString.equals("")) {
 			this.toString = this.toString.substring(4,this.toString.length());
 			this.toString=this.toString.replace("{", "");
@@ -160,83 +164,100 @@ public class ProbTestPath {
 //	Get String value for CFT4Cpp
 // dominhkha
 	public String toStringForCFT4Cpp() {
-		if(!this.toString.equals("")) {
-			this.toString = this.toString.substring(4,this.toString.length());
-			this.toString=this.toString.replace("{", "");
-			this.toString=this.toString.replace("}", "");
-			this.toString=this.toString.replace("  ", "");
-
-			String[] listStrings = this.toString.split("=>|=> =>");
-			
-			String newString ="<tr><td>"+pathNumber+"</td><td>";
-			
-			List<String> newLiStrings = new ArrayList<String>();
-			
-			for(int i=0;i<listStrings.length;i++) {
-				if(!listStrings[i].equals(" ")&&!listStrings[i].equals("  ")&&!listStrings[i].contains("[")) {
-					newLiStrings.add(listStrings[i]);
-				}
-			}
-			for(int i=0;i<newLiStrings.size()-1;i++) {
-				if(newLiStrings.get(i).contains("[")) continue;
-				
-				newString+=newLiStrings.get(i)+" "+"<font> => </font> ";
-				
-			}
-			newString+=newLiStrings.get(newLiStrings.size()-1);
-			newString+="</td>"+"<td>"+this.getTestCase()+"</td></tr>";
-			return newString;
-		}
 		
-			List<PathConstraint> constraints = new ArrayList<PathConstraint>();
-			Pattern pattern = Pattern.compile("=|<|>");
-			try {
-				for(PathConstraint c: (PathConstraints) this.getConstraints()) {
-					if(c.getCfgNode().toString().matches(".*\\b(|<|>)\\b.*") || c.getCfgNode().toString().contains("==")){
-						constraints.add(c);
-					}
-				
-				}
-			}catch (Exception e) {
-				// TODO: handle exception
-			}
-			
-		this.toString = "<tr><td>"+pathNumber+"</td><td>";
-		int temp = 0;
-		for(int i=0;i<this.getFullCfgNode().size()-1;i++) {
-//			System.out.println(temp);
-			ICfgNode node = this.getFullCfgNode().get(i);
+		if(this.testCase.equals(IStaticSolutionGeneration.NO_SOLUTION)) {
+			return "";
+		}
+		String newstring = "<tr><td>"+pathNumber+"</td><td>";
+		for(ICfgNode node: this.getFullCfgNode()) {
 			if(node.toString().contains("{")||node.toString().contains("}")) {
 				continue;
 			}
-			if(node.toString().contains("<")||node.toString().contains(">") || node.toString().contains("==")) {
-				if(constraints.size()>0 && constraints.get(0).toString().replace(" ", "").indexOf("!")==0) {
-					toString+="!( "+node.toString()+") <font> => </font>";
-					temp = Integer.parseInt(df2.format(this.proList.get(0)).toString().replace(".", ""));
-					constraints.remove(0);
-					
-				}
-				else if(constraints.size()>0) {
-					
-					
-						toString+=" ("+node.toString()+") <font> => </font>";
-					temp = Integer.parseInt(df2.format(this.proList.get(0)).toString().replace(".", ""));
-					constraints.remove(0);
-					
-				}
-			}
-			
-			else {
-				
-					toString+="( "+node.toString()+") <font> => </font>";
-				
-			}
-			
+			else newstring+=node.toString()+" => ";
 		}
+		newstring = newstring.substring(0, newstring.length()-3);
+		newstring+="</td><td>"+this.getTestCase()+"</td></tr>";
 		
-		this.toString+=this.getFullCfgNode().get(this.getFullCfgNode().size()-1);
-		this.toString+="</td>"+"<td>"+this.getTestCase()+"</td></tr>";
-		return this.toString;
+		return newstring;
+//		return this.get
+//		System.out.println("To String" + this.getFullCfgNode().toString());
+//		if(!this.toString.equals("")) {
+//			
+//			this.toString = this.toString.substring(4,this.toString.length());
+//			this.toString=this.toString.replace("{", "");
+//			this.toString=this.toString.replace("}", "");
+//			this.toString=this.toString.replace("  ", "");
+//
+//			String[] listStrings = this.toString.split("=>|=> =>");
+//			
+//			String newString ="<tr><td>"+pathNumber+"</td><td>";
+//			
+//			List<String> newLiStrings = new ArrayList<String>();
+//			
+//			for(int i=0;i<listStrings.length;i++) {
+//				if(!listStrings[i].equals(" ")&&!listStrings[i].equals("  ")&&!listStrings[i].contains("[")) {
+//					newLiStrings.add(listStrings[i]);
+//				}
+//			}
+//			for(int i=0;i<newLiStrings.size()-1;i++) {
+//				if(newLiStrings.get(i).contains("[")) continue;
+//				
+//				newString+=newLiStrings.get(i)+" "+"<font> => </font> ";
+//			}
+//			newString+=newLiStrings.get(newLiStrings.size()-1);
+//			newString+="</td>"+"<td>"+this.getTestCase()+"</td></tr>";
+//			return newString;
+//		}
+//		
+//			List<PathConstraint> constraints = new ArrayList<PathConstraint>();
+//			Pattern pattern = Pattern.compile("=|<|>");
+//			try {
+//				for(PathConstraint c: (PathConstraints) this.getConstraints()) {
+//					if(c.getCfgNode().toString().matches(".*\\b(|<|>)\\b.*") || c.getCfgNode().toString().contains("==")){
+//						constraints.add(c);
+//					}
+//				
+//				}
+//			}catch (Exception e) {
+//				// TODO: handle exception
+//			}
+//			
+//		this.toString = "<tr><td>"+pathNumber+"</td><td>";
+//		int temp = 0;
+//		for(int i=0;i<this.getFullCfgNode().size()-1;i++) {
+////			System.out.println(temp);
+//			ICfgNode node = this.getFullCfgNode().get(i);
+//			if(node.toString().contains("{")||node.toString().contains("}")) {
+//				continue;
+//			}
+//			if(node.toString().contains("<")||node.toString().contains(">") || node.toString().contains("==")) {
+//				if(constraints.size()>0 && constraints.get(0).toString().replace(" ", "").indexOf("!")==0) {
+//					toString+="!( "+node.toString()+") <font> => </font>";
+//					temp = Integer.parseInt(df2.format(this.proList.get(0)).toString().replace(".", ""));
+//					constraints.remove(0);
+//					
+//				}
+//				else if(constraints.size()>0) {
+//					
+//					
+//					toString+=" ("+node.toString()+") <font> => </font>";
+//					temp = Integer.parseInt(df2.format(this.proList.get(0)).toString().replace(".", ""));
+//					constraints.remove(0);
+//					
+//				}
+//			}
+//			
+//			else {
+//				
+//					toString+="( "+node.toString()+") <font> => </font>";
+//				
+//			}
+//			
+//		}
+//		
+//		this.toString+=this.getFullCfgNode().get(this.getFullCfgNode().size()-1);
+//		this.toString+="</td>"+"<td>"+this.getTestCase()+"</td></tr>";
+//		return this.toString;
 	}
 	
 	

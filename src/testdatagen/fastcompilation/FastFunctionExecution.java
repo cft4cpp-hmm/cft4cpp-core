@@ -88,14 +88,14 @@ public class FastFunctionExecution extends FunctionExecution {
 						logger.debug(
 								Paths.CURRENT_PROJECT.EXE_PATH + " does not exist, so we have to compile project!");
 						if (!new File(Paths.CURRENT_PROJECT.EXE_PATH).exists()) {
-							String cmd = AbstractSetting.getValue(ISettingv2.GNU_MAKE_PATH) + " -f "
-									+ getClonedProject() + "\\Makefile.win" + " clean all";
-//							logger.debug("Command line: " + cmd);
+							String cmd = "\""+AbstractSetting.getValue(ISettingv2.GNU_MAKE_PATH) + "\"" + " -f "
+									+"\""+ Paths.CURRENT_PROJECT.EXE_PATH.replaceAll("\\\\Sample_for_R1_2.exe", "") + "\\Makefile.win" + "\""+ " clean all";
+							logger.debug("Command line: " + cmd);
 //							logger.debug("curent"+Paths.CURRENT_P);
 //							logger.debug("Start compiling");
 							
-							Process process = Runtime.getRuntime().exec(cmd, null, new File(getClonedProject()));
-							process.waitFor(3, TimeUnit.SECONDS);
+							Process process = Runtime.getRuntime().exec(cmd, null, new File(Paths.CURRENT_PROJECT.EXE_PATH.replaceAll("\\\\Sample_for_R1_2.exe", "")));
+							process.waitFor(5, TimeUnit.SECONDS);
 							
 //							logger.debug("Finish compiling");
 //							ConsoleExecution.compileMakefile(new File(Paths.CURRENT_PROJECT.MAKEFILE_PATH));

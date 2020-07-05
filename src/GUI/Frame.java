@@ -6,11 +6,15 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JTextPane;
 
+import org.apache.poi.ss.formula.ptg.Deleted3DPxg;
+
 import com.thoughtworks.xstream.core.util.FastField;
 
 import Khamd.CFT4CPP;
 import Khamd.FullBoundedTestGen;
 import Khamd.Main;
+import config.AbstractSetting;
+import config.Settingv2;
 import console.Console;
 
 import java.awt.Font;
@@ -26,6 +30,8 @@ import java.awt.Color;
 import java.awt.SystemColor;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.io.File;
+
 import javax.swing.JComboBox;
 
 public class Frame {
@@ -63,11 +69,11 @@ public class Frame {
 	private void initialize() {
 		frmWcftcpp = new JFrame();
 		frmWcftcpp.setTitle("WCFT4Cpp");
-		frmWcftcpp.setBounds(100, 100, 747, 431);
+		frmWcftcpp.setBounds(100, 100, 701, 431);
 		frmWcftcpp.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frmWcftcpp.getContentPane().setLayout(null);
 		
-		JRadioButton WCFT4Cpp = new JRadioButton("WCFG");
+		JRadioButton WCFT4Cpp = new JRadioButton("WCFT");
 		WCFT4Cpp.setSelected(true);
 		JRadioButton BCFT4Cpp = new JRadioButton("BVTG");
 		JRadioButton STCFG = new JRadioButton("STCFG");
@@ -87,7 +93,7 @@ public class Frame {
 		
 		STCFG.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				txtpnP.setText("Please fill out required feild and wait until every thing done");
+				txtpnP.setText("Please fill out required field and wait until every thing done");
 				txtpnP.setForeground(Color.black);
 				if(STCFG.isSelected()) {
 					BCFT4Cpp.setSelected(false);
@@ -99,12 +105,21 @@ public class Frame {
 		
 		
 		JButton btnStart = new JButton("Generate test data");
+		btnStart.addMouseListener(new MouseAdapter() {
+			
+			@Override
+			public void mousePressed(MouseEvent e) {
+				btnStart.setText("wait");
+				txtpnP.setText("Please fill out required field and wait until every thing done");
+				txtpnP.setForeground(Color.black);
+			}
+		});
 		
 		
 		JLabel lblFunctionNamw = new JLabel("Function Name");
 		WCFT4Cpp.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				txtpnP.setText("Please fill out required feild and wait until every thing done");
+				txtpnP.setText("Please fill out required field and wait until every thing done");
 				txtpnP.setForeground(Color.black);
 				if(WCFT4Cpp.isSelected()) {
 					BCFT4Cpp.setSelected(false);
@@ -123,7 +138,7 @@ public class Frame {
 		
 		BCFT4Cpp.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				txtpnP.setText("Please fill out required feild and wait until every thing done");
+				txtpnP.setText("Please fill out required field and wait until every thing done");
 				txtpnP.setForeground(Color.black);
 				if(BCFT4Cpp.isSelected()) {
 					WCFT4Cpp.setSelected(false);
@@ -137,7 +152,7 @@ public class Frame {
 		frmWcftcpp.getContentPane().add(BCFT4Cpp);
 		CTCFG.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				txtpnP.setText("Please fill out required feild and wait until every thing done");
+				txtpnP.setText("Please fill out required field and wait until every thing done");
 				txtpnP.setForeground(Color.black);
 				if(CTCFG.isSelected()) {
 					BCFT4Cpp.setSelected(false);
@@ -167,7 +182,7 @@ public class Frame {
 		funcName.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent e) {
-				txtpnP.setText("Please fill out required feild and wait until every thing done");
+				txtpnP.setText("Please fill out required field and wait until every thing done");
 				txtpnP.setForeground(Color.black);
 				txtpnP.setForeground(Color.black);
 			}
@@ -181,7 +196,7 @@ public class Frame {
 		txtpnP.setBackground(SystemColor.control);
 		txtpnP.setForeground(Color.BLACK);
 		txtpnP.setText("Please wait until every thing done");
-		txtpnP.setBounds(35, 305, 426, 27);
+		txtpnP.setBounds(35, 305, 554, 27);
 		txtpnP.setEditable(false);
 		frmWcftcpp.getContentPane().add(txtpnP);
 		
@@ -203,26 +218,37 @@ public class Frame {
 //				Main.pathToGCC = pathToGcc;
 //				Main.pathToMingw32 = pathToMingw32;
 //				Main.pathToGPlus = pathTogPlus;
-
+				
 				try {
 					int iterations = (int) comboBox.getSelectedItem();
 					String functionName = funcName.getText();
+					Main.depth = iterations;
 					CFT4CPP cft4cpp = new CFT4CPP(null,iterations, functionName);
 					Main main = new Main(functionName, iterations);
 					FullBoundedTestGen bGen = new FullBoundedTestGen(null, iterations, functionName);
 					if(STCFG.isSelected()) {
+						Main.nameOfMethod=STCFG.getText();
 						cft4cpp.run();
+						
 					}
 					else if(WCFT4Cpp.isSelected()) {
+						Main.nameOfMethod=WCFT4Cpp.getText();
 						main.run();
+						
 					}
 					else if(BCFT4Cpp.isSelected()) {
+						Main.nameOfMethod=BCFT4Cpp.getText();
 						bGen.toHtml();
+						
 					}
 					else if(CTCFG.isSelected()) {
+						Main.nameOfMethod=CTCFG.getText();
 						Console console = new Console(functionName);
+						console.exportToHtml(new File("TEST_REPORT.html"), functionName);
+						console = null; 
 					}
-					txtpnP.setText("open report.html to view the result!");
+					
+					txtpnP.setText("open TEST_REPORT.html to view the result!");
 					txtpnP.setForeground(Color.blue);
 				} catch (Exception e1) {
 					// TODO Auto-generated catch block
@@ -230,6 +256,7 @@ public class Frame {
 					txtpnP.setForeground(Color.red);
 					e1.printStackTrace();
 				}
+				btnStart.setText("Generate test data");
 				
 //				try {
 //					main.run();

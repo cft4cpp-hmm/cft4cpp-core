@@ -71,23 +71,24 @@ import utils.search.FunctionNodeCondition;
 import utils.search.Search;
 
 public class Main {
-	public static String pathToZ3 ="..\\cft4cpp-core\\local\\z3\\bin\\z3.exe";
-	public static String pathToMingw32 = "..\\cft4cpp-core\\bin\\mingw32-make.exe";
-	public static String pathToGCC = "..\\cft4cpp-core\\bin\\gcc.exe";
-	public static String pathToGPlus = "..\\cft4cpp-core\\bin\\g++.exe";
+	public static String pathToZ3 ="..\\cft4cpp-core\\enviroment\\z3\\bin\\z3.exe";
+	public static String pathToMingw32 = "..\\cft4cpp-core\\enviroment\\bin\\mingw32-make.exe";
+	public static String pathToGCC = "..\\cft4cpp-core\\enviroment\\bin\\gcc.exe";
+	public static String pathToGPlus = "..\\cft4cpp-core\\enviroment\\bin\\g++.exe";
 //	public static String pathToConstraint = "D:\\cft4cpp-core\\myConstraint.smt2";
 //	public static String pathToZ3 = AbstractSetting.getValue(Settingv2.SOLVER_Z3_PATH);
 //	public static String pathToMingw32 = AbstractSetting.getValue(Settingv2.GNU_MAKE_PATH);
 //	public static String pathToGCC = AbstractSetting.getValue(Settingv2.GNU_GCC_PATH);
 //	public static String pathToGPlus = AbstractSetting.getValue(Settingv2.GNU_GPlusPlus_PATH);
 	public static String pathToConstraint = "myConstraint.smt2";
-	
+	public static int depth = 1;
 	public static SmtLibGeneration smt = new SmtLibGeneration();
 	public static final int version = 1;    // 1 for weighted graph 2 for probability graph
 	public static final int coverage = 0;   // 0 for C1,C2. 1 for C3
 	public static final int max = 20;		// The K's biggest value
 	public static final int min = 5;		// The K's smallest value
 	public static final int maxLoopInGenerateTestcaseForLoopFunction = 4;
+	public static String nameOfMethod = "STCFG";
 	private String functionName;
 	private int interations;
 //	public Main(String pathToZ3)

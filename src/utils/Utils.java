@@ -1275,6 +1275,7 @@ public class Utils implements IRegex {
 		} catch (Exception e) {
 			e.printStackTrace();
 		} finally {
+//			logger.debug("fileData: "+ fileData.toString());
 			return fileData.toString();
 		}
 	}

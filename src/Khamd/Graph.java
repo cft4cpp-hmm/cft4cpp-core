@@ -306,7 +306,7 @@ public class Graph {
 				"</head>\r\n" + 
 				"\r\n" + 
 				"<body>\r\n" + 
-				"    <h2>TEST REPORT</h2>\r\n" + 
+				"    <h2>TEST REPORT "+Main.nameOfMethod+"</h2>\r\n" + 
 				
 				"    <div class=\"table-wrapper\">\r\n" + 
 				"        <table class=\"fl-table\">\r\n" + 
@@ -341,8 +341,7 @@ public class Graph {
 		
 		String coverInfo = "";
 		try {
-			coverInfo = 
-					        "        <div>C2 Coverage "+this.computeStatementCov()+"</div></div>\r\n";
+			coverInfo = "";
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -350,13 +349,18 @@ public class Graph {
 		
 		valueString+="   <tbody>\r\n" + 
 				"        </table></div>\r\n" + 
+				"<div class=\"benchmark\"> "+
+				"<div> Depth: "+Main.depth+"</div>"+
+		"<div> C2 Coverage: "+this.computeBranchCover()+"</div>" + 
+		"<div> Required Time For " +(coverage==0?"C2: ":"C3: ") + diff+"s</div>"+
+		
+		"</div>"+
 				"<div class=\"conlusion\">\n"+ 
 		        "<pre>"+this.functionNode.getAST().getRawSignature().toString()+
-		        
 		        "</pre>"+
 		       
-		        "        <div>Time For "+(coverage==0?"C2 :":"C3: ") + diff+"s</div>\r\n" + 
-		        
+//		        "        <div>Time For "+(coverage==0?"C2 :":"C3: ") + diff+"s</div>\r\n" + 
+//		        
 		        coverInfo+
 //		        "        <div>Cover: "+this.computeBranchCover()+"</div>\r\n"+
 //		        "        <div> "+1+"</div></div>\r\n"+

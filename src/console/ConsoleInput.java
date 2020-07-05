@@ -133,6 +133,7 @@ public class ConsoleInput {
 	}
 
 	public boolean checkVariablesConfiguration() throws Exception {
+		
 		if (projectFile == null)
 			throw new Exception("Project folder is null");
 		if (variableConfigurationFile == null)

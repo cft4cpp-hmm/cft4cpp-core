@@ -1,0 +1,15 @@
+value[5]=-44.55
+value[4]=-88.98
+value[7]=-72.46
+value[6]=-66.23
+value[1]=-46.72
+value[0]=-24.53
+value[3]=-98.4
+value[2]=39.36
+value[9]=61.71
+value[8]=-32.74
+sizeof(value)=11
+min=-83.18
+max=-75.85
+vcnt=22
+

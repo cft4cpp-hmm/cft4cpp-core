@@ -86,6 +86,9 @@ public abstract class AbstractSetting implements ISettingv2 {
 					else if(keyItem.equals("TESTDATA_STRATEGY")){
 						valueItem = "2";
 					}
+					else if(keyItem.equals("MCPP_EXE_PATH")) {
+						valueItem = "..\\cft4cpp-core\\enviroment\\mcpp\\bin\\mcpp.exe";
+					}
 					else {
 						valueItem = element[1];
 						

@@ -6,7 +6,7 @@
 </head>
 
 <body>
-    <h2>TEST REPORT</h2>
+    <h2>TEST REPORT WCFT</h2>
     <div class="table-wrapper">
         <table class="fl-table">
             <thead>
@@ -16,16 +16,26 @@
                     <th>Test Data</th>
                 </tr>
             </thead>
-            <tbody><tr><td>0</td><td>!( 321 + y * x *1234> 1000) <font>2</font>return 0;</td><td>y=1;x=0;</td></tr><tr><td>1</td><td> (321 + y * x *1234> 1000) <font>2</font>return 1;</td><td>y=1;x=1;</td></tr>   <tbody>
+            <tbody><tr><td>0</td><td>( double sum=0;) <font>3</font>( int i=0;) <font>3</font>( tcnt=vcnt=0;) <font>3</font>!( value[i]!=-999 && tcnt<100) <font>3</font>return -999;</td><td>value[0]=-999.0;</td></tr><tr><td>1</td><td>( double sum=0;) <font>3</font>( int i=0;) <font>3</font>( tcnt=vcnt=0;) <font>3</font>!( value[i]!=-999 && tcnt<100) <font>3</font>return sum/vcnt;</td><td>value[0]=-999.0;</td></tr>   <tbody>
         </table></div>
-<div class="conlusion">
-<pre>int PlusTest(int x, int y){
-	//int z = y + x;
+<div class="benchmark"> <div> Depth: 0</div><div> C2 Coverage: 1.0</div><div> Required Time For C2: 0.165s</div></div><div class="conlusion">
+<pre>double average(double value[], double min, double max, int& tcnt, int& vcnt) //sach
+{
+	double sum=0;
+	int i=0;
+	tcnt=vcnt=0;
+	while(value[i]!=-999 && tcnt<100)
+	{
+		tcnt++;
+		if(min<=value[i]&& value[i]<=max)
+		{
+			sum+=value[i];
+			vcnt++;
+		}
+		i++;
+	}
 	
-	if (321 + y * x *1234> 1000)
-		return 1;
-	else
-		return 0;
-}</pre>        <div>Time For C2 :2.033s</div>
-        <div>C2 Coverage 1.0</div></div>
-</body></html>
+	if(vcnt>0)
+		return sum/vcnt;
+		return -999;
+}</pre></body></html>
