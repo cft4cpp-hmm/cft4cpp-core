@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.StringTokenizer;
 
+import Khamd.Main;
 import utils.SpecialCharacter;
 import utils.Utils;
 
@@ -42,10 +43,10 @@ public abstract class AbstractSetting implements ISettingv2 {
 		Attributes settings = loadSettings();
 		for (String keyItem : settings.keySet())
 			if (keyItem.equals(key)) {
-//				System.out.println(settings.get(keyItem));
 				return settings.get(keyItem).replace("\n\r", "").replace("\r\n", "").replace("\n", "").replace("\r", "")
 						.trim();
 			}
+		
 		return "";
 	}
 
@@ -53,6 +54,7 @@ public abstract class AbstractSetting implements ISettingv2 {
 		Attributes settings = new Attributes();
 
 		String content = Utils.readFileContent(getAbsoluteSettingPath());
+		
 		String[] data = content.split(SpecialCharacter.LINE_BREAK);
 		for (String dataItem : data)
 			if (dataItem.contains("=")) {
@@ -65,7 +67,32 @@ public abstract class AbstractSetting implements ISettingv2 {
 					// is comment. ignore
 					continue;
 				else if (element.length == 2) {
-					valueItem = element[1];
+					if(keyItem.equals("GNU_MAKE_PATH")) {
+						valueItem= Main.pathToMingw32;
+					}
+					else if(keyItem.equals("Z3_SOLVER_PATH")) {
+						valueItem = Main.pathToZ3;
+						
+					}
+					else if(keyItem.equals("SMT_LIB_FILE_PATH")) {
+						valueItem = Paths.CURRENT_PROJECT.LOCAL_FOLDER + File.separator+Main.pathToConstraint;
+					}
+					else if(keyItem.equals("GNU_GCC_PATH")) {
+						valueItem = Main.pathToGCC;
+					}
+					else if(keyItem.equals("GNU_GPlusPlus_PATH")) {
+						valueItem = Main.pathToGPlus;
+					}
+					else if(keyItem.equals("TESTDATA_STRATEGY")){
+						valueItem = "2";
+					}
+					else if(keyItem.equals("MCPP_EXE_PATH")) {
+						valueItem = "..\\cft4cpp-core\\enviroment\\mcpp\\bin\\mcpp.exe";
+					}
+					else {
+						valueItem = element[1];
+						
+					}
 					settings.put(keyItem, valueItem);
 				}
 			}

@@ -71,23 +71,27 @@ import utils.search.FunctionNodeCondition;
 import utils.search.Search;
 
 public class Main {
-//	public static String pathToZ3 ="D:\\cft4cpp-core\\local\\z3\\bin\\z3.exe";
-//	public static String pathToMingw32 = "D:\\program files\\Dev-Cpp\\MinGW64\\bin\\mingw32-make.exe";
-//	public static String pathToGCC = "D:\\program files\\Dev-Cpp\\MinGW64\\bin\\gcc.exe";
-//	public static String pathToGPlus = "D:\\program files\\Dev-Cpp\\MinGW64\\bin\\g++.exe";
+	public static String pathToZ3 ="..\\cft4cpp-core\\enviroment\\z3\\bin\\z3.exe";
+	public static String pathToMingw32 = "..\\cft4cpp-core\\enviroment\\bin\\mingw32-make.exe";
+	public static String pathToGCC = "..\\cft4cpp-core\\enviroment\\bin\\gcc.exe";
+	public static String pathToGPlus = "..\\cft4cpp-core\\enviroment\\bin\\g++.exe";
 //	public static String pathToConstraint = "D:\\cft4cpp-core\\myConstraint.smt2";
-	public static String pathToZ3 = AbstractSetting.getValue(Settingv2.SOLVER_Z3_PATH);
-	public static String pathToMingw32 = AbstractSetting.getValue(Settingv2.GNU_MAKE_PATH);
-	public static String pathToGCC = AbstractSetting.getValue(Settingv2.GNU_GCC_PATH);
-	public static String pathToGPlus = AbstractSetting.getValue(Settingv2.GNU_GPlusPlus_PATH);
+//	public static String pathToZ3 = AbstractSetting.getValue(Settingv2.SOLVER_Z3_PATH);
+//	public static String pathToMingw32 = AbstractSetting.getValue(Settingv2.GNU_MAKE_PATH);
+//	public static String pathToGCC = AbstractSetting.getValue(Settingv2.GNU_GCC_PATH);
+//	public static String pathToGPlus = AbstractSetting.getValue(Settingv2.GNU_GPlusPlus_PATH);
 	public static String pathToConstraint = "myConstraint.smt2";
-	
+	public static int depth = 1;
 	public static SmtLibGeneration smt = new SmtLibGeneration();
 	public static final int version = 1;    // 1 for weighted graph 2 for probability graph
 	public static final int coverage = 0;   // 0 for C1,C2. 1 for C3
 	public static final int max = 20;		// The K's biggest value
 	public static final int min = 5;		// The K's smallest value
 	public static final int maxLoopInGenerateTestcaseForLoopFunction = 4;
+<<<<<<< HEAD
+=======
+	public static String nameOfMethod = "STCFG";
+>>>>>>> 1107e24
 	private String functionName;
 	private int interations;
 //	public Main(String pathToZ3)
@@ -101,6 +105,10 @@ public class Main {
 	
 	
 	public void run() throws Exception {
+<<<<<<< HEAD
+=======
+		
+>>>>>>> 1107e24
 		int times = 1;
 		int j = 0;
 		List<Float> timesList = new ArrayList<Float>();
@@ -288,6 +296,7 @@ public class Main {
 //			}while(!hasSolution && count < maxLoopInGenerateTestcaseForLoopFunction);
 //			
 //		}
+<<<<<<< HEAD
 			
 //			graph.setK(k);
 		
@@ -296,11 +305,25 @@ public class Main {
 
 			Duration duration = Duration.between(afterGenForC,LocalDateTime.now());
 			
+=======
+			
+//			graph.setK(k);
+		
+			
+			graph.createProbabilityForTestPath(hmmGraph);
+
+			Duration duration = Duration.between(afterGenForC,LocalDateTime.now());
+			
+>>>>>>> 1107e24
 			float diff = (float)duration.toSeconds();
 			
 			hmmGraph.recomputeProbability();
 //			graph.setLoopCover(loopCover);
+<<<<<<< HEAD
 			graph.toHtml(afterGenForC,coverage,(float)duration.toMillis()/1000);
+=======
+			graph.toHtml(afterGenForC,coverage,(float)duration.toMillis()/1000, "WCFT4Cpp");
+>>>>>>> 1107e24
 			timesList.add(graph.getDuration());
 			
 		}catch(Exception ex) {
@@ -317,7 +340,12 @@ public class Main {
 	
 	
 	public static void main(String[] args) {
+<<<<<<< HEAD
 		int times = 20;
+=======
+//		System.out.println("current: "+ Paths.CURRENT_PROJECT.ORIGINAL_PROJECT_PATH);
+		int times = 1;
+>>>>>>> 1107e24
 		int j = 0;
 		List<Float> timesList = new ArrayList<Float>();
 		while(j< times) {
@@ -536,7 +564,11 @@ public class Main {
 			
 			hmmGraph.recomputeProbability();
 //			graph.setLoopCover(loopCover);
+<<<<<<< HEAD
 			graph.toHtml(afterGenForC,coverage,(float)duration.toMillis()/1000);
+=======
+			graph.toHtml(afterGenForC,coverage,(float)duration.toMillis()/1000,"WCFT4Cpp");
+>>>>>>> 1107e24
 			timesList.add(graph.getDuration());
 			
 		}catch(Exception ex) {

@@ -13,6 +13,7 @@ import org.apache.log4j.Logger;
 import org.apache.log4j.PropertyConfigurator;
 import org.eclipse.cdt.core.dom.ast.cpp.ICPPASTFunctionDefinition;
 
+import Khamd.Main;
 import cfg.CFGGenerationforBranchvsStatementCoverage;
 import cfg.CFGGenerationforSubConditionCoverage;
 import cfg.ICFG;
@@ -97,14 +98,14 @@ public class FunctionExecution implements ITestdataExecution {
 		 */
 		ProjectParser parser = new ProjectParser(clone);
 		FunctionNode testedFunction = (FunctionNode) Search
-				.searchNodes(parser.getRootTree(), new FunctionNodeCondition(), "myTest(int)").get(0);
+				.searchNodes(parser.getRootTree(), new FunctionNodeCondition(), "maxx(int)").get(0);
 
 		FunctionConfig config = new FunctionConfig();
 		config.setCharacterBound(new ParameterBound(32, 100));
 		config.setIntegerBound(new ParameterBound(0, 100));
 		testedFunction.setFunctionConfig(config);
 
-		String variableValues = "x=1;";
+		String variableValues = "a=1;";
 
 		/**
 		 * Find test path given a test case
@@ -140,18 +141,21 @@ public class FunctionExecution implements ITestdataExecution {
 		execution.setTestedFunction(testedFunction);
 		execution.setPreparedInput(variableValues);
 		execution.setClonedProject(clone.getCanonicalPath());
+		TestpathString_Marker testpath = execution.analyze(execution.getTestedFunction(), execution.getPreparedInput());
+		cfg.updateVisitedNodes_Marker(testpath);
+		System.out.println(cfg.computeBranchCoverage());
+		System.out.println(testpath);
 		
-		logger.debug(execution.analyze(execution.getTestedFunction(), execution.getPreparedInput()));
 	}
 
 	public FunctionExecution() {
 		
 //		Settingv2.create();
-		AbstractSetting.setValue(ISettingv2.SOLVER_Z3_PATH, "D:\\cft4cpp-core\\local\\z3\\bin\\z3.exe");
+		AbstractSetting.setValue(ISettingv2.SOLVER_Z3_PATH, Main.pathToZ3);
 		AbstractSetting.setValue(ISettingv2.GNU_MAKE_PATH,
-				"D:\\program files\\Dev-Cpp\\MinGW64\\bin\\mingw32-make.exe");
-		AbstractSetting.setValue(ISettingv2.GNU_GCC_PATH, "D:\\program files\\Dev-Cpp\\MinGW64\\bin\\gcc.exe");
-		AbstractSetting.setValue(ISettingv2.GNU_GPlusPlus_PATH, "D:\\program files\\Dev-Cpp\\MinGW64\\bin\\g++.exe");
+				Main.pathToMingw32);
+		AbstractSetting.setValue(ISettingv2.GNU_GCC_PATH, Main.pathToGCC);
+		AbstractSetting.setValue(ISettingv2.GNU_GPlusPlus_PATH, Main.pathToGPlus);
 	}
 	public FunctionExecution(String pathToZ3, String pathToMingw32, String pathToGCC, String pathToGPlus) {
 		Settingv2.create();
@@ -239,20 +243,21 @@ public class FunctionExecution implements ITestdataExecution {
 					Utils.writeContentToFile(testdriverGen.getCompleteSourceFile(), backup.getFnParent());
 					
 					getExePath(rootProject, executionFilePath);
-					logger.debug("Paths.CURRENT_PROJECT.EXE_PATH = " + Paths.CURRENT_PROJECT.EXE_PATH);
+//					logger.debug("Paths.CURRENT_PROJECT.EXE_PATH = " + Paths.CURRENT_PROJECT.EXE_PATH);
 
 					/**
 					 * Compile the tested project
 					 */
-					String cmd = "\"D:\\program files\\Dev-Cpp\\MinGW64\\bin\\mingw32-make.exe\"" + " -f "
-							+ getClonedProject() + "\\Makefile.win" + " clean all";
+					String cmd ="\""+ AbstractSetting.getValue(ISettingv2.GNU_MAKE_PATH) + "\""+ " -f "
+							+ "\"" + getClonedProject() + "\\Makefile.win" + "\"" + " clean all";
+					
 //					logger.debug("Command line: " + cmd);
 				
 					
 					
 						logger.debug("Start compiling");
 						Process process = Runtime.getRuntime().exec(cmd, null, new File(getClonedProject()));
-						process.waitFor(3, TimeUnit.SECONDS);
+						process.waitFor(5, TimeUnit.SECONDS);
 						logger.debug("Finish compiling");
 					
 					
@@ -322,6 +327,7 @@ public class FunctionExecution implements ITestdataExecution {
 				.replace("\r", ITestpathInCFG.SEPARATE_BETWEEN_NODES);
 		if (testpath.equals(ITestpathInCFG.SEPARATE_BETWEEN_NODES))
 			testpath = "";
+		
 		
 		return testpath;
 	}
@@ -425,7 +431,7 @@ public class FunctionExecution implements ITestdataExecution {
 				logger.info("Finish. We are getting a execution path from hard disk");
 // note 1
 				encodedTestpath.setEncodedTestpath(normalizeTestpathFromFile(Utils.readFileContent(executionFilePath)));
-
+				
 				if (encodedTestpath.getEncodedTestpath().length() == 0) {
 					initialization = "";
 					Thread.sleep(10);
@@ -449,6 +455,7 @@ public class FunctionExecution implements ITestdataExecution {
 					for (int i = 0; i < THRESHOLD - 1; i++) {
 						tmp_shortenTp += executedStms[i] + ITestpathInCFG.SEPARATE_BETWEEN_NODES;
 					}
+					
 					tmp_shortenTp += executedStms[THRESHOLD - 1];
 					encodedTestpath.setEncodedTestpath(tmp_shortenTp);
 				}
@@ -461,12 +468,11 @@ public class FunctionExecution implements ITestdataExecution {
 						.getStandardTestpathByProperty(FunctionInstrumentationForStatementvsBranch_Marker.STATEMENT);
 				
 				TestpathString_Marker testpath = encodedTestpath;
-				
-
+//				testpath.set
 //				ICFG cfg=this.getIcfg();
 //				if(cfg == null) return null;
 //				CFGUpdater_Mark updater = new CFGUpdater_Mark(testpath, cfg);
-//				
+////				
 //				updater.updateVisitedNodes();
 				
 //				logger.debug("visited statements: " + cfg.getVisitedStatements());

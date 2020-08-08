@@ -400,6 +400,7 @@ public abstract class AbstractFunctionNode extends CustomASTNode<IASTFunctionDef
 			fnNormalizer.addNormalizer(new SwitchCaseNormalizer());
 
 			fnNormalizer.normalize();
+			
 			generalNormalizationFunction = fnNormalizer;
 			return generalNormalizationFunction;
 

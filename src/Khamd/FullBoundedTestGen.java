@@ -1,6 +1,9 @@
 package Khamd;
 
 import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.ObjectInputStream.GetField;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -12,6 +15,8 @@ import java.util.Set;
 
 import org.apache.log4j.Logger;
 import org.apache.poi.ss.formula.ptg.Deleted3DPxg;
+
+import com.ibm.icu.util.BytesTrie.Result;
 
 import cfg.CFG;
 import cfg.CFGGenerationforSubConditionCoverage;
@@ -28,6 +33,7 @@ import cfg.testpath.ITestpathGeneration;
 import cfg.testpath.ITestpathInCFG;
 import cfg.testpath.PartialTestpath;
 import cfg.testpath.PossibleTestpathGeneration;
+import config.AbstractSetting;
 import config.FunctionConfig;
 import config.ISettingv2;
 import config.Paths;
@@ -59,53 +65,72 @@ public class FullBoundedTestGen {
 	 * Represent control flow graph
 	 */
 	private ICFG cfg;
-	private int maxIterationsforEachLoop = ITestpathGeneration.DEFAULT_MAX_ITERATIONS_FOR_EACH_LOOP;
+	private IFunctionNode function;
+	private int maxIterationsforEachLoop;
 	private FullTestpaths possibleTestpaths = new FullTestpaths();
+	private List<IVariableNode> variables;
 	public FullBoundedTestGen() {
 		// TODO Auto-generated constructor stub
 		this.cfg = cfg;
 	}
 
-	public FullBoundedTestGen(ICFG cfg, int maxloop) {
-		maxIterationsforEachLoop = maxloop;
-		this.cfg = cfg;
-
-		this.cfg.resetVisitedStateOfNodes();
-		this.cfg.setIdforAllNodes();
+	public FullBoundedTestGen(ICFG cfg1, int maxloop, String functionName) throws Exception {
+		functionName = functionName.replace(" ", "");
+		if(cfg1==null) {
+			CFG cfg;
+			ProjectParser parser = new ProjectParser(new File(Paths.TSDV_R1_2));
+			IFunctionNode function;
+			
+			function = (IFunctionNode) Search
+					.searchNodes(parser.getRootTree(), new FunctionNodeCondition(), functionName)
+					.get(0);
+//			function.getAST().toString().replaceAll("<", "==");
+			FunctionConfig functionConfig = new FunctionConfig();
+			functionConfig.setSolvingStrategy(ISettingv2.SUPPORT_SOLVING_STRATEGIES[0]);
+			((IFunctionNode ) function).setFunctionConfig(functionConfig);
+			FunctionNormalizer fnNorm = ((IFunctionNode) function).normalizedAST();
+			String normalizedCoverage = fnNorm.getNormalizedSourcecode();
+			((IFunctionNode ) function).setAST(fnNorm.getNormalizedAST());
+			IFunctionNode clone = (IFunctionNode) function.clone();
+			clone.setAST(Utils.getFunctionsinAST(normalizedCoverage.toCharArray()).get(0));
+			CFGGenerationforSubConditionCoverage cfgGen = new CFGGenerationforSubConditionCoverage(clone);
+			
+			cfg = (CFG) cfgGen.generateCFG();
+			cfg.setFunctionNode(clone);
+			
+			this.cfg = cfg;
+			this.function = function;
+			this.maxIterationsforEachLoop = maxloop;
+			this.cfg.resetVisitedStateOfNodes();
+			this.cfg.setIdforAllNodes();
+			this.variables = function.getArguments();
+		}
+		else {
+			this.maxIterationsforEachLoop =maxloop;
+			this.cfg = cfg1;
+			this.cfg.resetVisitedStateOfNodes();
+			this.cfg.setIdforAllNodes();
+		}
+		
 	}
+	
 
 	public static void main(String[] args) throws Exception {
-		CFG cfg;
-		ProjectParser parser = new ProjectParser(new File(Paths.TSDV_R1_2));
-		IFunctionNode function;
-		String functionName = "PDF(int,int,int)";
-		function = (IFunctionNode) Search
-				.searchNodes(parser.getRootTree(), new FunctionNodeCondition(), functionName)
-				.get(0);
-//		function.getAST().toString().replaceAll("<", "==");
-		FunctionConfig functionConfig = new FunctionConfig();
-		functionConfig.setSolvingStrategy(ISettingv2.SUPPORT_SOLVING_STRATEGIES[0]);
-		((IFunctionNode ) function).setFunctionConfig(functionConfig);
-		FunctionNormalizer fnNorm = ((IFunctionNode) function).normalizedAST();
-		String normalizedCoverage = fnNorm.getNormalizedSourcecode();
-		((IFunctionNode ) function).setAST(fnNorm.getNormalizedAST());
-		IFunctionNode clone = (IFunctionNode) function.clone();
-		clone.setAST(Utils.getFunctionsinAST(normalizedCoverage.toCharArray()).get(0));
-		CFGGenerationforSubConditionCoverage cfgGen = new CFGGenerationforSubConditionCoverage(clone);
+		int maxLoop = 1;
+		String funcName = "leapYear(int)";
+		FullBoundedTestGen tpGen = new FullBoundedTestGen(null,maxLoop, funcName);  
+
+		tpGen.toHtml();
 		
-		cfg = (CFG) cfgGen.generateCFG();
-		cfg.setFunctionNode(clone);
-		FullBoundedTestGen tpGen = new FullBoundedTestGen(cfg,1);
 		
-//		Hashtable<IVariableNode, HashSet<Number>> dict = new Hashtable<IVariableNode, HashSet<Number>>();
-		List<IVariableNode> arguments = function.getArguments();
-//		for(IVariableNode variable : arguments) {
-//			dict.put(variable, new HashSet<Number>());
-//		}
+		
+	}
+	public void toHtml() throws IOException {
+		List<IVariableNode> arguments = this.getFunctionNode().getArguments();
 		Set<String> testCases = new HashSet<String>();
 		Random rand = new Random();
 		LocalDateTime before = LocalDateTime.now();
-		tpGen.generateTestpaths(testCases);
+		this.generateTestpaths(testCases);
 		LocalDateTime after = LocalDateTime.now();
 		List<String> newTestCases= new ArrayList<String>();
 		for(String testCase: testCases) {
@@ -116,16 +141,25 @@ public class FullBoundedTestGen {
 			}
 			newTestCases.add(testCase);
 		}
-		System.out.println("Result: ");
-		for(String testcase: newTestCases) {
-			System.out.println(testcase);
-		}
-		System.out.println("Number of test cases: "+ testCases.size());
-		Duration duration = Duration.between(before,after);
-		System.out.println("Time: "+duration.toSeconds()+"s");
 		
+		
+		FileWriter csvWriter = new FileWriter(AbstractSetting.getValue("TEST_REPORT")+".html",false);
+		String result = "<html><pre>"+this.function.getAST().getRawSignature()+"</pre>";
+		result+= "<p> Number of test datas: "+ testCases.size()+"</p>";
+		for(String testcase: testCases) {
+			result+="<p>"+ testcase+"</p>";
+		}
+		result+="</html>";
+		csvWriter.write(result);
+		csvWriter.close();
+//		System.out.println("Result: ");
+//		for(String testcase: newTestCases) {
+//			System.out.println(testcase);
+//		}
+//		System.out.println("Number of test cases: "+ testCases.size());
+//		Duration duration = Duration.between(before,after);
+//		System.out.println("Time: "+duration.toSeconds()+"s");
 	}
-
 	public void generateTestpaths(Set<String> testCases) {
 		// Date startTime = Calendar.getInstance().getTime();
 		FullTestpaths testpaths_ = new FullTestpaths();
@@ -180,60 +214,36 @@ private void traverseCFG(ICfgNode stm, FullTestpath tp, FullTestpaths testpaths,
 						traverseCFG(falseNode, tp, testpaths,testCases);
 				} else {
 					
-					
-						for(int i = -1; i<2;i++) {
+						Random rand = new Random();
+						for(int i = -1; i< 2;i++) {
 							FullTestpath tp1 = (FullTestpath) tp.clone();
 							ConditionCfgNode stm1 = (ConditionCfgNode) stm.clone();
-//							if(!stm1.isGenForBound()) {
-								tp1.remove(tp.lastIndexOf(stm));
+							
+							tp1.remove(tp.lastIndexOf(stm));
 							stm1.setContent(stm1.getContent().replaceAll("<=|>=|<|>|!=", "=="));
 							stm1.setAst(ASTUtils.convertToIAST(stm1.getContent()+"+"+i));
 							tp1.add(stm1);
 							tp1.add(trueNode);
-//							System.out.println("tp:"+tp1.toString());
-							
 							String result = this.haveSolution(tp1, true);
-//							System.out.println("result: "+result);
+							
+							for(IVariableNode variable: this.variables) {
+								if(!result.contains(variable.toString()) && !result.equals(IStaticSolutionGeneration.NO_SOLUTION)){
+									result += variable.toString()+"="+rand.nextInt(100)+";";
+								}
+							}
+							
 							if(!result.equals(IStaticSolutionGeneration.NO_SOLUTION)) {
 								testCases.add(result.replaceAll(";;", ";"));
 							}
 							
-//							String[] listResult = result.split(";");
-//							
-//							if(listResult.length!=0) {
-//							for(String resulti: listResult) {
-//								for(IVariableNode variableNode : dict.keySet()) {
-//									if(resulti.toString().contains(variableNode.toString())){
-//										String temp = resulti.split("=")[1];
-//										if(variableNode.getFullType().equals("int")) {
-//											dict.get(variableNode).add(Integer.parseInt(temp));
-//										}
-//										else {
-//											dict.get(variableNode).add(Float.parseFloat(temp));
-//										}
-//										
-//									}
-//								}
-//							}
-							
-//						}
+
 						}
 						
-						
-//						((ConditionCfgNode) stm).setGenForBound(true);
-//					}
 					
 					traverseCFG(falseNode, tp, testpaths,testCases);
-//					FullTestpath tp2 = (FullTestpath) tp.clone();
-//					tp2.add(trueNode);
-//					if(this.haveSolution(tp2, true)) {
+
 					traverseCFG(trueNode, tp, testpaths,testCases);
-//					}
-					
-					
-//					System.out.println("true Node "+ this.haveSolution(tp2, true));
-//					System.out.println("full "+tp2.getFullPath());
-//					System.out.println(tp.getFullPath());
+
 				}
 			}
 			else
@@ -247,11 +257,7 @@ protected String haveSolution(FullTestpath tp, boolean finalConditionType) throw
 
 	String solution = solveTestpath(cfg.getFunctionNode(), tp1);
 	return solution;
-//	if (!solution.equals(IStaticSolutionGeneration.NO_SOLUTION))
-//		return true;
-//	else {
-//		return false;
-//	}
+
 }
 
 protected IPartialTestpath createPartialTestpath(FullTestpath fullTp, boolean finalConditionType) {
@@ -337,5 +343,10 @@ public void setMaxIterationsforEachLoop(int maxIterationsforEachLoop) {
 public FullTestpaths getPossibleTestpaths() {
 	return possibleTestpaths;
 }
-
+public void setFunctionNode(IFunctionNode functionNode) {
+	this.function = functionNode;
+}
+public IFunctionNode getFunctionNode() {
+	return this.function;
+}
 }

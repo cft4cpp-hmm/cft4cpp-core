@@ -155,3 +155,10 @@ h2 {
     text-align: center;
   }
 }
+
+.benchmark{
+	background-color: white;
+	height: 100px;
+	width: 500px;
+	padding: 30px;
+}

@@ -62,6 +62,7 @@ public class MacroNormalizer2 extends AbstractFunctionNormalizer implements IFun
 			case ISettingv2.PROJECT_ECLIPSE: {
 				mcppOutputFile = Paths.CURRENT_PROJECT.ORIGINAL_PROJECT_PATH + File.separator
 						+ MacroNormalizer2.TEMPORRY_FILE;
+				
 				break;
 			}
 			case ISettingv2.PROJECT_DEV_CPP:
@@ -69,9 +70,16 @@ public class MacroNormalizer2 extends AbstractFunctionNormalizer implements IFun
 			case ISettingv2.PROJECT_VISUALSTUDIO: {
 				mcppOutputFile = Paths.CURRENT_PROJECT.CLONE_PROJECT_PATH + File.separator
 						+ MacroNormalizer2.TEMPORRY_FILE;
+//				System.out.println("log: "+ mcppOutputFile);
 				break;
 			}
 			}
+			
+			if(mcppOutputFile.equals("\\tmpxxxxxxxxxxxxx.cpp")) {
+				mcppOutputFile = Paths.CURRENT_PROJECT.MAKEFILE_PATH.replace("Makefile.win","tmpxxxxxxxxxxxxx.cpp");
+				
+			}
+			
 			logger.debug("Mcpp file: " + mcppOutputFile);
 
 			Utils.deleteFileOrFolder(new File(mcppOutputFile));
@@ -80,6 +88,7 @@ public class MacroNormalizer2 extends AbstractFunctionNormalizer implements IFun
 				new File(mcppOutputFile).setReadable(true);
 				new File(mcppOutputFile).setReadable(true);
 			}
+			
 			Utils.writeContentToFile(normSrc, mcppOutputFile);
 
 			SourcecodeFileParser parser = new SourcecodeFileParser();

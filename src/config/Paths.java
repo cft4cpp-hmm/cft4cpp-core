@@ -47,7 +47,7 @@ public class Paths {
 	public static String ASTYLE = "..\\cft4cpp-core\\lib\\AStyle.exe";
 	public static String TSDV_R1 = "..\\cft4cpp-core\\data-test\\tsdv\\Sample_for_R1\\";
 	public static String TSDV_R1_10 = "..\\cft4cpp-core\\data-test\\tsdv\\Sample_for_R1_10file\\";
-	public static String TSDV_R1_2 = "..\\cft4cpp-core\\data-test\\tsdv\\Sample_for_R1_2\\";
+	public static String TSDV_R1_2 = "..\\cft4cpp-core\\data-test\\Sample_for_R1_2\\";
 	public static String TSDV_R1_3 = "..\\cft4cpp-core\\data-test\\tsdv\\Sample_for_R1_3_Cpp11\\";
 	public static String TSDV_R1_4 = "..\\cft4cpp-core\\data-test\\tsdv\\Sample_for_R1_4\\";
 	public static String CORE_UTILS = "..\\cft4cpp-core\\data-test\\ducanh\\coreutils-8.24";
@@ -121,7 +121,7 @@ public class Paths {
 
 		public static String CURRENT_TESTDRIVER_EXECUTION_PATH = "";
 
-		public static String LOCAL_FOLDER = "./local";
+		public static String LOCAL_FOLDER = "./enviroment";
 
 		public static void reset() {
 			CURRENT_PROJECT.TESTDRIVER_EXECUTION_NAME_POSTFIX = CURRENT_PROJECT.CLONE_PROJECT_PATH = CURRENT_PROJECT.MAKEFILE_PATH = CURRENT_PROJECT.EXE_PATH = "";

@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
+<<<<<<< HEAD
 	<classpathentry including="**/*.java" kind="src" output="target/classes" path="src">
 		<attributes>
 			<attribute name="optional" value="true"/>
@@ -16,6 +17,13 @@
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.8">
 		<attributes>
 			<attribute name="maven.pomderived" value="true"/>
+=======
+	<classpathentry kind="src" path="src"/>
+	<classpathentry kind="src" path="test"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.8">
+		<attributes>
+			<attribute name="module" value="true"/>
+>>>>>>> 1107e24
 		</attributes>
 	</classpathentry>
 	<classpathentry kind="lib" path="lib/commons-io-2.5.jar"/>
@@ -61,10 +69,29 @@
 	<classpathentry kind="lib" path="lib/cdt/org.eclipse.core.resources.win32.x86_64_3.5.0.v20121203-0906.jar"/>
 	<classpathentry kind="lib" path="lib/cdt/org.eclipse.equinox.common_3.7.0.v20150402-1709.jar"/>
 	<classpathentry kind="lib" path="lib/cdt/org.eclipse.osgi_3.9.1.v20130814-1242.jar"/>
+<<<<<<< HEAD
 	<classpathentry kind="con" path="org.eclipse.m2e.MAVEN2_CLASSPATH_CONTAINER">
 		<attributes>
 			<attribute name="maven.pomderived" value="true"/>
 		</attributes>
 	</classpathentry>
 	<classpathentry kind="output" path="target/classes"/>
+=======
+	<classpathentry kind="lib" path="D:/HB/cft4cpp-core/lib/cia.fit.jar"/>
+	<classpathentry kind="lib" path="D:/HB/cft4cpp-core/lib/commons-io-2.5.jar"/>
+	<classpathentry kind="lib" path="D:/HB/cft4cpp-core/lib/hamcrest-all-1.3.jar"/>
+	<classpathentry kind="lib" path="D:/HB/cft4cpp-core/lib/jeval.jar"/>
+	<classpathentry kind="lib" path="D:/HB/cft4cpp-core/lib/json-simple-1.1.1.jar"/>
+	<classpathentry kind="lib" path="D:/HB/cft4cpp-core/lib/junit-4.12.jar"/>
+	<classpathentry kind="lib" path="D:/HB/cft4cpp-core/lib/log4j-1.2.16.jar"/>
+	<classpathentry kind="lib" path="D:/HB/cft4cpp-core/lib/org.eclipse.cdt.core_6.10.0.201912051559.jar"/>
+	<classpathentry kind="lib" path="D:/HB/cft4cpp-core/lib/org.eclipse.equinox.common_3.7.0.v20150402-1709.jar"/>
+	<classpathentry kind="lib" path="D:/HB/cft4cpp-core/lib/poi-3.14-20160307.jar"/>
+	<classpathentry kind="lib" path="D:/HB/cft4cpp-core/lib/poi-ooxml-3.14-20160307.jar"/>
+	<classpathentry kind="lib" path="D:/HB/cft4cpp-core/lib/poi-ooxml-schemas-3.14-20160307.jar"/>
+	<classpathentry kind="lib" path="D:/HB/cft4cpp-core/lib/rsyntaxtextarea-2.6.0-SNAPSHOT.jar"/>
+	<classpathentry kind="lib" path="D:/HB/cft4cpp-core/lib/weblaf-complete-1.28.jar"/>
+	<classpathentry kind="lib" path="D:/HB/cft4cpp-core/lib/xmlbeans-2.6.0.jar"/>
+	<classpathentry kind="output" path="bin"/>
+>>>>>>> 1107e24
 </classpath>
