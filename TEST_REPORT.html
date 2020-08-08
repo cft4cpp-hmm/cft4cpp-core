@@ -16,26 +16,19 @@
                     <th>Test Data</th>
                 </tr>
             </thead>
-            <tbody><tr><td>0</td><td>( double sum=0;) <font>3</font>( int i=0;) <font>3</font>( tcnt=vcnt=0;) <font>3</font>!( value[i]!=-999 && tcnt<100) <font>3</font>return -999;</td><td>value[0]=-999.0;</td></tr><tr><td>1</td><td>( double sum=0;) <font>3</font>( int i=0;) <font>3</font>( tcnt=vcnt=0;) <font>3</font>!( value[i]!=-999 && tcnt<100) <font>3</font>return sum/vcnt;</td><td>value[0]=-999.0;</td></tr>   <tbody>
+            <tbody><tr><td>0</td><td>( int maxx = 5;) <font>3</font>( float e;) <font>3</font>( int x=0;) <font>3</font>!( a < maxx) <font>2</font>( e = 1/x;) <font>3</font>return e;</td><td>a=5;</td></tr><tr><td>1</td><td>( int maxx = 5;) <font>3</font>( float e;) <font>3</font>( int x=0;) <font>3</font> (a < maxx) <font>2</font>!( a == maxx) <font>2</font>( e = 1/x;) <font>3</font>return e;</td><td>a=0;</td></tr><tr><td>2</td><td>( int maxx = 5;) <font>3</font>( float e;) <font>3</font>( int x=0;) <font>3</font> (a < maxx) <font>2</font> (a == maxx) <font>1</font><font class = "redColor">( x = 2;)</font> <font>1</font>( e = 1/x;) <font>3</font>return e;</td><td></td></tr>   <tbody>
         </table></div>
-<div class="benchmark"> <div> Depth: 0</div><div> C2 Coverage: 1.0</div><div> Required Time For C2: 0.165s</div></div><div class="conlusion">
-<pre>double average(double value[], double min, double max, int& tcnt, int& vcnt) //sach
+<div class="benchmark"> <div> Depth: 0</div><div> C2 Coverage: 0.8888889</div><div> Required Time For C2: 0.173s</div></div><div class="conlusion">
+<pre>float foo(int a)
 {
-	double sum=0;
-	int i=0;
-	tcnt=vcnt=0;
-	while(value[i]!=-999 && tcnt<100)
-	{
-		tcnt++;
-		if(min<=value[i]&& value[i]<=max)
-		{
-			sum+=value[i];
-			vcnt++;
+	int maxx = 5;
+	float e;
+	int x=0;
+	if (a < maxx){
+		if (a == maxx){
+			x = 2;
 		}
-		i++;
 	}
-	
-	if(vcnt>0)
-		return sum/vcnt;
-		return -999;
+	e = 1/x;
+	return e;
 }</pre></body></html>

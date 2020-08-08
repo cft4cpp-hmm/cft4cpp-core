@@ -97,6 +97,7 @@ public class FullBoundedTestGen {
 			
 			cfg = (CFG) cfgGen.generateCFG();
 			cfg.setFunctionNode(clone);
+			
 			this.cfg = cfg;
 			this.function = function;
 			this.maxIterationsforEachLoop = maxloop;
@@ -120,6 +121,7 @@ public class FullBoundedTestGen {
 		FullBoundedTestGen tpGen = new FullBoundedTestGen(null,maxLoop, funcName);  
 
 		tpGen.toHtml();
+		
 		
 		
 	}
@@ -222,7 +224,6 @@ private void traverseCFG(ICfgNode stm, FullTestpath tp, FullTestpaths testpaths,
 							stm1.setAst(ASTUtils.convertToIAST(stm1.getContent()+"+"+i));
 							tp1.add(stm1);
 							tp1.add(trueNode);
-							
 							String result = this.haveSolution(tp1, true);
 							
 							for(IVariableNode variable: this.variables) {
